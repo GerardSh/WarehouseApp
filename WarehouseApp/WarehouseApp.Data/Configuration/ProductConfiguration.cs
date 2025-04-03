@@ -14,7 +14,7 @@ namespace WarehouseApp.Data.Configuration
                 .HasKey(p => p.Id);
 
             entity
-                .Property(p => p.ProductName)
+                .Property(p => p.Name)
                 .IsRequired()
                 .HasMaxLength(NameMaxLength);
 
