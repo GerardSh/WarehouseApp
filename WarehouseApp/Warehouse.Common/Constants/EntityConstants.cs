@@ -8,55 +8,66 @@
         {
             public const int InvoiceNumberMinLength = 3;
 
-            public const int InvoiceNumberMaxLength = 15;
+            public const int InvoiceNumberMaxLength = 20;
         }
 
         public static class ExportInvoice
         {
             public const int InvoiceNumberMinLength = 3;
 
-            public const int InvoiceNumberMaxLength = 15;
+            public const int InvoiceNumberMaxLength = 20;
         }
 
         public static class Client
         {
             public const int NameMinLength = 3;
 
-            public const int NameMaxLength = 50;
+            public const int NameMaxLength = 150;
 
             public const int AddressMinLength = 5;
 
-            public const int AddressMaxLength = 80;
+            public const int AddressMaxLength = 150;
 
             public const int PhoneNumberMinLength = 10;
 
-            public const int PhoneNumberMaxLength = 20;
+            public const int PhoneNumberMaxLength = 30;
 
             public const int EmailMinLength = 5;
 
-            public const int EmailMaxLength = 40;
+            public const int EmailMaxLength = 100;
         }
 
         public static class Warehouse
         {
             public const int NameMinLength = 5;
 
-            public const int NameMaxLength = 50;
+            public const int NameMaxLength = 150;
 
             public const int AddressMinLength = 5;
 
-            public const int AddressMaxLength = 50;
+            public const int AddressMaxLength = 150;
         }
 
         public static class Product
         {
-            public const int ProductNameMinLength = 3;
+            public const int NameMinLength = 3;
 
-            public const int ProductNameMaxLength = 100;
+            public const int NameMaxLength = 255;
 
             public const int DescriptionMinLength = 5;
 
-            public const int DescriptionMaxLength = 50;
+            public const int DescriptionMaxLength = 1000;
+        }
+
+        public static class Category
+        {
+            public const int NameMinLength = 3;
+
+            public const int NameMaxLength = 255;
+
+            public const int DescriptionMinLength = 5;
+
+            public const int DescriptionMaxLength = 1000;
         }
     }
 }

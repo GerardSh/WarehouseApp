@@ -9,10 +9,15 @@ namespace WarehouseApp.Data.Models
         public Guid Id { get; set; }
 
         [Comment("Name of the product")]
-        public required string ProductName { get; set; }
+        public required string Name { get; set; }
 
         [Comment("Description of the product, optional")]
         public string? Description { get; set; }
+
+        [Comment("Foreign key to the Category")]
+        public Guid CategoryId { get; set; }
+
+        public Category Category { get; set; } = null!;
 
         public virtual ICollection<ImportInvoiceDetail> ImportInvoicesDetails { get; set; }
             = new HashSet<ImportInvoiceDetail>();

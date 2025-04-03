@@ -18,7 +18,7 @@ namespace WarehouseApp.Data.Models
         public double? Size { get; set; }
 
         [Comment("Shows the date of when the warehouse record was created")]
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; }
 
         [Comment("Shows if warehouse is deleted")]
         public bool IsDeleted { get; set; }

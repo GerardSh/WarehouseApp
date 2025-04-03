@@ -16,9 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Warehouse.Common\WarehouseApp.Common.csproj" />
-    <ProjectReference Include="..\WarehouseApp.Data.Models\WarehouseApp.Data.Models.csproj" />
-    <ProjectReference Include="..\WarehouseApp.Data\WarehouseApp.Data.csproj" />
+    <ProjectReference Include="..\Debugging\Debugging.csproj" />
     <ProjectReference Include="..\WarehouseApp.Services\WarehouseApp.Services.csproj" />
   </ItemGroup>
 

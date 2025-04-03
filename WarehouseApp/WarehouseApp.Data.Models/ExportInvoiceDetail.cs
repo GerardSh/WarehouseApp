@@ -11,12 +11,12 @@ namespace WarehouseApp.Data.Models
         [Comment("Foreign key to the ExportInvoice")]
         public Guid ExportInvoiceId { get; set; }
 
-        public virtual required ExportInvoice ExportInvoice { get; set; }
+        public virtual ExportInvoice ExportInvoice { get; set; } = null!;
 
         [Comment("Foreign key to the ImportInvoiceDetail")]
         public Guid ImportInvoiceDetailId { get; set; }
 
-        public virtual required ImportInvoiceDetail ImportInvoiceDetail { get; set; }
+        public virtual ImportInvoiceDetail ImportInvoiceDetail { get; set; } = null!;
 
         [Comment("Quantity of the product in this export invoice detail")]
         public int Quantity { get; set; }

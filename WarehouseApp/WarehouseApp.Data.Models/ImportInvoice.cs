@@ -17,12 +17,12 @@ namespace WarehouseApp.Data.Models
         [Comment("Foreign key to the Client")]
         public virtual Guid ClientId { get; set; }
 
-        public virtual required Client Client { get; set; }
+        public virtual Client Client { get; set; } = null!;
 
         [Comment("Foreign key to the Warehouse")]
         public Guid WarehouseId { get; set; }
 
-        public virtual required Warehouse Warehouse { get; set; }
+        public virtual Warehouse Warehouse { get; set; } = null!;
 
         public virtual ICollection<ImportInvoiceDetail> ImportInvoicesDetails { get; set; }
             = new HashSet<ImportInvoiceDetail>();

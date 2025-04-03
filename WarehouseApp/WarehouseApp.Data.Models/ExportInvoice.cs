@@ -17,7 +17,7 @@ namespace WarehouseApp.Data.Models
         [Comment("Foreign key to the Client")]
         public Guid ClientId { get; set; }
 
-        public virtual required Client Client { get; set; }
+        public virtual Client Client { get; set; } = null!;
 
         public ICollection<ExportInvoiceDetail> ExportInvoicesDetails { get; set; }
             = new HashSet<ExportInvoiceDetail>();
