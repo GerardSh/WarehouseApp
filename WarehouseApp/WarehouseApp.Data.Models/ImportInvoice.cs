@@ -15,9 +15,9 @@ namespace WarehouseApp.Data.Models
         public DateTime Date { get; set; }
 
         [Comment("Foreign key to the Client")]
-        public virtual Guid ClientId { get; set; }
+        public virtual Guid SupplierId { get; set; }
 
-        public virtual Client Client { get; set; } = null!;
+        public virtual Client Supplier { get; set; } = null!;
 
         [Comment("Foreign key to the Warehouse")]
         public Guid WarehouseId { get; set; }

@@ -19,13 +19,13 @@ namespace WarehouseApp.Data.Configuration
                 .HasMaxLength(InvoiceNumberMaxLength);
 
             entity
-                .Property(ii => ii.ClientId)
+                .Property(ii => ii.SupplierId)
                 .IsRequired();
 
             entity
-                .HasOne(ii => ii.Client)
+                .HasOne(ii => ii.Supplier)
                 .WithMany(c => c.ImportInvoices)
-                .HasForeignKey(ii => ii.ClientId)
+                .HasForeignKey(ii => ii.SupplierId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity
