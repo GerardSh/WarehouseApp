@@ -12,8 +12,8 @@ using WarehouseApp.Data;
 namespace WarehouseApp.Data.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    [Migration("20250403144546_SeedClients")]
-    partial class SeedClients
+    [Migration("20250403184101_SeedCategories")]
+    partial class SeedCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,44 @@ namespace WarehouseApp.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("31bf5b32-a3f7-4e37-8230-2202a081ea87"),
+                            Description = "Products related to computers and accessories such as keyboards, mice, and gaming gear.",
+                            Name = "Computers & Peripherals"
+                        },
+                        new
+                        {
+                            Id = new Guid("3daadd5e-f5c9-4222-9878-1a02faa44339"),
+                            Description = "Furniture and accessories designed for improving office comfort and productivity.",
+                            Name = "Office Furniture & Accessories"
+                        },
+                        new
+                        {
+                            Id = new Guid("e3edc37f-6ba9-4616-b0c5-98c33451bcdb"),
+                            Description = "Small appliances for use at home such as coffee makers, speakers, and chargers.",
+                            Name = "Home Appliances"
+                        },
+                        new
+                        {
+                            Id = new Guid("314820d6-a4d4-4873-8dec-95e5a6904a8e"),
+                            Description = "Technology that you wear, including smartwatches and wireless earbuds.",
+                            Name = "Wearable Tech"
+                        },
+                        new
+                        {
+                            Id = new Guid("dde109fb-71c5-4f59-8810-3bf4057c5351"),
+                            Description = "Storage solutions and backup devices for your data, such as external hard drives and SSDs.",
+                            Name = "Storage & Backup"
+                        },
+                        new
+                        {
+                            Id = new Guid("26ea2ad2-8d2c-4c43-939f-d7d818572aff"),
+                            Description = "Accessories to complement mobile devices, including power banks and docking stations.",
+                            Name = "Mobile Accessories"
+                        });
                 });
 
             modelBuilder.Entity("WarehouseApp.Data.Models.Client", b =>
@@ -237,10 +275,6 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Import invoice identifier");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key to the Client");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2")
                         .HasComment("Date of the import invoice");
@@ -251,13 +285,17 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasComment("Unique import invoice number per warehouse");
 
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Foreign key to the Client");
+
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Foreign key to the Warehouse");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("SupplierId");
 
                     b.HasIndex("WarehouseId", "InvoiceNumber")
                         .IsUnique();
@@ -500,9 +538,9 @@ namespace WarehouseApp.Data.Migrations
 
             modelBuilder.Entity("WarehouseApp.Data.Models.ImportInvoice", b =>
                 {
-                    b.HasOne("WarehouseApp.Data.Models.Client", "Client")
+                    b.HasOne("WarehouseApp.Data.Models.Client", "Supplier")
                         .WithMany("ImportInvoices")
-                        .HasForeignKey("ClientId")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -512,7 +550,7 @@ namespace WarehouseApp.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.Navigation("Supplier");
 
                     b.Navigation("Warehouse");
                 });

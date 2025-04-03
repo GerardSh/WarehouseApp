@@ -12,8 +12,8 @@ using WarehouseApp.Data;
 namespace WarehouseApp.Data.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    [Migration("20250403144520_SeedWarehouses")]
-    partial class SeedWarehouses
+    [Migration("20250403184028_SeedClients")]
+    partial class SeedClients
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,6 +79,88 @@ namespace WarehouseApp.Data.Migrations
                     b.ToTable("Clients", t =>
                         {
                             t.HasComment("Clients in the system");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e3b0c442-98fc-1c14-9afb-f4c8996fb924"),
+                            Address = "123 Silicon Valley Blvd, San Jose, USA",
+                            Email = "info@techsolutions.com",
+                            Name = "Tech Solutions Ltd.",
+                            PhoneNumber = "+1-408-555-0123"
+                        },
+                        new
+                        {
+                            Id = new Guid("3b12c292-b084-491b-9b3d-3e01b7ff2eaf"),
+                            Address = "456 Tech Park, San Francisco, USA",
+                            Email = "contact@innovelectronics.com",
+                            Name = "Innovative Electronics Corp.",
+                            PhoneNumber = "+1-415-555-0456"
+                        },
+                        new
+                        {
+                            Id = new Guid("f56d3c8b-92a4-4d71-82c7-6f4b9e2c1f0d"),
+                            Address = "789 Technology Ave, London, UK",
+                            Email = "support@globalittraders.com",
+                            Name = "Global IT Traders",
+                            PhoneNumber = "+44-20-7946-0301"
+                        },
+                        new
+                        {
+                            Id = new Guid("8a3f9b62-1e24-46f1-bc95-71f25a4c0e9a"),
+                            Address = "101 Digital Health Park, Berlin, Germany",
+                            Email = "sales@smarttechhealth.com",
+                            Name = "SmartTech Healthcare Solutions",
+                            PhoneNumber = "+49-30-5557-0224"
+                        },
+                        new
+                        {
+                            Id = new Guid("ac5b9f38-712d-456b-849f-b7a3e49c5d7e"),
+                            Address = "67 Learning Lane, Toronto, Canada",
+                            Email = "info@edutechinnovations.com",
+                            Name = "EduTech Innovations",
+                            PhoneNumber = "+1-416-555-0789"
+                        },
+                        new
+                        {
+                            Id = new Guid("d9f1b25c-84e6-4c1a-92b5-3a5e8c0f7b19"),
+                            Address = "55 E-commerce Plaza, Paris, France",
+                            Email = "orders@retailtechsolutions.com",
+                            Name = "Retail Tech Solutions",
+                            PhoneNumber = "+33-1-5557-0145"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3e2c5a1-7d84-4f6b-91c2-5a7f3b8e9d4f"),
+                            Address = "88 Auto Innovations Blvd, Detroit, USA",
+                            Email = "service@autotechsystems.com",
+                            Name = "AutoTech Systems",
+                            PhoneNumber = "+1-313-555-0912"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1c4b9e5-7f28-48c1-b62d-4f3a5d7e92b8"),
+                            Address = "22 Wall Street, New York, USA",
+                            Email = "hello@fintechinnov.com",
+                            Name = "FinTech Innovations",
+                            PhoneNumber = "+1-646-555-0876"
+                        },
+                        new
+                        {
+                            Id = new Guid("f8c3a5d7-21b4-4e9c-86f2-7d5b3a9e1c4b"),
+                            Address = "77 Green Field Ave, Sydney, Australia",
+                            Email = "contact@agrotechsolutions.com",
+                            Name = "AgroTech Solutions",
+                            PhoneNumber = "+61-2-5557-0332"
+                        },
+                        new
+                        {
+                            Id = new Guid("b2d9f1c5-84e7-4c1b-92a6-3a5e7c0f8b29"),
+                            Address = "99 Builder's Road, Dubai, UAE",
+                            Email = "projects@constructtechmasters.com",
+                            Name = "Construction Tech Masters",
+                            PhoneNumber = "+971-4-555-0198"
                         });
                 });
 
@@ -155,10 +237,6 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Import invoice identifier");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key to the Client");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2")
                         .HasComment("Date of the import invoice");
@@ -169,13 +247,17 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasComment("Unique import invoice number per warehouse");
 
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Foreign key to the Client");
+
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Foreign key to the Warehouse");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("SupplierId");
 
                     b.HasIndex("WarehouseId", "InvoiceNumber")
                         .IsUnique();
@@ -418,9 +500,9 @@ namespace WarehouseApp.Data.Migrations
 
             modelBuilder.Entity("WarehouseApp.Data.Models.ImportInvoice", b =>
                 {
-                    b.HasOne("WarehouseApp.Data.Models.Client", "Client")
+                    b.HasOne("WarehouseApp.Data.Models.Client", "Supplier")
                         .WithMany("ImportInvoices")
-                        .HasForeignKey("ClientId")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -430,7 +512,7 @@ namespace WarehouseApp.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.Navigation("Supplier");
 
                     b.Navigation("Warehouse");
                 });

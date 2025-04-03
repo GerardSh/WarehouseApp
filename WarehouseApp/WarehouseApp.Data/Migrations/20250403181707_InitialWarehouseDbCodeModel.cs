@@ -106,15 +106,15 @@ namespace WarehouseApp.Data.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, comment: "Import invoice identifier"),
                     InvoiceNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, comment: "Unique import invoice number per warehouse"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "Date of the import invoice"),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, comment: "Foreign key to the Client"),
+                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, comment: "Foreign key to the Client"),
                     WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, comment: "Foreign key to the Warehouse")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ImportInvoices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ImportInvoices_Clients_ClientId",
-                        column: x => x.ClientId,
+                        name: "FK_ImportInvoices_Clients_SupplierId",
+                        column: x => x.SupplierId,
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -208,9 +208,9 @@ namespace WarehouseApp.Data.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImportInvoices_ClientId",
+                name: "IX_ImportInvoices_SupplierId",
                 table: "ImportInvoices",
-                column: "ClientId");
+                column: "SupplierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImportInvoices_WarehouseId_InvoiceNumber",

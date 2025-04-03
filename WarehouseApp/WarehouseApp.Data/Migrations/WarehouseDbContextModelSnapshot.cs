@@ -272,10 +272,6 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Import invoice identifier");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key to the Client");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2")
                         .HasComment("Date of the import invoice");
@@ -286,13 +282,17 @@ namespace WarehouseApp.Data.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasComment("Unique import invoice number per warehouse");
 
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Foreign key to the Client");
+
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Foreign key to the Warehouse");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("SupplierId");
 
                     b.HasIndex("WarehouseId", "InvoiceNumber")
                         .IsUnique();
@@ -535,9 +535,9 @@ namespace WarehouseApp.Data.Migrations
 
             modelBuilder.Entity("WarehouseApp.Data.Models.ImportInvoice", b =>
                 {
-                    b.HasOne("WarehouseApp.Data.Models.Client", "Client")
+                    b.HasOne("WarehouseApp.Data.Models.Client", "Supplier")
                         .WithMany("ImportInvoices")
-                        .HasForeignKey("ClientId")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -547,7 +547,7 @@ namespace WarehouseApp.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.Navigation("Supplier");
 
                     b.Navigation("Warehouse");
                 });
