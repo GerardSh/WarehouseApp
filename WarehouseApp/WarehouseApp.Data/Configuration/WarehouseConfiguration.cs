@@ -26,6 +26,11 @@ namespace WarehouseApp.Data.Configuration
                 .Property(w => w.Address)
                 .IsRequired()
                 .HasMaxLength(AddressMaxLength);
+
+            entity
+                .Property(w => w.CreatedDate)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("GETUTCDATE()");
         }
     }
 }
