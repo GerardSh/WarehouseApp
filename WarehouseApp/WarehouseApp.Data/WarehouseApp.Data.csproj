@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="Dtos\" />
+    <Folder Include="Migrations\" />
     <Folder Include="temp\ExportDTOs\" />
     <Folder Include="temp\ImportDTOs\" />
   </ItemGroup>
