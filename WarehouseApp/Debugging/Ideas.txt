@@ -1,0 +1,25 @@
+﻿View (Page)	Database Tables Used	Description
+1. Home/Dashboard	Summary from multiple tables	Displays key stats (total imports/exports, stock levels, etc.).
+2. Login/Register	Users (if authentication is added)	User authentication for access control.
+3. Import Invoices List	ImportInvoices	Shows a list of all import invoices.
+4. Import Invoice Details	ImportInvoices, ImportInvoiceDetails, Products	Displays a specific invoice with product details.
+5. Export Invoices List	ExportInvoices	Shows all export invoices.
+6. Export Invoice Details	ExportInvoices, ExportInvoiceDetails, Products	Displays details of a specific export invoice.
+7. Stock Overview	ImportInvoiceDetails, ExportInvoiceDetails	Displays current stock levels, calculated as imported - exported.
+8. New Import Invoice	ImportInvoices, ImportInvoiceDetails, Products	A form to add a new import invoice with product selection.
+9. New Export Invoice	ExportInvoices, ExportInvoiceDetails, ImportInvoiceDetails	A form to create an export invoice, selecting products from available stock.
+10. Reports/Analytics	ImportInvoices, ExportInvoices	Generates reports (e.g., total imports/exports per month).
+11. Преглед на броя на фактурите за даден месец: Това view показва колко фактури са вкарани в склада за определен месец.
+
+1.Home Page (Dashboard) – A landing page with an overview of key information.
+2.Login/Register Page – If authentication is required.
+3.Import Invoices List – A page displaying all import invoices.
+4.Import Invoice Details – A detailed view of a specific import invoice.
+5.Export Invoices List – A page displaying all export invoices.
+6.Export Invoice Details – A detailed view of a specific export invoice.
+7.Stock Overview – A page showing available stock and quantities.
+8.New Import Invoice – A form to create an import invoice.
+9.New Export Invoice – A form to create an export invoice.
+10.Reports Page – A summary view with analytics or export options.
+
+model buiding
