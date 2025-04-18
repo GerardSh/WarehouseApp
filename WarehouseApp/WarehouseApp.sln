@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Data.Models", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp", "WarehouseApp\WarehouseApp.csproj", "{8146C8DF-966E-4D40-A494-8787B264F6A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Web", "WarehouseApp.Web\WarehouseApp.Web.csproj", "{8146C8DF-966E-4D40-A494-8787B264F6A6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{561589B8-CF3D-4ED5-9762-66D1C95E1930}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Common", "Warehouse.Common\WarehouseApp.Common.csproj", "{F01D1AB6-36EE-4E52-B7D5-B76D95683922}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debugging", "Debugging\Debugging.csproj", "{25C91B7A-917D-4DA7-9DFA-5BE92F91F7FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Web.ViewModels", "WarehouseApp.Web.ViewModels\WarehouseApp.Web.ViewModels.csproj", "{F6C76CBE-B634-48C7-8CD7-0F8F4E964531}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{25C91B7A-917D-4DA7-9DFA-5BE92F91F7FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25C91B7A-917D-4DA7-9DFA-5BE92F91F7FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25C91B7A-917D-4DA7-9DFA-5BE92F91F7FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6C76CBE-B634-48C7-8CD7-0F8F4E964531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6C76CBE-B634-48C7-8CD7-0F8F4E964531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6C76CBE-B634-48C7-8CD7-0F8F4E964531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6C76CBE-B634-48C7-8CD7-0F8F4E964531}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{D696A2EF-04E4-4802-922A-813A565A6791} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8146C8DF-966E-4D40-A494-8787B264F6A6} = {561589B8-CF3D-4ED5-9762-66D1C95E1930}
 		{1DAE71F7-959F-4583-99C7-D081DCAB6E5F} = {9606D47B-EC12-4A9A-9036-C937C387ED95}
+		{F6C76CBE-B634-48C7-8CD7-0F8F4E964531} = {561589B8-CF3D-4ED5-9762-66D1C95E1930}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C9347BC5-FC84-4C45-9E57-F8873A65C1D1}

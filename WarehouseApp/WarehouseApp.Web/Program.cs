@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WarehouseApp.Data;
 
-namespace WarehouseApp
+namespace WarehouseApp.Web
 {
     public class Program
     {
