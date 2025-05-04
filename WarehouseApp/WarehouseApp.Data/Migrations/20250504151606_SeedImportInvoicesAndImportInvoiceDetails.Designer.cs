@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WarehouseApp.Data;
 
@@ -11,9 +12,11 @@ using WarehouseApp.Data;
 namespace WarehouseApp.Data.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    partial class WarehouseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504151606_SeedImportInvoicesAndImportInvoiceDetails")]
+    partial class SeedImportInvoicesAndImportInvoiceDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,78 +231,6 @@ namespace WarehouseApp.Data.Migrations
                         {
                             t.HasComment("Export invoices in the system");
                         });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f4c7e1a5-4392-4f86-92d1-0b5f3a7c46f2"),
-                            ClientId = new Guid("8a3f9b62-1e24-46f1-bc95-71f25a4c0e9a"),
-                            Date = new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP001"
-                        },
-                        new
-                        {
-                            Id = new Guid("a1d1c8f3-91b0-4f62-b7b1-b1d13a7e75c8"),
-                            ClientId = new Guid("8a3f9b62-1e24-46f1-bc95-71f25a4c0e9a"),
-                            Date = new DateTime(2025, 4, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP002"
-                        },
-                        new
-                        {
-                            Id = new Guid("4db5f5f4-8be3-4ecf-98cd-6d4a4f1d2cf2"),
-                            ClientId = new Guid("8a3f9b62-1e24-46f1-bc95-71f25a4c0e9a"),
-                            Date = new DateTime(2025, 4, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP003"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b5c1e28-1bc7-4c70-bb2e-2f2c8e5b39f5"),
-                            ClientId = new Guid("f56d3c8b-92a4-4d71-82c7-6f4b9e2c1f0d"),
-                            Date = new DateTime(2025, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP004"
-                        },
-                        new
-                        {
-                            Id = new Guid("b65c7e3a-76a3-42b3-bbc2-73c1a693743e"),
-                            ClientId = new Guid("b2d9f1c5-84e7-4c1b-92a6-3a5e7c0f8b29"),
-                            Date = new DateTime(2025, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP005"
-                        },
-                        new
-                        {
-                            Id = new Guid("fe7f4c16-f76f-42e9-bbfe-6c9e6b87e33b"),
-                            ClientId = new Guid("f8c3a5d7-21b4-4e9c-86f2-7d5b3a9e1c4b"),
-                            Date = new DateTime(2025, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP006"
-                        },
-                        new
-                        {
-                            Id = new Guid("dcb7f1ae-b8f1-4670-93b2-5e7ff7d3c3c6"),
-                            ClientId = new Guid("d9f1b25c-84e6-4c1a-92b5-3a5e8c0f7b19"),
-                            Date = new DateTime(2025, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP007"
-                        },
-                        new
-                        {
-                            Id = new Guid("3f36e42f-799b-4d60-a96f-3f07947a66d0"),
-                            ClientId = new Guid("e3b0c442-98fc-1c14-9afb-f4c8996fb924"),
-                            Date = new DateTime(2025, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP008"
-                        },
-                        new
-                        {
-                            Id = new Guid("bc107ca4-2833-4f26-9d1e-36ab9080c418"),
-                            ClientId = new Guid("f56d3c8b-92a4-4d71-82c7-6f4b9e2c1f0d"),
-                            Date = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP009"
-                        },
-                        new
-                        {
-                            Id = new Guid("cae789ba-1bcd-4e32-b57c-8243fc4d8d19"),
-                            ClientId = new Guid("d9f1b25c-84e6-4c1a-92b5-3a5e8c0f7b19"),
-                            Date = new DateTime(2025, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            InvoiceNumber = "EXP010"
-                        });
                 });
 
             modelBuilder.Entity("WarehouseApp.Data.Models.ExportInvoiceDetail", b =>
@@ -334,168 +265,6 @@ namespace WarehouseApp.Data.Migrations
                     b.ToTable("ExportInvoiceDetails", t =>
                         {
                             t.HasComment("Details about the exported products");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("cc98d9a1-6e55-4b1e-99a4-1e1f36b0c1c1"),
-                            ExportInvoiceId = new Guid("f4c7e1a5-4392-4f86-92d1-0b5f3a7c46f2"),
-                            ImportInvoiceDetailId = new Guid("5b53a1d4-7b7b-4127-bdb4-388c870e7082"),
-                            Quantity = 5,
-                            UnitPrice = 209.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("b73f4d10-f2a9-4983-a96b-95ff3f3a67f0"),
-                            ExportInvoiceId = new Guid("f4c7e1a5-4392-4f86-92d1-0b5f3a7c46f2"),
-                            ImportInvoiceDetailId = new Guid("35f5e0b1-8e2e-4e2e-b46c-e1f392ff65a4"),
-                            Quantity = 5,
-                            UnitPrice = 309.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("d09c3c46-f247-4a7e-a7b0-0ab7b2cf8039"),
-                            ExportInvoiceId = new Guid("a1d1c8f3-91b0-4f62-b7b1-b1d13a7e75c8"),
-                            ImportInvoiceDetailId = new Guid("5b53a1d4-7b7b-4127-bdb4-388c870e7082"),
-                            Quantity = 5,
-                            UnitPrice = 209.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("e6a2b1f9-6df5-4d0e-9877-137b191c6b80"),
-                            ExportInvoiceId = new Guid("a1d1c8f3-91b0-4f62-b7b1-b1d13a7e75c8"),
-                            ImportInvoiceDetailId = new Guid("d91fd94a-79f8-4023-9cc5-502a9ffacfd7"),
-                            Quantity = 12,
-                            UnitPrice = 69.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("a059a5c3-e759-40a1-8d02-b1a3f8c04dc2"),
-                            ExportInvoiceId = new Guid("a1d1c8f3-91b0-4f62-b7b1-b1d13a7e75c8"),
-                            ImportInvoiceDetailId = new Guid("c5b2f2fa-f5de-4172-b558-b8a0aa31cbd4"),
-                            Quantity = 2,
-                            UnitPrice = 99.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("06b2a659-5a9c-4ad3-a324-55b2b06d7f27"),
-                            ExportInvoiceId = new Guid("4db5f5f4-8be3-4ecf-98cd-6d4a4f1d2cf2"),
-                            ImportInvoiceDetailId = new Guid("c5b2f2fa-f5de-4172-b558-b8a0aa31cbd4"),
-                            Quantity = 1,
-                            UnitPrice = 99.99m
-                        },
-                        new
-                        {
-                            Id = new Guid("f86c942d-c6c0-4cc5-8b33-768647f3e96e"),
-                            ExportInvoiceId = new Guid("4db5f5f4-8be3-4ecf-98cd-6d4a4f1d2cf2"),
-                            ImportInvoiceDetailId = new Guid("cf13a1ec-99fc-4f7c-a635-45f35fc72ad5"),
-                            Quantity = 10,
-                            UnitPrice = 220.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("46c8c119-faf9-4e3c-8be1-0f3de6c287d4"),
-                            ExportInvoiceId = new Guid("4db5f5f4-8be3-4ecf-98cd-6d4a4f1d2cf2"),
-                            ImportInvoiceDetailId = new Guid("39e3849a-b72d-4372-94f6-7e42f7c3cb35"),
-                            Quantity = 3,
-                            UnitPrice = 100.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("e2517aef-6fd1-4d08-9a20-c632582d5b32"),
-                            ExportInvoiceId = new Guid("4db5f5f4-8be3-4ecf-98cd-6d4a4f1d2cf2"),
-                            ImportInvoiceDetailId = new Guid("b0a77ed1-4c9b-4056-a05c-f01e6be521f0"),
-                            Quantity = 4,
-                            UnitPrice = 320.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("59e1bd10-c198-4b30-b5e4-0fc97a77d8c1"),
-                            ExportInvoiceId = new Guid("8b5c1e28-1bc7-4c70-bb2e-2f2c8e5b39f5"),
-                            ImportInvoiceDetailId = new Guid("ebef2229-41c0-41fa-a56c-f3a9d7618ad4"),
-                            Quantity = 12,
-                            UnitPrice = 150.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("991cbf9e-c58e-4d13-9988-7ddf3de1d91e"),
-                            ExportInvoiceId = new Guid("b65c7e3a-76a3-42b3-bbc2-73c1a693743e"),
-                            ImportInvoiceDetailId = new Guid("cf13a1ec-99fc-4f7c-a635-45f35fc72ad5"),
-                            Quantity = 3,
-                            UnitPrice = 220.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("87a64d60-e444-4b84-b88f-9d5c78d4fc72"),
-                            ExportInvoiceId = new Guid("b65c7e3a-76a3-42b3-bbc2-73c1a693743e"),
-                            ImportInvoiceDetailId = new Guid("f44fa9ea-cf1b-4c1d-936e-b31f4d7298d3"),
-                            Quantity = 3,
-                            UnitPrice = 159.50m
-                        },
-                        new
-                        {
-                            Id = new Guid("cb884fc2-b770-4632-9a10-29b4b5e16e64"),
-                            ExportInvoiceId = new Guid("fe7f4c16-f76f-42e9-bbfe-6c9e6b87e33b"),
-                            ImportInvoiceDetailId = new Guid("7a1bfb82-7a6e-47f9-bbbf-81093e4a2876"),
-                            Quantity = 4,
-                            UnitPrice = 330.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("bc09320d-4e82-4b8b-89a6-f9eb69a401d6"),
-                            ExportInvoiceId = new Guid("fe7f4c16-f76f-42e9-bbfe-6c9e6b87e33b"),
-                            ImportInvoiceDetailId = new Guid("ebef2229-41c0-41fa-a56c-f3a9d7618ad4"),
-                            Quantity = 2,
-                            UnitPrice = 150.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("4e0d9c60-1051-4a0e-a676-bd2a3a24b1cf"),
-                            ExportInvoiceId = new Guid("dcb7f1ae-b8f1-4670-93b2-5e7ff7d3c3c6"),
-                            ImportInvoiceDetailId = new Guid("328cc44d-d73f-4956-b2cb-dc7cd1c4f437"),
-                            Quantity = 10,
-                            UnitPrice = 105.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("763b9cb0-d02d-468b-83ef-1f245b599d93"),
-                            ExportInvoiceId = new Guid("3f36e42f-799b-4d60-a96f-3f07947a66d0"),
-                            ImportInvoiceDetailId = new Guid("39e3849a-b72d-4372-94f6-7e42f7c3cb35"),
-                            Quantity = 3,
-                            UnitPrice = 100.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("a0f0e6bd-8a18-4be8-931b-bd2928b8bbd7"),
-                            ExportInvoiceId = new Guid("bc107ca4-2833-4f26-9d1e-36ab9080c418"),
-                            ImportInvoiceDetailId = new Guid("cf13a1ec-99fc-4f7c-a635-45f35fc72ad5"),
-                            Quantity = 1,
-                            UnitPrice = 220.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("92e4e83c-2b56-40d0-aefd-f99d9ff7030b"),
-                            ExportInvoiceId = new Guid("bc107ca4-2833-4f26-9d1e-36ab9080c418"),
-                            ImportInvoiceDetailId = new Guid("ebef2229-41c0-41fa-a56c-f3a9d7618ad4"),
-                            Quantity = 3,
-                            UnitPrice = 150.0m
-                        },
-                        new
-                        {
-                            Id = new Guid("cfcb0e87-8be3-44ef-bad6-417dc560e0e6"),
-                            ExportInvoiceId = new Guid("bc107ca4-2833-4f26-9d1e-36ab9080c418"),
-                            ImportInvoiceDetailId = new Guid("f44fa9ea-cf1b-4c1d-936e-b31f4d7298d3"),
-                            Quantity = 2,
-                            UnitPrice = 159.5m
-                        },
-                        new
-                        {
-                            Id = new Guid("3f218f66-7b42-429c-bb02-5cd9b7d1147b"),
-                            ExportInvoiceId = new Guid("cae789ba-1bcd-4e32-b57c-8243fc4d8d19"),
-                            ImportInvoiceDetailId = new Guid("ebef2229-41c0-41fa-a56c-f3a9d7618ad4"),
-                            Quantity = 2,
-                            UnitPrice = 150.0m
                         });
                 });
 
