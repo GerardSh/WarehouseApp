@@ -10,6 +10,6 @@ namespace WarehouseApp.Data.Models
             Id = Guid.NewGuid();
         }
 
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
     }
 }
