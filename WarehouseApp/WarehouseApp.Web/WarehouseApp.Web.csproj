@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Debugging\Debugging.csproj" />
+    <ProjectReference Include="..\WarehouseApp.Services.Mapping\WarehouseApp.Services.Mapping.csproj" />
     <ProjectReference Include="..\WarehouseApp.Services\WarehouseApp.Services.csproj" />
     <ProjectReference Include="..\WarehouseApp.Web.ViewModels\WarehouseApp.Web.ViewModels.csproj" />
   </ItemGroup>
