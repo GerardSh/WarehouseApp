@@ -19,24 +19,7 @@ namespace WarehouseApp.Web
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
-                // Password settings
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 4;
-
-                // Lockout settings
-                options.Lockout.AllowedForNewUsers = true;
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-
-                // User settings
-                options.User.RequireUniqueEmail = true;
-
-                // Sign-in settings
-                options.SignIn.RequireConfirmedAccount = true;
+                ConfigureIdentity(options, builder.Configuration);
             });
 
             // Then configure Identity
@@ -75,6 +58,50 @@ namespace WarehouseApp.Web
             app.MapRazorPages();
 
             app.Run();
+        }
+
+        private static void ConfigureIdentity(IdentityOptions options, IConfiguration configuration)
+        {
+            // Password settings
+            //options.Password.RequireDigit = true;
+            //options.Password.RequireLowercase = true;
+            //options.Password.RequireNonAlphanumeric = true;
+            //options.Password.RequireUppercase = true;
+            //options.Password.RequiredLength = 8;
+            //options.Password.RequiredUniqueChars = 4;
+
+            // Lockout settings
+            //options.Lockout.AllowedForNewUsers = true;
+            //options.Lockout.MaxFailedAccessAttempts = 5;
+            //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+
+            // User settings
+            //options.User.RequireUniqueEmail = true;
+
+            // Sign-in settings
+            //options.SignIn.RequireConfirmedAccount = true;
+
+            var identitySection = configuration.GetSection("Identity");
+
+            // Password settings loaded from configuration
+            options.Password.RequireDigit = identitySection.GetValue<bool>("Password:RequireDigit");
+            options.Password.RequireLowercase = identitySection.GetValue<bool>("Password:RequireLowercase");
+            options.Password.RequireUppercase = identitySection.GetValue<bool>("Password:RequireUppercase");
+            options.Password.RequireNonAlphanumeric = identitySection.GetValue<bool>("Password:RequireNonAlphanumeric");
+            options.Password.RequiredLength = identitySection.GetValue<int>("Password:RequiredLength");
+            options.Password.RequiredUniqueChars = identitySection.GetValue<int>("Password:RequiredUniqueChars");
+
+            // Lockout settings
+            options.Lockout.AllowedForNewUsers = identitySection.GetValue<bool>("Lockout:AllowedForNewUsers");
+            options.Lockout.MaxFailedAccessAttempts = identitySection.GetValue<int>("Lockout:MaxFailedAccessAttempts");
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(
+                identitySection.GetValue<int>("Lockout:DefaultLockoutTimeSpanMinutes"));
+
+            // User settings
+            options.User.RequireUniqueEmail = identitySection.GetValue<bool>("User:RequireUniqueEmail");
+
+            // Sign-in settings
+            options.SignIn.RequireConfirmedAccount = identitySection.GetValue<bool>("SignIn:RequireConfirmedAccount");
         }
     }
 }
