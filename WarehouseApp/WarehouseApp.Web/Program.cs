@@ -30,6 +30,11 @@ namespace WarehouseApp.Web
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(cfg =>
+            {
+                cfg.LoginPath = "/Identity/Account/Login";
+            });
+
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
