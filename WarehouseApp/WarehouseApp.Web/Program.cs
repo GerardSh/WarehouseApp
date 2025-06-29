@@ -71,25 +71,6 @@ namespace WarehouseApp.Web
 
         private static void ConfigureIdentity(IdentityOptions options, IConfiguration configuration)
         {
-            // Password settings
-            //options.Password.RequireDigit = true;
-            //options.Password.RequireLowercase = true;
-            //options.Password.RequireNonAlphanumeric = true;
-            //options.Password.RequireUppercase = true;
-            //options.Password.RequiredLength = 8;
-            //options.Password.RequiredUniqueChars = 4;
-
-            // Lockout settings
-            //options.Lockout.AllowedForNewUsers = true;
-            //options.Lockout.MaxFailedAccessAttempts = 5;
-            //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-
-            // User settings
-            //options.User.RequireUniqueEmail = true;
-
-            // Sign-in settings
-            //options.SignIn.RequireConfirmedAccount = true;
-
             var identitySection = configuration.GetSection("Identity");
 
             // Password settings loaded from configuration
