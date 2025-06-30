@@ -17,21 +17,23 @@ namespace WarehouseApp.Data
         {
         }
 
-        public DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
 
-        public DbSet<Product> Products { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
 
-        public DbSet<ImportInvoice> ImportInvoices { get; set; }
+        public virtual DbSet<ImportInvoice> ImportInvoices { get; set; }
 
-        public DbSet<ImportInvoiceDetail> ImportInvoiceDetails { get; set; }
+        public virtual DbSet<ImportInvoiceDetail> ImportInvoiceDetails { get; set; }
 
-        public DbSet<ExportInvoice> ExportInvoices { get; set; }
+        public virtual DbSet<ExportInvoice> ExportInvoices { get; set; }
 
-        public DbSet<ExportInvoiceDetail> ExportInvoiceDetails { get; set; }
+        public virtual DbSet<ExportInvoiceDetail> ExportInvoiceDetails { get; set; }
 
-        public DbSet<Client> Clients { get; set; }
+        public virtual DbSet<Client> Clients { get; set; }
 
-        public DbSet<Warehouse> Warehouses { get; set; }
+        public virtual DbSet<Warehouse> Warehouses { get; set; }
+
+        public virtual DbSet<ApplicationUserWarehouse> UsersWarehouses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

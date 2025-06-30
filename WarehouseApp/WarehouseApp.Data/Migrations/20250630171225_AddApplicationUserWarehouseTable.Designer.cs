@@ -12,7 +12,7 @@ using WarehouseApp.Data;
 namespace WarehouseApp.Data.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    [Migration("20250630164533_AddApplicationUserWarehouseTable")]
+    [Migration("20250630171225_AddApplicationUserWarehouseTable")]
     partial class AddApplicationUserWarehouseTable
     {
         /// <inheritdoc />
@@ -242,7 +242,7 @@ namespace WarehouseApp.Data.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("ApplicationUserWarehouse", t =>
+                    b.ToTable("UsersWarehouses", t =>
                         {
                             t.HasComment("Mapping table between application users and warehouses");
                         });

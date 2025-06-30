@@ -239,7 +239,7 @@ namespace WarehouseApp.Data.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("ApplicationUserWarehouse", t =>
+                    b.ToTable("UsersWarehouses", t =>
                         {
                             t.HasComment("Mapping table between application users and warehouses");
                         });

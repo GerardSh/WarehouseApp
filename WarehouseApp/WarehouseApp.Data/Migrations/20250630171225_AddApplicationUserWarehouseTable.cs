@@ -26,7 +26,7 @@ namespace WarehouseApp.Data.Migrations
                 oldNullable: true);
 
             migrationBuilder.CreateTable(
-                name: "ApplicationUserWarehouse",
+                name: "UsersWarehouses",
                 columns: table => new
                 {
                     ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, comment: "Foreign key to the ApplicationUser"),
@@ -34,15 +34,15 @@ namespace WarehouseApp.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ApplicationUserWarehouse", x => new { x.ApplicationUserId, x.WarehouseId });
+                    table.PrimaryKey("PK_UsersWarehouses", x => new { x.ApplicationUserId, x.WarehouseId });
                     table.ForeignKey(
-                        name: "FK_ApplicationUserWarehouse_AspNetUsers_ApplicationUserId",
+                        name: "FK_UsersWarehouses_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ApplicationUserWarehouse_Warehouses_WarehouseId",
+                        name: "FK_UsersWarehouses_Warehouses_WarehouseId",
                         column: x => x.WarehouseId,
                         principalTable: "Warehouses",
                         principalColumn: "Id",
@@ -51,8 +51,8 @@ namespace WarehouseApp.Data.Migrations
                 comment: "Mapping table between application users and warehouses");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApplicationUserWarehouse_WarehouseId",
-                table: "ApplicationUserWarehouse",
+                name: "IX_UsersWarehouses_WarehouseId",
+                table: "UsersWarehouses",
                 column: "WarehouseId");
         }
 
@@ -60,7 +60,7 @@ namespace WarehouseApp.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ApplicationUserWarehouse");
+                name: "UsersWarehouses");
 
             migrationBuilder.AlterTable(
                 name: "AspNetUsers",
