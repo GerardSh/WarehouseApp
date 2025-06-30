@@ -14,6 +14,10 @@ namespace WarehouseApp.Data.Configuration
                 .HasKey(eid => eid.Id);
 
             entity
+                .HasIndex(e => new { e.ExportInvoiceId, e.ImportInvoiceDetailId })
+                .IsUnique();
+
+            entity
                 .HasOne(eid => eid.ExportInvoice)
                 .WithMany(ei => ei.ExportInvoicesDetails)
                 .HasForeignKey(eid => eid.ExportInvoiceId)
