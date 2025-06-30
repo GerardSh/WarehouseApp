@@ -24,6 +24,9 @@ namespace WarehouseApp.Data.Models
         public bool IsDeleted { get; set; }
 
         public virtual ICollection<ImportInvoice> ImportInvoices { get; set; }
-             = new HashSet<ImportInvoice>();
+            = new HashSet<ImportInvoice>();
+
+        public virtual ICollection<ApplicationUserWarehouse> Users { get; set; }
+            = new HashSet<ApplicationUserWarehouse>();
     }
 }
