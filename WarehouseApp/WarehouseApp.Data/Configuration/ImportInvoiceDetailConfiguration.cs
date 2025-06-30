@@ -3,6 +3,7 @@ using static WarehouseApp.Common.Constants.EntityConstants;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Security.Cryptography;
 
 namespace WarehouseApp.Data.Configuration
 {
@@ -12,6 +13,10 @@ namespace WarehouseApp.Data.Configuration
         {
             entity
                 .HasKey(iid => iid.Id);
+
+            entity
+                .HasIndex(iid => new { iid.ImportInvoiceId, iid.ProductId })
+                .IsUnique();
 
             entity
                 .HasOne(iid => iid.ImportInvoice)
