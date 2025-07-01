@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using WarehouseApp.Data.Models;
-using System.Reflection.Emit;
 
 namespace WarehouseApp.Data.Configuration
 {

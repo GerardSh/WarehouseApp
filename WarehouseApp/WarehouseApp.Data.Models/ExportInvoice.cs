@@ -19,6 +19,11 @@ namespace WarehouseApp.Data.Models
 
         public virtual Client Client { get; set; } = null!;
 
+        [Comment("Foreign key to the Warehouse")]
+        public Guid WarehouseId { get; set; }
+
+        public virtual Warehouse Warehouse { get; set; } = null!;
+
         public ICollection<ExportInvoiceDetail> ExportInvoicesDetails { get; set; }
             = new HashSet<ExportInvoiceDetail>();
     }
