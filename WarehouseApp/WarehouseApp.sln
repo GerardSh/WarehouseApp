@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Web.ViewModels
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Services.Mapping", "WarehouseApp.Services.Mapping\WarehouseApp.Services.Mapping.csproj", "{A1AEA1AB-A919-4009-B749-2D6D3F255AAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApp.Web.Infrastructure", "WarehouseApp.Web.Infrastructure\WarehouseApp.Web.Infrastructure.csproj", "{37D3E42C-5333-459B-8FDE-3547AA17DEE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{A1AEA1AB-A919-4009-B749-2D6D3F255AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1AEA1AB-A919-4009-B749-2D6D3F255AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1AEA1AB-A919-4009-B749-2D6D3F255AAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D3E42C-5333-459B-8FDE-3547AA17DEE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37D3E42C-5333-459B-8FDE-3547AA17DEE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37D3E42C-5333-459B-8FDE-3547AA17DEE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37D3E42C-5333-459B-8FDE-3547AA17DEE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
