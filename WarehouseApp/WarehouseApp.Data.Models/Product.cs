@@ -17,7 +17,7 @@ namespace WarehouseApp.Data.Models
         [Comment("Foreign key to the Category")]
         public Guid CategoryId { get; set; }
 
-        public Category Category { get; set; } = null!;
+        public virtual Category Category { get; set; } = null!;
 
         public virtual ICollection<ImportInvoiceDetail> ImportInvoicesDetails { get; set; }
             = new HashSet<ImportInvoiceDetail>();

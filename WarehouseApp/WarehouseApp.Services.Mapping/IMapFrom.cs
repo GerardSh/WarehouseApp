@@ -2,5 +2,6 @@
 {
     public interface IMapFrom<T>
     {
+
     }
 }
