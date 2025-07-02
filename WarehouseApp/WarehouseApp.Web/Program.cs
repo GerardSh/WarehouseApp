@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels;
+using WarehouseApp.Web.Infrastructure.Extensions;
+using WarehouseApp.Services.Data.Interfaces;
 
 namespace WarehouseApp.Web
 {
@@ -37,6 +39,9 @@ namespace WarehouseApp.Web
             {
                 cfg.LoginPath = "/Identity/Account/Login";
             });
+
+            builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
+            builder.Services.RegisterUserDefinedServices(typeof(IBaseService).Assembly);
 
             builder.Services.AddRazorPages();
 

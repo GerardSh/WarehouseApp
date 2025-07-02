@@ -1,7 +1,6 @@
-﻿namespace WarehouseApp.Web.Infrastructure
+﻿namespace WarehouseApp.Web.Infrastructure.Extensions
 {
-    public class Class1
+    public static class ApplicationBuilderExtensions
     {
-
     }
 }
