@@ -6,6 +6,7 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WarehouseApp.Web
 {
@@ -38,6 +39,11 @@ namespace WarehouseApp.Web
             builder.Services.ConfigureApplicationCookie(cfg =>
             {
                 cfg.LoginPath = "/Identity/Account/Login";
+            });
+
+            builder.Services.AddControllersWithViews(cfg =>
+            {
+                cfg.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
             builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
