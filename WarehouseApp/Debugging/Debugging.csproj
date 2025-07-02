@@ -20,7 +20,8 @@
     <ProjectReference Include="..\Warehouse.Common\WarehouseApp.Common.csproj" />
     <ProjectReference Include="..\WarehouseApp.Data.Models\WarehouseApp.Data.Models.csproj" />
     <ProjectReference Include="..\WarehouseApp.Data\WarehouseApp.Data.csproj" />
-    <ProjectReference Include="..\WarehouseApp.Services\WarehouseApp.Services.csproj" />
+    <ProjectReference Include="..\WarehouseApp.Services.Data\WarehouseApp.Services.Data.csproj" />
+    <ProjectReference Include="..\WarehouseApp.Services.Mapping\WarehouseApp.Services.Mapping.csproj" />
   </ItemGroup>
 
 </Project>
