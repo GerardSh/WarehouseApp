@@ -1,9 +1,8 @@
-﻿namespace CinemaApp.Services.Mapping
+﻿namespace WarehouseApp.Services.Mapping
 {
     using System.Reflection;
 
     using AutoMapper;
-    using WarehouseApp.Services.Mapping;
 
     public class AutoMapperConfig
     {

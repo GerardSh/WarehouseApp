@@ -1,4 +1,4 @@
-﻿namespace CinemaApp.Services.Mapping
+﻿namespace WarehouseApp.Services.Mapping
 {
     using System.Linq.Expressions;
     using AutoMapper.QueryableExtensions;

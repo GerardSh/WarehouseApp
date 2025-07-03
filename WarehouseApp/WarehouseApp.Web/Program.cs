@@ -1,12 +1,13 @@
-using CinemaApp.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+
+using WarehouseApp.Services.Mapping;
 using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WarehouseApp.Web
 {
@@ -61,6 +62,7 @@ namespace WarehouseApp.Web
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
             else
@@ -77,6 +79,8 @@ namespace WarehouseApp.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
             app.MapControllerRoute(
                 name: "default",
