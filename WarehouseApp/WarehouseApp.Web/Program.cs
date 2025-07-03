@@ -23,7 +23,10 @@ namespace WarehouseApp.Web
             builder.Services.AddDbContext<WarehouseDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            }
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
