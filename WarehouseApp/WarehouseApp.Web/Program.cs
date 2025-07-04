@@ -20,6 +20,9 @@ namespace WarehouseApp.Web
             // Add services to the container.
             string connectionString = builder.Configuration.GetConnectionString("WarehouseDbConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            string adminEmail = builder.Configuration.GetValue<string>("Administrator:Email")!;
+            string adminUsername = builder.Configuration.GetValue<string>("Administrator:Username")!;
+            string adminPassword = builder.Configuration.GetValue<string>("Administrator:Password")!;
 
             builder.Services.AddDbContext<WarehouseDbContext>(options =>
                 options.UseSqlServer(connectionString));
@@ -88,6 +91,11 @@ namespace WarehouseApp.Web
             app.MapRazorPages();
 
             app.ApplyMigrations();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.SeedAdministrator(adminEmail, adminUsername, adminPassword);
+            }
 
             app.Run();
         }
