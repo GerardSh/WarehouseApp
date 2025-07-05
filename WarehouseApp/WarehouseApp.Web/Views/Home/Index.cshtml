@@ -1,8 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using static WarehouseApp.Common.Constants.ApplicationConstants
+
+@{
+    Layout = null;
+
+    int currentYear = DateTime.UtcNow.Year;
+    string footerNote = (ReleaseYear == currentYear) ?
+        $"{currentYear}" : $"{ReleaseYear} - {currentYear}";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="WarehouseApp - Manage inventory and track exports efficiently." />
+    <title>WarehouseApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+    <link rel="icon" type="image/svg+xml" href="~/warehouse-solid.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+</head>
+<body>
+    <main class="d-flex flex-column justify-content-center align-items-center min-vh-100 text-center">
+        <a href=""><i class="fas fa-warehouse fa-4x mb-3" style="color:#0078D4;"></i></a>
+
+        <h1>Welcome to WarehouseApp📦</h1>
+        <p>
+            Your smart solution for managing inventory and tracking exports efficiently.<br />
+            Please log in or register to get started.
+        </p>
+
+        <div class="btn-group flex-wrap justify-content-center gap-7">
+            <a href="/Identity/Account/Login" class="btn btn-primary">Log In</a>
+            <a href="/Identity/Account/Register" class="btn btn-outline-secondary">Register</a>
+        </div>
+
+        <footer class="mt-5 text-muted small pb-3">
+            <p>&copy; @footerNote WarehouseApp</p>
+        </footer>
+    </main>
+</body>
+</html>
