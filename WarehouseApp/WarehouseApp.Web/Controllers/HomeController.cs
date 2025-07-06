@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WarehouseApp.Web.Controllers;
@@ -25,9 +26,30 @@ namespace WarehouseApp.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [Route("Home/Error/{statusCode?}")]
+        public IActionResult Error(int? statusCode = null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            int code = statusCode ?? HttpContext.Response.StatusCode;
+
+            if (code == 401 || code == 403)
+            {
+                return this.View("Error403");
+            }
+            else if (code == 404)
+            {
+                return this.View("Error404");
+            }
+            else if (code == 500)
+            {
+                return this.View("Error500");
+            }
+
+            var model = new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            };
+
+            return this.View(model);
         }
     }
 }

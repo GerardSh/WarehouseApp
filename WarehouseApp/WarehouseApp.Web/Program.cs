@@ -8,6 +8,7 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace WarehouseApp.Web
 {
@@ -46,6 +47,7 @@ namespace WarehouseApp.Web
             builder.Services.ConfigureApplicationCookie(cfg =>
             {
                 cfg.LoginPath = "/Identity/Account/Login";
+                cfg.AccessDeniedPath = "/Home/Error/403";
             });
 
             builder.Services.AddControllersWithViews(cfg =>
