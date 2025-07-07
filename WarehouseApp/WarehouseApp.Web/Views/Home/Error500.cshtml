@@ -1,25 +1,8 @@
 ﻿@{
-    Layout = null;
-    int currentYear = DateTime.UtcNow.Year;
-    string footerNote = (WarehouseApp.Common.Constants.ApplicationConstants.ReleaseYear == currentYear)
-        ? $"{currentYear}"
-        : $"{WarehouseApp.Common.Constants.ApplicationConstants.ReleaseYear} - {currentYear}";
+    Layout = "_ErrorLayout";
+    ViewData["Title"] = "500 Internal Server Error";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="500 Internal Server Error - WarehouseApp" />
-    <title>500 Internal Server Error | WarehouseApp</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/error-pages.css" asp-append-version="true" />
-    <link rel="icon" type="image/svg+xml" href="~/warehouse-solid.svg" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
-<body>
-    <main class="d-flex flex-column justify-content-center align-items-center min-vh-100 text-center">
         <i class="fas fa-cogs fa-5x mb-4" style="color:#e67e22;"></i>
 
         <h1>500 - Internal Server Error</h1>
@@ -32,10 +15,3 @@
             <a href="/" class="btn btn-primary">Go to Dashboard</a>
             <a href="javascript:history.back()" class="btn btn-outline-secondary">Go Back</a>
         </div>
-
-        <footer class="mt-5 text-muted small pb-3">
-            <p>&copy; @footerNote WarehouseApp</p>
-        </footer>
-    </main>
-</body>
-</html>
