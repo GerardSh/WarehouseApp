@@ -8,7 +8,7 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
-using Microsoft.Extensions.Options;
+using WarehouseApp.Web.Infrastructure.Middlewares;
 
 namespace WarehouseApp.Web
 {
@@ -84,6 +84,8 @@ namespace WarehouseApp.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<RedirectLoggedInMiddleware>();
 
             app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
