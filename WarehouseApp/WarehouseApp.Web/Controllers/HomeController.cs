@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WarehouseApp.Web.Controllers;
@@ -17,6 +16,11 @@ namespace WarehouseApp.Controllers
 
         public IActionResult Index()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Warehouse");
+            }
+
             return View();
         }
 
