@@ -4,7 +4,7 @@ namespace WarehouseApp.Services.Data.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<AllUsersViewModel>> GetAllUsersAsync();
+        Task<AllUsersWithRolesViewModel> GetAllUsersAsync();
 
         Task<bool> UserExistsByIdAsync(Guid userId);
 

@@ -19,17 +19,22 @@ namespace WarehouseApp.Services.Data
             this.roleManager = roleManager;
         }
 
-        public async Task<IEnumerable<AllUsersViewModel>> GetAllUsersAsync()
+        public async Task<AllUsersWithRolesViewModel> GetAllUsersAsync()
         {
             IEnumerable<ApplicationUser> allUsers = await userManager.Users
                 .ToArrayAsync();
-            ICollection<AllUsersViewModel> allUsersViewModel = new List<AllUsersViewModel>();
+
+            IEnumerable<string> allRoles = await roleManager.Roles
+                .Select(r => r.Name!)
+                .ToArrayAsync();
+
+            ICollection<UserViewModel> allUsersViewModel = new List<UserViewModel>();
 
             foreach (ApplicationUser user in allUsers)
             {
                 IEnumerable<string> roles = await userManager.GetRolesAsync(user);
 
-                allUsersViewModel.Add(new AllUsersViewModel()
+                allUsersViewModel.Add(new UserViewModel()
                 {
                     Id = user.Id.ToString(),
                     Email = user.Email,
@@ -37,7 +42,13 @@ namespace WarehouseApp.Services.Data
                 });
             }
 
-            return allUsersViewModel;
+            var allUsersWithRolesViewModel = new AllUsersWithRolesViewModel
+            {
+                Users = allUsersViewModel,
+                AllRoles = allRoles
+            };
+
+            return allUsersWithRolesViewModel;
         }
 
         public async Task<bool> UserExistsByIdAsync(Guid userId)
