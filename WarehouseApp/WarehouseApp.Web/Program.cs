@@ -98,7 +98,7 @@ namespace WarehouseApp.Web
 
             if (app.Environment.IsDevelopment())
             {
-                app.SeedAdministrator(adminEmail, adminUsername, adminPassword);
+                app.SeedDefaultRolesAndAdminUser(adminEmail, adminUsername, adminPassword);
             }
 
             app.Run();

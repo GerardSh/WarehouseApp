@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
-using static WarehouseApp.Common.Constants.ApplicationConstants;
+using WarehouseApp.Web.Infrastructure.Logging;
+using static WarehouseApp.Common.Constants.RolesConstants;
 
 namespace WarehouseApp.Web.Infrastructure.Extensions
 {
@@ -14,7 +16,7 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
         public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder app)
         {
             using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
-            
+
             WarehouseDbContext dbContext = serviceScope
                 .ServiceProvider
                 .GetRequiredService<WarehouseDbContext>()!;
@@ -23,71 +25,56 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
             return app;
         }
 
-        public static IApplicationBuilder SeedAdministrator(this IApplicationBuilder app, string email, string username, string password)
+        public static IApplicationBuilder SeedDefaultRolesAndAdminUser(
+            this IApplicationBuilder app, string email, string username, string password)
         {
             using IServiceScope serviceScope = app.ApplicationServices.CreateAsyncScope();
             IServiceProvider serviceProvider = serviceScope.ServiceProvider;
 
-            RoleManager<IdentityRole<Guid>>? roleManager = serviceProvider
-                .GetService<RoleManager<IdentityRole<Guid>>>();
-            IUserStore<ApplicationUser>? userStore = serviceProvider
-                .GetService<IUserStore<ApplicationUser>>();
-            UserManager<ApplicationUser>? userManager = serviceProvider
-                .GetService<UserManager<ApplicationUser>>();
-
-            if (roleManager == null)
-            {
-                throw new ArgumentNullException(nameof(roleManager),
-                    $"Service for {typeof(RoleManager<IdentityRole<Guid>>)} cannot be obtained!");
-            }
-
-            if (userStore == null)
-            {
-                throw new ArgumentNullException(nameof(userStore),
-                    $"Service for {typeof(IUserStore<ApplicationUser>)} cannot be obtained!");
-            }
-
-            if (userManager == null)
-            {
-                throw new ArgumentNullException(nameof(userManager),
-                    $"Service for {typeof(UserManager<ApplicationUser>)} cannot be obtained!");
-            }
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            var userStore = serviceProvider.GetRequiredService<IUserStore<ApplicationUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var logger = serviceProvider.GetRequiredService<ILogger<ApplicationBuilderExtensionsLoggerCategory>>();
 
             Task.Run(async () =>
             {
-                bool roleExists = await roleManager.RoleExistsAsync(AdminRoleName);
-                IdentityRole<Guid>? adminRole = null;
-                if (!roleExists)
-                {
-                    adminRole = new IdentityRole<Guid>(AdminRoleName);
+                string[] roles = AllRoles.ToArray();
 
-                    IdentityResult result = await roleManager.CreateAsync(adminRole);
-                    if (!result.Succeeded)
-                    {
-                        throw new InvalidOperationException($"Error occurred while creating the {AdminRoleName} role!");
-                    }
-                }
-                else
+                foreach (var roleName in roles)
                 {
-                    adminRole = await roleManager.FindByNameAsync(AdminRoleName);
+                    bool roleExists = await roleManager.RoleExistsAsync(roleName);
+
+                    if (!roleExists)
+                    {
+                        IdentityResult result = await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                        if (!result.Succeeded)
+                        {
+                            throw new InvalidOperationException($"Error occurred while creating the {roleName} role!");
+                        }
+
+                        logger.LogInformation("Role {RoleName} was created.", roleName);
+                    }
                 }
 
                 ApplicationUser? adminUser = await userManager.FindByEmailAsync(email);
                 if (adminUser == null)
                 {
-                    adminUser = await
-                        CreateAdminUserAsync(email, username, password, userStore, userManager);
+                    adminUser = await CreateAdminUserAsync(email, username, password, userStore, userManager);
+                    logger.LogInformation("Administrator account {Username} was created successfully.", username);
                 }
 
-                if (await userManager.IsInRoleAsync(adminUser, AdminRoleName))
+                foreach (var roleName in roles)
                 {
-                    return app;
-                }
+                    if (!await userManager.IsInRoleAsync(adminUser, roleName))
+                    {
+                        IdentityResult userResult = await userManager.AddToRoleAsync(adminUser, roleName);
+                        if (!userResult.Succeeded)
+                        {
+                            throw new InvalidOperationException($"Error occurred while adding the user {username} to the {roleName} role!");
+                        }
 
-                IdentityResult userResult = await userManager.AddToRoleAsync(adminUser, AdminRoleName);
-                if (!userResult.Succeeded)
-                {
-                    throw new InvalidOperationException($"Error occurred while adding the user {username} to the {AdminRoleName} role!");
+                        logger.LogInformation("User {Username} was added to the '{RoleName}' role.", username, roleName);
+                    }
                 }
 
                 return app;

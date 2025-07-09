@@ -4,6 +4,6 @@
     {
         public const int ReleaseYear = 2025;
 
-        public const string AdminRoleName = "Admin";
+        public const string AdminArea = "Admin";
     }
 }
