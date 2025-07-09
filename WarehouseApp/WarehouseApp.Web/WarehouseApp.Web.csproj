@@ -24,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Admin\Views\Invoice\" />
+    <Folder Include="Areas\Admin\Views\Warehouse\" />
+    <Folder Include="Areas\Admin\Views\Product\" />
     <Folder Include="Models\" />
   </ItemGroup>
 

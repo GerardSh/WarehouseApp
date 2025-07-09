@@ -1,0 +1,94 @@
+﻿@using WarehouseApp.Web.ViewModels.Admin.UserManagement
+@model AllUsersWithRolesViewModel
+
+@section HeadExtras {
+    <link rel="stylesheet" href="~/css/admin-user-management.css" asp-append-version="true" />
+}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4 text-white">User Management</h1>
+
+    <table class="table table-bordered table-hover table-dark align-middle">
+        <thead>
+            <tr>
+                <th class="text-white">Email</th>
+                <th class="text-white">Roles</th>
+                <th class="text-white text-center">Add Role</th>
+                <th class="text-white text-center">Remove Role</th>
+                <th class="text-white text-center">Delete User</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                var rolesToAdd = Model.AllRoles.Except(user.Roles).ToList();
+
+                <tr class="table-row-hover">
+                    <td data-label="Email" class="text-white fw-semibold">@user.Email</td>
+
+                    <td data-label="Roles">
+                        @if (user.Roles.Any())
+                        {
+                            @foreach (var role in user.Roles)
+                            {
+                                <span class="badge bg-secondary me-1">@role</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">No roles assigned</span>
+                        }
+                    </td>
+
+                    <td class="text-center">
+                        @if (rolesToAdd.Any())
+                        {
+                            <form method="post" asp-action="AssignRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <select name="role" class="form-select form-select-sm" aria-label="Assign Role" required>
+                                    <option value="" disabled selected>Choose role</option>
+                                    @foreach (var role in rolesToAdd)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-outline-light btn-sm">Assign</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">All roles assigned</span>
+                        }
+                    </td>
+
+                    <td class="text-center">
+                        @if (user.Roles.Any())
+                        {
+                            <form method="post" asp-action="RemoveRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <select name="role" class="form-select form-select-sm" aria-label="Remove Role" required>
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-outline-warning btn-sm">Remove</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">No roles to remove</span>
+                        }
+                    </td>
+
+                    <td data-label="Delete User" class="text-center">
+                        <form method="post" asp-action="DeleteUser" asp-controller="UserManagement" asp-area="Admin" class="d-inline">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

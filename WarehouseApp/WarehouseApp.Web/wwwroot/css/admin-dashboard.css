@@ -1,0 +1,41 @@
+﻿.dashboard-dark-bg {
+    background: linear-gradient(160deg, #1c1f26, #2d323e);
+    min-height: 100vh;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    color: #f8f9fa;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(6px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+.card-icon {
+    transition: transform 0.3s ease;
+}
+
+.glass-card:hover .card-icon {
+    transform: scale(1.2);
+}
+
+.dashboard-title {
+    color: #ffffff;
+}
+
+.dashboard-subtitle {
+    color: #ced4da;
+}
+
+.btn-outline-light:hover {
+    background-color: #ffffff;
+    color: #212529;
+}

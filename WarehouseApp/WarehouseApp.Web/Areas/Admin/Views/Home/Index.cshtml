@@ -1,0 +1,63 @@
+﻿@section HeadExtras {
+<link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-dark-bg">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold dashboard-title">Admin Dashboard</h1>
+            <p class="lead dashboard-subtitle">Take control of the platform. Manage users, stock, and more from one place.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center">
+                    <i class="fas fa-users fa-3x text-info mb-3 card-icon"></i>
+                    <h5 class="mb-2">Manage Users</h5>
+                    <p class="text-muted small">Add, edit, or remove users and assign roles.</p>
+                    <a asp-controller="UserManagement" asp-action="Index"
+                       class="btn btn-outline-light w-100 mt-auto">
+                        View Users
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center">
+                    <i class="fas fa-warehouse fa-3x text-primary mb-3 card-icon"></i>
+                    <h5 class="mb-2">Manage Warehouses</h5>
+                    <p class="text-muted small">Add new warehouses, update locations, and monitor capacity.</p>
+                    <a asp-controller="Warehouse" asp-action="Index"
+                       class="btn btn-outline-light w-100 mt-auto">
+                        View Warehouses
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center">
+                    <i class="fas fa-file-invoice-dollar fa-3x text-danger mb-3 card-icon"></i>
+                    <h5 class="mb-2">Invoices</h5>
+                    <p class="text-muted small">Browse income/export invoices and generate reports.</p>
+                    <a asp-controller="Invoice" asp-action="Index"
+                       class="btn btn-outline-light w-100 mt-auto">
+                        View Invoices
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center">
+                    <i class="fas fa-boxes fa-3x text-warning mb-3 card-icon"></i>
+                    <h5 class="mb-2">Manage Products</h5>
+                    <p class="text-muted small">Organize your stock, track items, and update inventory.</p>
+                    <a asp-controller="Product" asp-action="Index"
+                       class="btn btn-outline-light w-100 mt-auto">
+                        View Products
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
