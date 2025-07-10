@@ -33,6 +33,20 @@ namespace WarehouseApp.Data.Configuration
                 .HasDefaultValueSql("GETUTCDATE()");
 
             entity
+                .Property(w => w.CreatedByUserId)
+                .IsRequired(false);
+
+            entity
+                .HasIndex(w => new { w.Name, w.CreatedByUserId })
+                .IsUnique();
+
+            entity
+                .HasOne(w => w.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(w => w.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity
                 .HasData(SeedWarehouses());
         }
 

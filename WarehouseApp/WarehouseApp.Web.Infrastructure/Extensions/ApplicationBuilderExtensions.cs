@@ -8,7 +8,7 @@ using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Web.Infrastructure.Logging;
 using static WarehouseApp.Common.Constants.RolesConstants;
-using static WarehouseApp.Common.Constants.ApplicationConstants;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ApplicationBuilderExtensions;
 
 namespace WarehouseApp.Web.Infrastructure.Extensions
 {
@@ -50,7 +50,7 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
                         IdentityResult result = await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
                         if (!result.Succeeded)
                         {
-                            throw new InvalidOperationException($"Error occurred while creating the {roleName} role!");
+                            throw new InvalidOperationException(string.Format(CreatingRole, roleName));
                         }
 
                         logger.LogInformation("Role {RoleName} was created.", roleName);
@@ -71,7 +71,7 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
                         IdentityResult userResult = await userManager.AddToRoleAsync(adminUser, roleName);
                         if (!userResult.Succeeded)
                         {
-                            throw new InvalidOperationException($"Error occurred while adding the user {username} to the {roleName} role!");
+                            throw new InvalidOperationException(string.Format(AddingUserToRole, username, roleName));
                         }
 
                         logger.LogInformation("User {Username} was added to the '{RoleName}' role.", username, roleName);
@@ -98,22 +98,29 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
 
             if (adminUser == null)
             {
-                throw new InvalidOperationException($"Admin user with email '{adminEmail}' not found.");
+                throw new InvalidOperationException(string.Format(AdminNotFound, adminEmail));
             }
 
-            foreach (var warehouseIdString in WarehouseIds)
+            var warehousesWithoutCreator = dbContext.Warehouses
+                .Where(w => w.CreatedByUserId == null)
+                .ToList();
+
+            foreach (var warehouse in warehousesWithoutCreator)
             {
-                Guid warehouseId = Guid.Parse(warehouseIdString);
+                if (warehouse.CreatedByUserId == null)
+                {
+                    warehouse.CreatedByUserId = adminUser.Id;
+                }
 
                 bool alreadyAssigned = dbContext.UsersWarehouses.Any(uw =>
-                    uw.ApplicationUserId == adminUser.Id && uw.WarehouseId == warehouseId);
+                    uw.ApplicationUserId == adminUser.Id && uw.WarehouseId == warehouse.Id);
 
                 if (!alreadyAssigned)
                 {
                     dbContext.UsersWarehouses.Add(new ApplicationUserWarehouse
                     {
                         ApplicationUserId = adminUser.Id,
-                        WarehouseId = warehouseId
+                        WarehouseId = warehouse.Id
                     });
                 }
             }
@@ -136,7 +143,7 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
             IdentityResult result = await userManager.CreateAsync(applicationUser, password);
             if (!result.Succeeded)
             {
-                throw new InvalidOperationException($"Error occurred while registering {AdminRoleName} user!");
+                throw new InvalidOperationException(string.Format(RegisteringRole, AdminRoleName));
             }
 
             return applicationUser;

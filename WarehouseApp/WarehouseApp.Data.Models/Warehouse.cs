@@ -23,6 +23,11 @@ namespace WarehouseApp.Data.Models
         [Comment("Shows if warehouse is deleted")]
         public bool IsDeleted { get; set; }
 
+        [Comment("ID of the user who created the warehouse")]
+        public Guid? CreatedByUserId { get; set; }
+
+        public virtual ApplicationUser? CreatedByUser { get; set; }
+
         public virtual ICollection<ImportInvoice> ImportInvoices { get; set; }
             = new HashSet<ImportInvoice>();
 
