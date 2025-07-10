@@ -13,13 +13,13 @@ namespace WarehouseApp.Data.Configuration
 
             entity
                 .HasOne(uw => uw.ApplicationUser)
-                .WithMany(u => u.Warehouses)
+                .WithMany(u => u.UserWarehouses)
                 .HasForeignKey(uw => uw.ApplicationUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity
                 .HasOne(aw => aw.Warehouse)
-                .WithMany(w => w.Users)
+                .WithMany(w => w.WarehouseUsers)
                 .HasForeignKey(aw => aw.WarehouseId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

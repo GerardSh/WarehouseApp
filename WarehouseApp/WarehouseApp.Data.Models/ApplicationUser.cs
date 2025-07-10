@@ -15,7 +15,7 @@ namespace WarehouseApp.Data.Models
         [Comment("Full name of the user")]
         public string? FullName { get; set; }
 
-        public virtual ICollection<ApplicationUserWarehouse> Warehouses { get; set; }
+        public virtual ICollection<ApplicationUserWarehouse> UserWarehouses { get; set; }
             = new HashSet<ApplicationUserWarehouse>();
     }
 }

@@ -29,7 +29,7 @@ namespace WarehouseApp.Data.Models
         public virtual ICollection<ExportInvoice> ExportInvoices { get; set; }
             = new HashSet<ExportInvoice>();
 
-        public virtual ICollection<ApplicationUserWarehouse> Users { get; set; }
+        public virtual ICollection<ApplicationUserWarehouse> WarehouseUsers { get; set; }
             = new HashSet<ApplicationUserWarehouse>();
     }
 }
