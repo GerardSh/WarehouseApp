@@ -11,11 +11,12 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
 {
     [Area(AdminArea)]
     [Authorize(Roles = AdminRoleName)]
-    public class UserManagementController : BaseController
+    public class UserManagementController : BaseController<UserManagementController>
     {
         private readonly IUserService userService;
 
-        public UserManagementController(IUserService userService)
+        public UserManagementController(IUserService userService, ILogger<UserManagementController> logger)
+            : base(logger)
         {
             this.userService = userService;
         }
@@ -33,7 +34,10 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         public async Task<IActionResult> AssignRole(string userId, string role)
         {
             Guid userGuid = Guid.Empty;
-            if (!IsGuidValid(userId, ref userGuid))
+
+            bool userIdValid = ValidateUserId(userId, ref userGuid);
+
+            if (!userIdValid)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -59,7 +63,10 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         public async Task<IActionResult> RemoveRole(string userId, string role)
         {
             Guid userGuid = Guid.Empty;
-            if (!IsGuidValid(userId, ref userGuid))
+
+            bool userIdValid = ValidateUserId(userId, ref userGuid);
+
+            if (!userIdValid)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -85,7 +92,10 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteUser(string userId)
         {
             Guid userGuid = Guid.Empty;
-            if (!IsGuidValid(userId, ref userGuid))
+
+            bool userIdValid = ValidateUserId(userId, ref userGuid);
+
+            if (!userIdValid)
             {
                 return RedirectToAction(nameof(Index));
             }

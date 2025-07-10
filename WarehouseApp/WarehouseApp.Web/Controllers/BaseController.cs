@@ -1,23 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WarehouseApp.Web.Controllers
 {
-    public abstract class BaseController : Controller
+    public abstract class BaseController<T> : Controller
     {
-        protected bool IsGuidValid(string? id, ref Guid cinemaGuid)
+        protected readonly ILogger<T> logger;
+
+        protected BaseController(ILogger<T> logger)
         {
-            if (String.IsNullOrWhiteSpace(id))
+            this.logger = logger;
+        }
+
+        protected string? GetUserId()
+        {
+            return User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        protected bool ValidateUserId(string? userId, ref Guid parsedUserId)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out parsedUserId))
             {
+                logger.LogWarning("Unauthorized access attempt with invalid user ID.");
                 return false;
             }
 
-            bool isGuidValid = Guid.TryParse(id, out cinemaGuid);
-            if (!isGuidValid)
-            {
-                return false;
-            }
-
-            return true;
+            return true; ;
         }
     }
 }

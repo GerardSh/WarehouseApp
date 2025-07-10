@@ -9,8 +9,13 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
 {
     [Area(AdminArea)]
     [Authorize(Roles = AdminRoleName)]
-    public class ProductController : BaseController
+    public class ProductController : BaseController<ProductController>
     {
+        public ProductController(ILogger<ProductController> logger)
+                : base(logger)
+        {
+        }
+
         public IActionResult Index()
         {
             return View("~/Views/Shared/_UnderConstruction.cshtml");

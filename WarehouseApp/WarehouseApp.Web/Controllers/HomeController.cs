@@ -5,13 +5,11 @@ using WarehouseApp.Web.ViewModels;
 
 namespace WarehouseApp.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : BaseController<HomeController>
     {
-        private readonly ILogger<HomeController> _logger;
-
         public HomeController(ILogger<HomeController> logger)
+        : base(logger)
         {
-            _logger = logger;
         }
 
         public IActionResult Index()
