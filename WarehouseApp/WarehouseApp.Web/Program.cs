@@ -102,6 +102,7 @@ namespace WarehouseApp.Web
             if (app.Environment.IsDevelopment())
             {
                 app.SeedDefaultRolesAndAdminUser(adminEmail, adminUsername, adminPassword);
+                app.AssignWarehousesToAdminByEmail(adminEmail);
             }
 
             app.Run();

@@ -8,6 +8,7 @@ using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Web.Infrastructure.Logging;
 using static WarehouseApp.Common.Constants.RolesConstants;
+using static WarehouseApp.Common.Constants.ApplicationConstants;
 
 namespace WarehouseApp.Web.Infrastructure.Extensions
 {
@@ -81,6 +82,43 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
             })
                 .GetAwaiter()
                 .GetResult();
+
+            return app;
+        }
+
+        public static IApplicationBuilder AssignWarehousesToAdminByEmail(this IApplicationBuilder app, string adminEmail)
+        {
+            using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
+            var serviceProvider = serviceScope.ServiceProvider;
+
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var dbContext = serviceProvider.GetRequiredService<WarehouseDbContext>();
+
+            var adminUser = userManager.FindByEmailAsync(adminEmail).GetAwaiter().GetResult();
+
+            if (adminUser == null)
+            {
+                throw new InvalidOperationException($"Admin user with email '{adminEmail}' not found.");
+            }
+
+            foreach (var warehouseIdString in WarehouseIds)
+            {
+                Guid warehouseId = Guid.Parse(warehouseIdString);
+
+                bool alreadyAssigned = dbContext.UsersWarehouses.Any(uw =>
+                    uw.ApplicationUserId == adminUser.Id && uw.WarehouseId == warehouseId);
+
+                if (!alreadyAssigned)
+                {
+                    dbContext.UsersWarehouses.Add(new ApplicationUserWarehouse
+                    {
+                        ApplicationUserId = adminUser.Id,
+                        WarehouseId = warehouseId
+                    });
+                }
+            }
+
+            dbContext.SaveChanges();
 
             return app;
         }
