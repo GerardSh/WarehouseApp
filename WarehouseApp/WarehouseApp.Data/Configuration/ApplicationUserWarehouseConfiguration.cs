@@ -18,10 +18,13 @@ namespace WarehouseApp.Data.Configuration
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity
-                .HasOne(aw => aw.Warehouse)
+                .HasOne(uw => uw.Warehouse)
                 .WithMany(w => w.WarehouseUsers)
-                .HasForeignKey(aw => aw.WarehouseId)
+                .HasForeignKey(uw => uw.WarehouseId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity
+                .HasQueryFilter(uw => !uw.Warehouse.IsDeleted);
         }
     }
 }

@@ -47,6 +47,9 @@ namespace WarehouseApp.Data.Configuration
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity
+                .HasQueryFilter(w => !w.IsDeleted);
+
+            entity
                 .HasData(SeedWarehouses());
         }
 
