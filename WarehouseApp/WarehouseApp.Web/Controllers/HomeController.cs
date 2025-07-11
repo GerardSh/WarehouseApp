@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WarehouseApp.Web.Controllers;
-using WarehouseApp.Web.ViewModels;
+using WarehouseApp.Web.ViewModels.Shared;
 
 namespace WarehouseApp.Controllers
 {

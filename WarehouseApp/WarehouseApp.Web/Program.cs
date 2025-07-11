@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using WarehouseApp.Services.Mapping;
 using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
-using WarehouseApp.Web.ViewModels;
+using WarehouseApp.Web.ViewModels.Shared;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Web.Infrastructure.Middlewares;

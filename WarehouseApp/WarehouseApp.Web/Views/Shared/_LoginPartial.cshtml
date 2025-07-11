@@ -19,6 +19,16 @@
                 Hello @username!
             </a>
         </li>
+
+            @if (await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Administrator"))
+            {
+            <li class="nav-item">
+                <a class="nav-link text-white" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                    Admin Panel
+                </a>
+            </li>
+            }
+
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                 <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
