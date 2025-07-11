@@ -1,0 +1,195 @@
+﻿body {
+    background-color: #12121a;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    color: #ffffff;
+    font-size: 2.8rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.warehouse-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.warehouse-card,
+.create-card {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 320px;
+    min-height: 480px;
+    background-color: #1e1e2f;
+    border: 1px solid #3a3a4d;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    color: #ffffff;
+}
+
+@media (max-width: 992px) {
+    .create-card {
+        flex-basis: 300px;
+        min-height: 300px;
+        width: auto;
+    }
+
+        .create-card .card-title {
+            display: none;
+        }
+
+        .create-card i {
+            font-size: 8rem !important;
+        }
+}
+
+@media (max-width: 600px) {
+    .create-card {
+        flex-basis: 200px;
+        min-height: 200px;
+        width: auto;
+    }
+}
+
+        .warehouse-card:hover,
+        .create-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .warehouse-card a.warehouse-link,
+        .create-card a.warehouse-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+    .warehouse-image {
+        background: linear-gradient(135deg, #394867, #212A3E);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        font-size: 4.5rem;
+        color: #ffffff88;
+    }
+
+    .card-body {
+        padding: 2rem;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+    }
+
+    .card-subtitle {
+        font-size: 1.3rem;
+        color: #aaaaaa;
+        margin-bottom: 1rem;
+    }
+
+    .card-text {
+        font-size: 1.2rem;
+        color: #cccccc;
+    }
+
+    .card-title,
+    .card-subtitle,
+    .card-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: 1.2rem 1rem;
+        border-top: 1px solid #2f2f40;
+        background-color: #1b1b29;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+
+        .card-buttons .btn {
+            font-size: 1.1rem;
+            padding: 0.4rem 1.2rem;
+            border-radius: 8px;
+        }
+
+    .create-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 2px dashed #4a4a5d;
+        height: 100%;
+        text-align: center;
+        color: #ffffffbb;
+        background-color: #1a1a28;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    }
+
+        .create-card:hover {
+            background-color: #23233a;
+        }
+
+        .create-card i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .create-card .card-title {
+            font-size: 1.6rem;
+            font-weight: 500;
+        }
+
+form.rounded.rounded {
+    border-radius: 20px !important;
+}
+
+.form-control,
+.form-select {
+    background-color: #1a1a28 !important;
+    border: 1px solid #3a3a4d !important;
+    color: #ffffff !important;
+}
+
+    .form-control::placeholder {
+        color: #888888 !important;
+    }
+
+.page-link {
+    background-color: #1a1a28 !important;
+    border: 1px solid #3a3a4d !important;
+    color: #ffffff !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+    .page-link:hover {
+        background-color: #2a2a3f !important;
+        color: #ffffff !important;
+    }
+
+.page-item.active .page-link {
+    background-color: #3f51b5 !important;
+    border-color: #3f51b5 !important;
+    color: #ffffff !important;
+}

@@ -46,6 +46,12 @@
             public const int AddressMinLength = 5;
 
             public const int AddressMaxLength = 150;
+
+            public const double SizeMin = 0.1;
+
+            public const double SizeMax = 100000;
+
+            public const string YearFilterRangeRegex = "^(\\d{4})\\s*\\-\\s*(\\d{4})$";
         }
 
         public static class Product
