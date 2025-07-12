@@ -85,3 +85,16 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(245, 245, 245, 0.2);
     }
+
+.custom-alert {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: #2899f5;
+    font-weight: 500;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.2);
+    transition: opacity 0.5s ease-in-out;
+    font-size: 1.05rem;
+}
