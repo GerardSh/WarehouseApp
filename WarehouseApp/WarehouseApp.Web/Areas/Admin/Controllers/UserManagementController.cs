@@ -35,12 +35,9 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         {
             Guid userGuid = Guid.Empty;
 
-            bool userIdValid = ValidateUserId(userId, ref userGuid);
-
-            if (!userIdValid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
             bool userExists = await userService
                 .UserExistsByIdAsync(userGuid);
@@ -64,12 +61,9 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         {
             Guid userGuid = Guid.Empty;
 
-            bool userIdValid = ValidateUserId(userId, ref userGuid);
-
-            if (!userIdValid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
             bool userExists = await userService
                 .UserExistsByIdAsync(userGuid);
@@ -93,12 +87,9 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         {
             Guid userGuid = Guid.Empty;
 
-            bool userIdValid = ValidateUserId(userId, ref userGuid);
-
-            if (!userIdValid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
             bool userExists = await userService
                 .UserExistsByIdAsync(userGuid);
