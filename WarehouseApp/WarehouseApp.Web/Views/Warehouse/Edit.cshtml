@@ -1,21 +1,22 @@
-﻿@model WarehouseApp.Web.ViewModels.Warehouse.CreateWarehouseInputModel
+﻿@model WarehouseApp.Web.ViewModels.Warehouse.EditWarehouseInputModel
 
 @{
-    ViewData["Title"] = "Create Warehouse";
+    ViewData["Title"] = "Edit Warehouse";
 }
 
 @section HeadExtras {
     <link rel="stylesheet" href="~/css/warehouse-create-edit.css" asp-append-version="true" />
 }
 
-<h2 class="text-center text-white mb-5 fw-bold">Create New Warehouse</h2>
+<h2 class="text-center text-white mb-5 fw-bold">Edit Warehouse</h2>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-5">
             @Html.ValidationSummary(true, "", new { @class = "text-danger mb-4" })
 
-            <form asp-action="Create" asp-controller="Warehouse" method="post" class="bg-dark p-4 rounded shadow-lg" novalidate>
+            <form asp-action="Edit" asp-controller="Warehouse" method="post" class="bg-dark p-4 rounded shadow-lg" novalidate>
+                <input type="hidden" asp-for="Id" />
 
                 <div class="mb-4">
                     <label asp-for="Name" class="form-label text-white fw-semibold"></label>
@@ -37,13 +38,12 @@
 
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-gradient px-5 fw-semibold">
-                        <i class="fas fa-plus me-2"></i> Create
+                        <i class="fas fa-save me-2"></i> Save
                     </button>
                     <a asp-action="Index" asp-controller="Warehouse" class="btn btn-outline-secondary ms-3 px-4 fw-semibold">
                         Cancel
                     </a>
                 </div>
-
             </form>
         </div>
     </div>

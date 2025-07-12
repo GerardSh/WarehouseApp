@@ -5,8 +5,11 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 
 namespace WarehouseApp.Web.ViewModels.Warehouse
 {
-    public class CreateWarehouseInputModel
+    public class EditWarehouseInputModel
     {
+        [Required]
+        public Guid Id { get; set; }
+
         [Required(ErrorMessage = RequiredName)]
         [MaxLength(NameMaxLength-DeletedSuffixLength)]
         [MinLength(NameMinLength)]

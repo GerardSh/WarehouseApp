@@ -9,6 +9,7 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Shared;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
 using static WarehouseApp.Common.Constants.EntityConstants.Warehouse;
 
@@ -25,10 +26,18 @@ namespace WarehouseApp.Services.Data
             this.userManager = userManager;
         }
 
-        public async Task<IEnumerable<WarehouseCardViewModel>> GetWarehousesForUserAsync(AllWarehousesSearchFilterViewModel inputModel, Guid userId)
+        public async Task<OperationResult> GetWarehousesForUserAsync(
+            AllWarehousesSearchFilterViewModel inputModel, Guid userId)
         {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult<IEnumerable<WarehouseCardViewModel>>.Failure(UserNotFound);
+
             IQueryable<Warehouse> allWarehousesQuery = dbContext.Warehouses
                 .Where(w => w.WarehouseUsers.Any(uw => uw.ApplicationUserId == userId));
+
+            inputModel.TotalUserWarehouses = await allWarehousesQuery.CountAsync();
 
             if (!string.IsNullOrWhiteSpace(inputModel.SearchQuery))
             {
@@ -59,17 +68,38 @@ namespace WarehouseApp.Services.Data
                 }
             }
 
+            allWarehousesQuery = allWarehousesQuery.OrderBy(w => w.Name);
+
             inputModel.TotalItemsBeforePagination = await allWarehousesQuery.CountAsync();
 
-            if (inputModel.CurrentPage.HasValue &&
-                inputModel.EntitiesPerPage.HasValue)
+            if (inputModel.EntitiesPerPage <= 0)
             {
-                allWarehousesQuery = allWarehousesQuery
-                    .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage.Value - 1))
-                    .Take(inputModel.EntitiesPerPage.Value);
+                inputModel.EntitiesPerPage = 5;
             }
 
-            return await allWarehousesQuery.Select(w => new WarehouseCardViewModel
+            if (inputModel.EntitiesPerPage > 100)
+            {
+                inputModel.EntitiesPerPage = 100;
+            }
+
+            inputModel.TotalPages = (int)Math.Ceiling(inputModel.TotalItemsBeforePagination /
+                                                (double)inputModel.EntitiesPerPage!.Value);
+
+            if (inputModel.CurrentPage > inputModel.TotalPages)
+            {
+                inputModel.CurrentPage = inputModel.TotalPages > 0 ? inputModel.TotalPages : 1;
+            }
+
+            if (inputModel.CurrentPage <= 0)
+            {
+                inputModel.CurrentPage = 1;
+            }
+
+            allWarehousesQuery = allWarehousesQuery
+                    .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
+                    .Take(inputModel.EntitiesPerPage.Value);
+
+            var warhouses = await allWarehousesQuery.Select(w => new WarehouseCardViewModel
             {
                 Id = w.Id.ToString(),
                 Name = w.Name,
@@ -77,22 +107,25 @@ namespace WarehouseApp.Services.Data
                 CreatedDate = w.CreatedDate.ToString(DateFormat),
                 Size = w.Size.ToString(),
             })
-                .OrderBy(w => w.Name)
                 .ToArrayAsync();
+
+            inputModel.Warehouses = warhouses;
+
+            return OperationResult.Ok();
         }
 
-        public async Task<OperationResult<Guid>> CreateWarehouseAsync(CreateWarehouseInputModel inputModel, Guid userId)
+        public async Task<OperationResult> CreateWarehouseAsync(CreateWarehouseInputModel inputModel, Guid userId)
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
-                return OperationResult<Guid>.Failure(UserNotFound);
+                return OperationResult.Failure(UserNotFound);
 
             bool warehouseExists = await dbContext.UsersWarehouses
-                .AnyAsync(uw => uw.ApplicationUserId == userId && uw.Warehouse.Name == inputModel.Name);
+                .AnyAsync(uw => uw.ApplicationUserId == userId && uw.Warehouse.Name.ToLower() == inputModel.Name.ToLower());
 
             if (warehouseExists)
-                return OperationResult<Guid>.Failure(WarehouseDuplicateName);
+                return OperationResult.Failure(WarehouseDuplicateName);
 
             Warehouse warehouse = new Warehouse()
             {
@@ -111,7 +144,134 @@ namespace WarehouseApp.Services.Data
             await dbContext.UsersWarehouses.AddAsync(userWarehouse);
             await dbContext.SaveChangesAsync();
 
-            return OperationResult<Guid>.Ok();
+            return OperationResult.Ok();
+        }
+
+        public async Task<OperationResult<WarehouseDetailsViewModel>> GetWarehouseDetailsAsync(Guid warehouseId, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult<WarehouseDetailsViewModel>.Failure(UserNotFound);
+
+            Warehouse? warehouse = await dbContext.Warehouses
+                .AsNoTracking()
+                .Include(w => w.WarehouseUsers)
+                .Include(w => w.CreatedByUser)
+                .Where(w=> !w.IsDeleted)
+                .FirstOrDefaultAsync(w => w.Id == warehouseId);
+
+            if (warehouse == null || warehouse.IsDeleted)
+                return OperationResult<WarehouseDetailsViewModel>.Failure(WarehouseNotFound);
+
+            bool hasPermission = warehouse.CreatedByUserId == userId
+                || warehouse.WarehouseUsers.Any(wu => wu.ApplicationUserId == userId);
+
+            if (!hasPermission)
+                return OperationResult<WarehouseDetailsViewModel>.Failure(NoPermission);
+
+            var viewModel = new WarehouseDetailsViewModel
+            {
+                Id = warehouse.Id.ToString(),
+                Name = warehouse.Name,
+                Address = warehouse.Address,
+                CreatedByUser = warehouse.CreatedByUser?.Email!,
+                CreatedDate = warehouse.CreatedDate.ToString(DateFormat),
+                IsUserOwner = warehouse.CreatedByUser?.Email == user.Email,
+                Size = warehouse.Size.ToString()
+            };
+
+            return OperationResult<WarehouseDetailsViewModel>.Ok(viewModel);
+        }
+
+        public async Task<OperationResult<EditWarehouseInputModel>> GetWarehouseForEditingAsync(Guid warehouseId, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult<EditWarehouseInputModel>.Failure(UserNotFound);
+
+            Warehouse? warehouse = await dbContext.Warehouses
+               .Where(w => w.Id == warehouseId)
+               .AsNoTracking()
+               .FirstOrDefaultAsync();
+
+            if (warehouse == null)
+                return OperationResult<EditWarehouseInputModel>.Failure(WarehouseNotFound);
+
+            if (warehouse.CreatedByUserId != userId)
+                return OperationResult<EditWarehouseInputModel>.Failure(NoPermission);
+
+            EditWarehouseInputModel editModel = new EditWarehouseInputModel()
+            {
+                Id = warehouse.Id,
+                Name = warehouse.Name,
+                Address = warehouse.Address,
+                Size = warehouse.Size
+            };
+
+            return OperationResult<EditWarehouseInputModel>.Ok(editModel);
+        }
+
+        public async Task<OperationResult> UpdateWarehouseAsync(EditWarehouseInputModel inputModel, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult<EditWarehouseInputModel>.Failure(UserNotFound);
+
+            Warehouse? warehouse = await dbContext.Warehouses
+               .Where(w => w.Id == inputModel.Id)
+               .FirstOrDefaultAsync();
+
+            if (warehouse == null)
+                return OperationResult<EditWarehouseInputModel>.Failure(WarehouseNotFound);
+
+            if (warehouse.CreatedByUserId != userId)
+                return OperationResult<EditWarehouseInputModel>.Failure(NoPermission);
+
+            bool warehouseExists = await dbContext.UsersWarehouses
+            .AnyAsync(uw => uw.ApplicationUserId == userId &&
+            uw.Warehouse.Name.ToLower() == inputModel.Name.ToLower()
+            && uw.WarehouseId != inputModel.Id);
+            if (warehouseExists)
+                return OperationResult<EditWarehouseInputModel>.Failure(WarehouseDuplicateName);
+
+            warehouse.Name = inputModel.Name;
+            warehouse.Address = inputModel.Address;
+            warehouse.Size = inputModel.Size;
+
+            await dbContext.SaveChangesAsync();
+
+            return OperationResult.Ok();
+        }
+
+        public async Task<OperationResult> DeleteWarehouseAsync(Guid warehouseId, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
+            Warehouse? warehouse = await dbContext.Warehouses
+                .Include(w => w.WarehouseUsers)
+                .FirstOrDefaultAsync(w => w.Id == warehouseId);
+
+            if (warehouse == null)
+                return OperationResult.Failure(WarehouseNotFound);
+
+            if (warehouse.IsDeleted)
+                return OperationResult.Failure(AlreadyDeleted);
+
+            if (warehouse.CreatedByUserId != userId)
+                return OperationResult.Failure(NoPermission);
+
+            warehouse.Name += $"/DeletedOn/{DateTime.Now:dd-MM-yyyy/HH:mm:ss}";
+            warehouse.IsDeleted = true;
+
+            await dbContext.SaveChangesAsync();
+
+            return OperationResult.Ok();
         }
     }
 }

@@ -3,15 +3,22 @@
     ViewData["Title"] = "403 Forbidden";
 }
 
-        <i class="fas fa-ban fa-5x mb-4" style="color:#e74c3c;"></i>
+@if (TempData["ErrorMessage"] != null)
+{
+    <p class="text-danger mt-3" style="font-weight: 500;">
+        @TempData["ErrorMessage"]
+    </p>
+}
 
-        <h1>403 - Access Denied</h1>
-        <p>
-            Sorry, you don't have permission to access this resource.<br />
-            If you believe this is an error, please contact the system administrator.
-        </p>
+<i class="fas fa-ban fa-5x mb-4" style="color:#e74c3c;"></i>
 
-        <div class="btn-group flex-wrap justify-content-center gap-7">
-            <a href="/" class="btn btn-primary">Go to Dashboard</a>
-            <a href="javascript:history.back()" class="btn btn-outline-secondary">Go Back</a>
-        </div>
+<h1>403 - Access Denied</h1>
+<p>
+    Sorry, you don't have permission to access this resource.<br />
+    If you believe this is an error, please contact the system administrator.
+</p>
+
+<div class="btn-group flex-wrap justify-content-center gap-7">
+    <a href="/" class="btn btn-primary">Go to Dashboard</a>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">Go Back</a>
+</div>

@@ -10,13 +10,20 @@
 }
 
 @{
-    if (!Model.Warehouses.Any())
+    if (Model.Warehouses.Any())
     {
-        <h2>You dont have Warehouses, create your first!</h2>
+        <h2>
+            You have @Model.TotalUserWarehouses
+            @(Model.TotalUserWarehouses == 1 ? "Warehouse" : "Warehouses")!
+        </h2>
+    }
+    else if (Model.TotalUserWarehouses > 0)
+    {
+        <h2>No Warehouses found!</h2>
     }
     else
     {
-        <h2>Your Warehouses</h2>
+        <h2>You dont have Warehouses, create your first!</h2>
     }
 }
 
@@ -28,7 +35,7 @@
         </div>
         <div class="col-md-4">
             <label asp-for="YearFilter" class="form-label">Filter by year or range</label>
-            <input asp-for="YearFilter" class="form-control bg-dark text-white border-secondary" placeholder="e.g. 2023 or 2020-2023" />
+            <input asp-for="YearFilter" class="form-control bg-dark text-white border-secondary" placeholder="e.g. @DateTime.Now.Year or @(DateTime.Now.Year-5)-@DateTime.Now.Year" />
         </div>
         <div class="col-md-3">
             <label asp-for="EntitiesPerPage" class="form-label">Items per page</label>

@@ -6,6 +6,7 @@ using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Shared;
 using WarehouseApp.Web.ViewModels.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -22,41 +23,34 @@ namespace WarehouseApp.Web.Controllers
 
         public async Task<IActionResult> Index(AllWarehousesSearchFilterViewModel inputModel)
         {
-            string userId = GetUserId()!;
-
+            string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
 
-            bool userIdValid = ValidateUserId(userId, ref userGuid);
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
-            if (!userIdValid)
+            OperationResult result
+                = await warehouseService.GetWarehousesForUserAsync(inputModel, userGuid);
+
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = result.ErrorMessage;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
-            var filteredWarehouses = await warehouseService.GetWarehousesForUserAsync(inputModel, userGuid);
-
-            AllWarehousesSearchFilterViewModel model = new AllWarehousesSearchFilterViewModel()
-            {
-                Warehouses = filteredWarehouses,
-                SearchQuery = inputModel.SearchQuery,
-                YearFilter = inputModel.YearFilter,
-                CurrentPage = inputModel.CurrentPage,
-                EntitiesPerPage = inputModel.EntitiesPerPage,
-                TotalPages = (int)Math.Ceiling((double)inputModel.TotalItemsBeforePagination /
-                                               inputModel.EntitiesPerPage!.Value)
-            };
-            return View(model);
+            return View(inputModel);
         }
 
         [HttpGet]
         public IActionResult Create()
         {
             string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
             var model = new CreateWarehouseInputModel();
 
@@ -66,30 +60,141 @@ namespace WarehouseApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateWarehouseInputModel model)
         {
-            string userId = GetUserId()!;
-
+            string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
 
-            bool userIdValid = ValidateUserId(userId, ref userGuid);
-
-            if (!userIdValid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
 
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            OperationResult<Guid> addResult = await warehouseService.CreateWarehouseAsync(model, userGuid);
+            OperationResult result =
+                await warehouseService.CreateWarehouseAsync(model, userGuid);
 
-            if (!addResult.Success)
+            if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, addResult.ErrorMessage ?? CreationFailure);
+                if (result.ErrorMessage == UserNotFound)
+                {
+                    TempData["ErrorMessage"] = UserNotFound;
+                    return RedirectToAction("Error", "Home", new { statusCode = 403 });
+                }
+
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? CreationFailure);
                 return View(model);
             }
 
+            TempData["Message"] = CreationSuccess;
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            string userId = GetUserId()!;
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult<WarehouseDetailsViewModel> result =
+                await warehouseService.GetWarehouseDetailsAsync(id, userGuid);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = NoPermissionOrWarehouseNotFound;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return View(result.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id, bool returnToDetails)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult<EditWarehouseInputModel> result =
+                await warehouseService.GetWarehouseForEditingAsync(id, userGuid);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = NoPermissionOrWarehouseNotFound;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditWarehouseInputModel model)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            OperationResult result = 
+                await warehouseService.UpdateWarehouseAsync(model, userGuid);
+
+            if (!result.Success)
+            {
+                if (result.ErrorMessage == WarehouseDuplicateName)
+                {
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage ?? EditingFailure);
+                    return View(model);
+                }
+
+                TempData["ErrorMessage"] = NoPermissionOrWarehouseNotFound;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            TempData["Message"] = EditingSuccess;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult result = await warehouseService.DeleteWarehouseAsync(id, userGuid);
+
+            if (!result.Success)
+            {
+                if (result.ErrorMessage == AlreadyDeleted)
+                {
+                    TempData["InfoMessage"] = AlreadyDeleted;
+                    return RedirectToAction("Index");
+                }
+
+                TempData["ErrorMessage"] = result.ErrorMessage ?? DeletionFailure;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            TempData["Message"] = DeletionSuccess;
             return RedirectToAction(nameof(Index));
         }
     }

@@ -4,7 +4,8 @@ namespace WarehouseApp.Web.ViewModels.Shared
 {
     public class AllWarehousesSearchFilterViewModel
     {
-        public IEnumerable<WarehouseCardViewModel>? Warehouses { get; set; }
+        public IEnumerable<WarehouseCardViewModel> Warehouses { get; set; }
+                = new List<WarehouseCardViewModel>();
 
         public string? SearchQuery { get; set; }
 
@@ -17,5 +18,7 @@ namespace WarehouseApp.Web.ViewModels.Shared
         public int TotalItemsBeforePagination { get; set; }
 
         public int? TotalPages { get; set; }
+
+        public int TotalUserWarehouses { get; set; }
     }
 }

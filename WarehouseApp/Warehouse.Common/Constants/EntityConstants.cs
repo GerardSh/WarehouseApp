@@ -52,6 +52,8 @@
             public const double SizeMax = 100000;
 
             public const string YearFilterRangeRegex = "^(\\d{4})\\s*\\-\\s*(\\d{4})$";
+
+            public const int DeletedSuffixLength = 50;
         }
 
         public static class Product
