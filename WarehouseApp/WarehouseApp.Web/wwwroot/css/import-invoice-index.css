@@ -1,0 +1,46 @@
+﻿:root {
+    --card-bg: #1e1e2f;
+    --accent-bg: #2d2d45;
+    --card-border: #3a3a4d;
+    --accent-hover: #333355;
+    --purple-light: #b39ddb;
+}
+
+.table-custom-dark {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg);
+    color: #ffffff;
+}
+
+    .table-custom-dark thead {
+        background-color: var(--accent-bg);
+        color: #0078D4;
+    }
+
+    .table-custom-dark tbody tr {
+        border-top: 1px solid var(--card-border);
+        transition: background-color 0.2s ease;
+    }
+
+        .table-custom-dark tbody tr:hover {
+            background-color: var(--accent-hover);
+        }
+
+    .table-custom-dark th,
+    .table-custom-dark td {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--card-border);
+        vertical-align: middle;
+    }
+
+.table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+}
+
+.btn-outline-info {
+    color: #0078D4;
+    border-color: #0078D4
+}

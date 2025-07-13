@@ -157,7 +157,7 @@ namespace WarehouseApp.Web.Controllers
                 return View(model);
             }
 
-            OperationResult result = 
+            OperationResult result =
                 await warehouseService.UpdateWarehouseAsync(model, userGuid);
 
             if (!result.Success)

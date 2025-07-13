@@ -35,6 +35,7 @@ namespace WarehouseApp.Services.Data
                 return OperationResult.Failure(UserNotFound);
 
             IQueryable<Warehouse> allWarehousesQuery = dbContext.Warehouses
+                .AsNoTracking()
                 .Where(w => w.WarehouseUsers.Any(uw => uw.ApplicationUserId == userId));
 
             inputModel.TotalUserWarehouses = await allWarehousesQuery.CountAsync();
@@ -158,7 +159,7 @@ namespace WarehouseApp.Services.Data
                 .AsNoTracking()
                 .Include(w => w.WarehouseUsers)
                 .Include(w => w.CreatedByUser)
-                .Where(w=> !w.IsDeleted)
+                .Where(w => !w.IsDeleted)
                 .FirstOrDefaultAsync(w => w.Id == warehouseId);
 
             if (warehouse == null || warehouse.IsDeleted)

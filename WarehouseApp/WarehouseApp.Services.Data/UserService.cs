@@ -30,7 +30,8 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            IQueryable<ApplicationUser> allUsersQuery = userManager.Users;
+            IQueryable<ApplicationUser> allUsersQuery = userManager.Users
+                .AsNoTracking();
 
             inputModel.TotalUsers = await allUsersQuery.CountAsync();
 
