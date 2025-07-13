@@ -7,6 +7,14 @@
             public const string UserNotFound = "User not found!";
         }
 
+        public static class UserManager
+        {
+            public const string UserOrRoleNotFound = "User or role not found!";
+            public const string FailedToAssignRole = "Failed to assign the selected role to the user!";
+            public const string FailedToRemoveRole = "Failed to remove the selected role from the user!";
+            public const string FailedToDeleteUser = "Failed to delete the selected user!";
+        }
+
         public static class Warehouse
         {
             public const string RequiredName = "Warehouse name is required!";

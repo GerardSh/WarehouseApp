@@ -1,94 +1,166 @@
 ﻿@using WarehouseApp.Web.ViewModels.Admin.UserManagement
-@model AllUsersWithRolesViewModel
+@model AllUsersWithRolesSearchFilterViewModel
 
 @section HeadExtras {
     <link rel="stylesheet" href="~/css/admin-user-management.css" asp-append-version="true" />
 }
 
+<h5 class="text-white text-end mb-0">
+    Total Users: @Model.TotalUsers
+</h5>
+
 <div class="container mt-5">
-    <h1 class="text-center mb-4 text-white">User Management</h1>
-
-    <table class="table table-bordered table-hover table-dark align-middle">
-        <thead>
-            <tr>
-                <th class="text-white">Email</th>
-                <th class="text-white">Roles</th>
-                <th class="text-white text-center">Add Role</th>
-                <th class="text-white text-center">Remove Role</th>
-                <th class="text-white text-center">Delete User</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model.Users)
-            {
-                var rolesToAdd = Model.AllRoles.Except(user.Roles).ToList();
-
-                <tr class="table-row-hover">
-                    <td data-label="Email" class="text-white fw-semibold">@user.Email</td>
-
-                    <td data-label="Roles">
-                        @if (user.Roles.Any())
-                        {
-                            @foreach (var role in user.Roles)
-                            {
-                                <span class="badge bg-secondary me-1">@role</span>
-                            }
-                        }
-                        else
-                        {
-                            <span class="text-muted fst-italic">No roles assigned</span>
-                        }
-                    </td>
-
-                    <td class="text-center">
-                        @if (rolesToAdd.Any())
-                        {
-                            <form method="post" asp-action="AssignRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <select name="role" class="form-select form-select-sm" aria-label="Assign Role" required>
-                                    <option value="" disabled selected>Choose role</option>
-                                    @foreach (var role in rolesToAdd)
-                                    {
-                                        <option value="@role">@role</option>
-                                    }
-                                </select>
-                                <button type="submit" class="btn btn-outline-light btn-sm">Assign</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="text-muted fst-italic">All roles assigned</span>
-                        }
-                    </td>
-
-                    <td class="text-center">
-                        @if (user.Roles.Any())
-                        {
-                            <form method="post" asp-action="RemoveRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <select name="role" class="form-select form-select-sm" aria-label="Remove Role" required>
-                                    @foreach (var role in user.Roles)
-                                    {
-                                        <option value="@role">@role</option>
-                                    }
-                                </select>
-                                <button type="submit" class="btn btn-outline-warning btn-sm">Remove</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="text-muted fst-italic">No roles to remove</span>
-                        }
-                    </td>
-
-                    <td data-label="Delete User" class="text-center">
-                        <form method="post" asp-action="DeleteUser" asp-controller="UserManagement" asp-area="Admin" class="d-inline">
-                            <input type="hidden" name="userId" value="@user.Id" />
-                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <h1 class="text-white text-center mb-4">User Management</h1>
 </div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <form method="get" asp-action="Index" class="filter-form mb-5">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label asp-for="SearchQuery" class="form-label text-white">Search by keyword</label>
+                    <input asp-for="SearchQuery" class="form-control filter-input" placeholder="Search by name..." />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EntitiesPerPage" class="form-label text-white">Items per page</label>
+                    <select asp-for="EntitiesPerPage" class="form-select filter-input">
+                        @for (int i = 5; i <= 30; i += 5)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-light w-100">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover table-dark align-middle">
+    <thead>
+        <tr>
+            <th class="text-white">Email</th>
+            <th class="text-white">Roles</th>
+            <th class="text-white text-center">Add Role</th>
+            <th class="text-white text-center">Remove Role</th>
+            <th class="text-white text-center">Delete User</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            var rolesToAdd = Model.AllRoles.Except(user.Roles).ToList();
+
+            <tr class="table-row-hover">
+                <td data-label="Email" class="text-white fw-semibold">@user.Email</td>
+
+                <td data-label="Roles">
+                    @if (user.Roles.Any())
+                    {
+                        @foreach (var role in user.Roles)
+                        {
+                            <span class="badge bg-secondary me-1">@role</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">No roles assigned</span>
+                    }
+                </td>
+
+                <td class="text-center">
+                    @if (rolesToAdd.Any())
+                    {
+                        <form method="post" asp-action="AssignRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="role" class="form-select form-select-sm" aria-label="Assign Role" required>
+                                <option value="" disabled selected>Choose role</option>
+                                @foreach (var role in rolesToAdd)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-outline-light btn-sm">Assign</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">All roles assigned</span>
+                    }
+                </td>
+
+                <td class="text-center">
+                    @if (user.Roles.Any())
+                    {
+                        <form method="post" asp-action="RemoveRole" asp-controller="UserManagement" asp-area="Admin" class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="role" class="form-select form-select-sm" aria-label="Remove Role" required>
+                                @foreach (var role in user.Roles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Remove</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">No roles to remove</span>
+                    }
+                </td>
+
+                <td data-label="Delete User" class="text-center">
+                    <form method="post" asp-action="DeleteUser" asp-controller="UserManagement" asp-area="Admin" class="d-inline">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center flex-wrap">
+        @if (Model.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
+                   asp-route-currentPage="@(Model.CurrentPage - 1)"
+                   asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    <i class="fas fa-chevron-left me-1"></i> Previous
+                </a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link @(i == Model.CurrentPage ? "bg-primary border-primary text-white" : "bg-dark text-light border-secondary")"
+                   asp-action="Index"
+                   asp-route-currentPage="@i"
+                   asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    @i
+                </a>
+            </li>
+        }
+
+        @if (Model.CurrentPage < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
+                   asp-route-currentPage="@(Model.CurrentPage + 1)"
+                   asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    Next <i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

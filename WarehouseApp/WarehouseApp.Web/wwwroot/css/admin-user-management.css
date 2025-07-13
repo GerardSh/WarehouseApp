@@ -15,6 +15,33 @@ button.btn-sm {
     padding: 0 0.75rem;
 }
 
+.filter-form {
+    background-color: #212529;
+    border: 1px solid #3a3a4d;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+
+    .filter-form .form-label {
+        margin-bottom: 0.25rem;
+    }
+
+    .filter-form .form-control,
+    .filter-form .form-select {
+        background-color: white;
+        color: #212529;
+        border: 1px solid #3a3a4d;
+        height: 32px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-form button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+        height: 32px;
+    }
+
 /* Mobile layout */
 @media (max-width: 1000px) {
     table thead {

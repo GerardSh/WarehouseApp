@@ -6,6 +6,7 @@ using WarehouseApp.Web.ViewModels.Admin.UserManagement;
 using WarehouseApp.Web.Controllers;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
 using static WarehouseApp.Common.Constants.RolesConstants;
+using WarehouseApp.Services.Data.Models;
 
 namespace WarehouseApp.Web.Areas.Admin.Controllers
 {
@@ -22,12 +23,35 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(AllUsersWithRolesSearchFilterViewModel inputModel)
         {
-            AllUsersWithRolesViewModel allUsersWithRoles = await userService
-                .GetAllUsersAsync();
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
 
-            return View(allUsersWithRoles);
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult result
+                = await userService
+                .GetAllUsersAsync(inputModel, userGuid);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            if (inputModel.Users.Count() == 0)
+            {
+                TempData["Message"] = "No users found!";
+            }
+
+            TempData["CurrentPage"] = inputModel.CurrentPage;
+            TempData["SearchQuery"] = inputModel.SearchQuery ?? string.Empty;
+            TempData["EntitiesPerPage"] = inputModel.EntitiesPerPage;
+
+            return View(inputModel);
         }
 
         [HttpPost]
@@ -39,21 +63,25 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
-            bool userExists = await userService
+            OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
-            if (!userExists)
+            if (!userExists.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            bool assignResult = await userService
+            OperationResult assignResult = await userService
                 .AssignUserToRoleAsync(userGuid, role);
-            if (!assignResult)
+            if (!assignResult.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction(nameof(Index));
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
         }
 
         [HttpPost]
@@ -65,21 +93,25 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
-            bool userExists = await userService
+            OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
-            if (!userExists)
+            if (!userExists.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            bool removeResult = await userService
+            OperationResult removeResult = await userService
                 .RemoveUserRoleAsync(userGuid, role);
-            if (!removeResult)
+            if (!removeResult.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction(nameof(Index));
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
         }
 
         [HttpPost]
@@ -91,21 +123,25 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
-            bool userExists = await userService
+            OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
-            if (!userExists)
+            if (!userExists.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            bool removeResult = await userService
+            OperationResult removeResult = await userService
                 .DeleteUserAsync(userGuid);
-            if (!removeResult)
+            if (!removeResult.Success)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction(nameof(Index));
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
         }
     }
 }

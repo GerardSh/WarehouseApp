@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Interfaces;
+using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Admin.UserManagement;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
 
 namespace WarehouseApp.Services.Data
 {
@@ -19,55 +22,105 @@ namespace WarehouseApp.Services.Data
             this.roleManager = roleManager;
         }
 
-        public async Task<AllUsersWithRolesViewModel> GetAllUsersAsync()
+        public async Task<OperationResult> GetAllUsersAsync(
+            AllUsersWithRolesSearchFilterViewModel inputModel, Guid userId)
         {
-            IEnumerable<ApplicationUser> allUsers = await userManager.Users
-                .ToArrayAsync();
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
+            IQueryable<ApplicationUser> allUsersQuery = userManager.Users;
+
+            inputModel.TotalUsers = await allUsersQuery.CountAsync();
+
+            if (!string.IsNullOrWhiteSpace(inputModel.SearchQuery))
+            {
+                allUsersQuery = allUsersQuery
+                    .Where(u => u.Email!.ToLower().Contains(inputModel.SearchQuery.ToLower()));
+            }
+
+            allUsersQuery = allUsersQuery.OrderBy(u => u.Email);
+
+            inputModel.TotalItemsBeforePagination = await allUsersQuery.CountAsync();
+
+            if (inputModel.EntitiesPerPage <= 0)
+            {
+                inputModel.EntitiesPerPage = 5;
+            }
+
+            if (inputModel.EntitiesPerPage > 100)
+            {
+                inputModel.EntitiesPerPage = 100;
+            }
+
+            inputModel.TotalPages = (int)Math.Ceiling(inputModel.TotalItemsBeforePagination /
+                                                (double)inputModel.EntitiesPerPage!.Value);
+
+            if (inputModel.CurrentPage > inputModel.TotalPages)
+            {
+                inputModel.CurrentPage = inputModel.TotalPages > 0 ? inputModel.TotalPages : 1;
+            }
+
+            if (inputModel.CurrentPage <= 0)
+            {
+                inputModel.CurrentPage = 1;
+            }
+
+            allUsersQuery = allUsersQuery
+                    .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
+                    .Take(inputModel.EntitiesPerPage.Value);
 
             IEnumerable<string> allRoles = await roleManager.Roles
                 .Select(r => r.Name!)
                 .ToArrayAsync();
 
-            ICollection<UserViewModel> allUsersViewModel = new List<UserViewModel>();
+            inputModel.AllRoles = allRoles;
 
-            foreach (ApplicationUser user in allUsers)
+            IEnumerable<ApplicationUser> allUsers = await allUsersQuery
+                .ToArrayAsync();
+
+            var allUsersViewModel = new List<UserViewModel>();
+
+            foreach (ApplicationUser currentUser in allUsers)
             {
-                IEnumerable<string> roles = await userManager.GetRolesAsync(user);
+                IEnumerable<string> roles = await userManager.GetRolesAsync(currentUser);
 
                 allUsersViewModel.Add(new UserViewModel()
                 {
-                    Id = user.Id.ToString(),
-                    Email = user.Email,
+                    Id = currentUser.Id.ToString(),
+                    Email = currentUser.Email,
                     Roles = roles
                 });
             }
 
-            var allUsersWithRolesViewModel = new AllUsersWithRolesViewModel
-            {
-                Users = allUsersViewModel,
-                AllRoles = allRoles
-            };
+            inputModel.Users = allUsersViewModel;
 
-            return allUsersWithRolesViewModel;
+            return OperationResult.Ok();
         }
 
-        public async Task<bool> UserExistsByIdAsync(Guid userId)
+        public async Task<OperationResult> UserExistsByIdAsync(Guid userId)
         {
-            ApplicationUser? user = await userManager
-                .FindByIdAsync(userId.ToString());
+            var user = await userManager.FindByIdAsync(userId.ToString());
 
-            return user != null;
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
+                return OperationResult.Ok();
         }
 
-        public async Task<bool> AssignUserToRoleAsync(Guid userId, string roleName)
+        public async Task<OperationResult> AssignUserToRoleAsync(Guid userId, string roleName)
         {
-            ApplicationUser? user = await userManager
-                .FindByIdAsync(userId.ToString());
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
             bool roleExists = await roleManager.RoleExistsAsync(roleName);
 
             if (user == null || !roleExists)
             {
-                return false;
+                return OperationResult.Failure(UserOrRoleNotFound);
             }
 
             bool alreadyInRole = await userManager.IsInRoleAsync(user, roleName);
@@ -78,22 +131,25 @@ namespace WarehouseApp.Services.Data
 
                 if (!result.Succeeded)
                 {
-                    return false;
+                    return OperationResult.Failure(FailedToAssignRole);
                 }
             }
 
-            return true;
+            return OperationResult.Ok();
         }
 
-        public async Task<bool> RemoveUserRoleAsync(Guid userId, string roleName)
+        public async Task<OperationResult> RemoveUserRoleAsync(Guid userId, string roleName)
         {
-            ApplicationUser? user = await userManager
-                .FindByIdAsync(userId.ToString());
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
             bool roleExists = await roleManager.RoleExistsAsync(roleName);
 
             if (user == null || !roleExists)
-            {
-                return false;
+            {    
+                return OperationResult.Failure(UserOrRoleNotFound);
             }
 
             bool alreadyInRole = await userManager.IsInRoleAsync(user, roleName);
@@ -104,31 +160,28 @@ namespace WarehouseApp.Services.Data
 
                 if (!result.Succeeded)
                 {
-                    return false;
+                    return OperationResult.Failure(FailedToRemoveRole);
                 }
             }
 
-            return true;
+            return OperationResult.Ok();
         }
 
-        public async Task<bool> DeleteUserAsync(Guid userId)
+        public async Task<OperationResult> DeleteUserAsync(Guid userId)
         {
-            ApplicationUser? user = await userManager
-                .FindByIdAsync(userId.ToString());
+            var user = await userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
-            {
-                return false;
-            }
+                return OperationResult.Failure(UserNotFound);
 
             IdentityResult? result = await userManager
                 .DeleteAsync(user);
             if (!result.Succeeded)
             {
-                return false;
+                return OperationResult.Failure(FailedToDeleteUser);
             }
 
-            return true;
+            return OperationResult.Ok();
         }
     }
 }

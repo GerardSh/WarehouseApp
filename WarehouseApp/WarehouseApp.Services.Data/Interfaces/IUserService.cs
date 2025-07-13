@@ -1,17 +1,19 @@
-﻿using WarehouseApp.Web.ViewModels.Admin.UserManagement;
+﻿using WarehouseApp.Services.Data.Models;
+using WarehouseApp.Web.ViewModels.Admin.UserManagement;
 
 namespace WarehouseApp.Services.Data.Interfaces
 {
     public interface IUserService
     {
-        Task<AllUsersWithRolesViewModel> GetAllUsersAsync();
+        Task<OperationResult> GetAllUsersAsync(
+            AllUsersWithRolesSearchFilterViewModel inputModel, Guid userId);
 
-        Task<bool> UserExistsByIdAsync(Guid userId);
+        Task<OperationResult> UserExistsByIdAsync(Guid userId);
 
-        Task<bool> AssignUserToRoleAsync(Guid userId, string roleName);
+        Task<OperationResult> AssignUserToRoleAsync(Guid userId, string roleName);
 
-        Task<bool> RemoveUserRoleAsync(Guid userId, string roleName);
+        Task<OperationResult> RemoveUserRoleAsync(Guid userId, string roleName);
 
-        Task<bool> DeleteUserAsync(Guid userId);
+        Task<OperationResult> DeleteUserAsync(Guid userId);
     }
 }
