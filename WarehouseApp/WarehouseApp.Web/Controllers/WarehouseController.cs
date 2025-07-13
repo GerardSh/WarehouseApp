@@ -39,6 +39,11 @@ namespace WarehouseApp.Web.Controllers
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
+            TempData["SearchQuery"] = inputModel.SearchQuery ?? string.Empty;
+            TempData["YearFilter"] = inputModel.YearFilter ?? string.Empty;
+            TempData["EntitiesPerPage"] = inputModel.EntitiesPerPage;
+            TempData["CurrentPage"] = inputModel.CurrentPage;
+
             return View(inputModel);
         }
 
@@ -114,7 +119,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id, bool returnToDetails)
+        public async Task<IActionResult> Edit(Guid id, bool returnToDetails = false)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -123,8 +128,10 @@ namespace WarehouseApp.Web.Controllers
             if (validationResult != null)
                 return validationResult;
 
+            TempData["ReturnToDetails"] = returnToDetails;
+
             OperationResult<EditWarehouseInputModel> result =
-                await warehouseService.GetWarehouseForEditingAsync(id, userGuid);
+                    await warehouseService.GetWarehouseForEditingAsync(id, userGuid);
 
             if (!result.Success)
             {
@@ -167,7 +174,17 @@ namespace WarehouseApp.Web.Controllers
 
             TempData["Message"] = EditingSuccess;
 
-            return RedirectToAction(nameof(Index));
+            if (TempData["ReturnToDetails"] != null && (bool)TempData["ReturnToDetails"]!)
+            {
+                return RedirectToAction("Details", new { id = model.Id });
+            }
+
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            return RedirectToAction(nameof(Index), new { currentPage, searchQuery, yearFilter, entitiesPerPage });
         }
 
         [HttpPost]
@@ -195,7 +212,13 @@ namespace WarehouseApp.Web.Controllers
             }
 
             TempData["Message"] = DeletionSuccess;
-            return RedirectToAction(nameof(Index));
+
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            return RedirectToAction(nameof(Index), new { currentPage, searchQuery, yearFilter, entitiesPerPage });
         }
     }
 }

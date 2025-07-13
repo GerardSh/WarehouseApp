@@ -32,7 +32,7 @@ namespace WarehouseApp.Services.Data
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
-                return OperationResult<IEnumerable<WarehouseCardViewModel>>.Failure(UserNotFound);
+                return OperationResult.Failure(UserNotFound);
 
             IQueryable<Warehouse> allWarehousesQuery = dbContext.Warehouses
                 .Where(w => w.WarehouseUsers.Any(uw => uw.ApplicationUserId == userId));
@@ -218,24 +218,24 @@ namespace WarehouseApp.Services.Data
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
-                return OperationResult<EditWarehouseInputModel>.Failure(UserNotFound);
+                return OperationResult.Failure(UserNotFound);
 
             Warehouse? warehouse = await dbContext.Warehouses
                .Where(w => w.Id == inputModel.Id)
                .FirstOrDefaultAsync();
 
             if (warehouse == null)
-                return OperationResult<EditWarehouseInputModel>.Failure(WarehouseNotFound);
+                return OperationResult.Failure(WarehouseNotFound);
 
             if (warehouse.CreatedByUserId != userId)
-                return OperationResult<EditWarehouseInputModel>.Failure(NoPermission);
+                return OperationResult.Failure(NoPermission);
 
             bool warehouseExists = await dbContext.UsersWarehouses
             .AnyAsync(uw => uw.ApplicationUserId == userId &&
             uw.Warehouse.Name.ToLower() == inputModel.Name.ToLower()
             && uw.WarehouseId != inputModel.Id);
             if (warehouseExists)
-                return OperationResult<EditWarehouseInputModel>.Failure(WarehouseDuplicateName);
+                return OperationResult.Failure(WarehouseDuplicateName);
 
             warehouse.Name = inputModel.Name;
             warehouse.Address = inputModel.Address;

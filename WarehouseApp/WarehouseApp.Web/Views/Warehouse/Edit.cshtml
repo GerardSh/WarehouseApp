@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Edit Warehouse";
+    var returnToDetails = TempData.Peek("ReturnToDetails") as bool? ?? false;
+
 }
 
 @section HeadExtras {
@@ -40,7 +42,10 @@
                     <button type="submit" class="btn btn-gradient px-5 fw-semibold">
                         <i class="fas fa-save me-2"></i> Save
                     </button>
-                    <a asp-action="Index" asp-controller="Warehouse" class="btn btn-outline-secondary ms-3 px-4 fw-semibold">
+                    <a href="@(returnToDetails ? 
+                               Url.Action("Details", "Warehouse", new { id = Model.Id }) : 
+                               Url.Action("Index", "Warehouse"))"
+                       class="btn btn-outline-secondary ms-3 px-4 fw-semibold">
                         Cancel
                     </a>
                 </div>

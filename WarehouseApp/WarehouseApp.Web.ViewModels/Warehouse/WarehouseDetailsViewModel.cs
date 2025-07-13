@@ -15,5 +15,11 @@
         public string CreatedDate { get; set; } = null!;
 
         public string? Size { get; set; }
+
+        public int TotalImportInvoices { get; set; }
+
+        public int TotalExportInvoices { get; set; }
+
+        public int TotalAvailableGoods { get; set; }
     }
 }

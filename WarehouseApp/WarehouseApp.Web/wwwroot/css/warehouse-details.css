@@ -1,0 +1,29 @@
+﻿.warehouse-name,
+.warehouse-address {
+    display: inline-block;
+    max-width: 100%;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.nav-tabs .nav-link {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-bottom: none !important;
+}
+
+    .nav-tabs .nav-link:hover,
+    .nav-tabs .nav-link:focus {
+        background-color: #343a40;
+        color: #0dcaf0 !important;
+        border-bottom: none !important;
+        cursor: pointer;
+        text-decoration: none !important;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #0dcaf0;
+        color: #1e1e2f !important;
+        border-bottom: none !important;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
