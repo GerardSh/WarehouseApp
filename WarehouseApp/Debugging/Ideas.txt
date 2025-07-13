@@ -22,4 +22,15 @@
 9.New Export Invoice – A form to create an export invoice.
 10.Reports Page – A summary view with analytics or export options.
 
-model buiding
+New Tables:
+
+ProductPriceHistory
+Purpose: Track price changes over time, useful for reporting and analytics. 
+Gives a full record of how prices have evolved for each product.
+
+Fields:
+Id (PK)
+ProductId (FK)
+Price
+StartDate
+EndDate (nullable, current if null)
