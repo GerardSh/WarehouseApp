@@ -1,11 +1,10 @@
-﻿using WarehouseApp.Web.ViewModels.Warehouse;
-
-namespace WarehouseApp.Web.ViewModels.ImportInvoice
+﻿namespace WarehouseApp.Web.ViewModels.ImportInvoice
 {
     public class AllImportInvoicesSearchFilterViewModel
     {
-        public IEnumerable<ImportInvoiceSummaryViewModel> Invoices { get; set; }
-                = new List<ImportInvoiceSummaryViewModel>();
+        public Guid WarehouseId { get; set; }
+
+        public string WarehouseName { get; set; } = null!;
 
         public string? SearchQuery { get; set; }
 
@@ -22,5 +21,8 @@ namespace WarehouseApp.Web.ViewModels.ImportInvoice
         public int? TotalPages { get; set; }
 
         public int TotalInvoices { get; set; }
+
+        public IEnumerable<ImportInvoiceSummaryViewModel> Invoices { get; set; }
+        = new List<ImportInvoiceSummaryViewModel>();
     }
 }

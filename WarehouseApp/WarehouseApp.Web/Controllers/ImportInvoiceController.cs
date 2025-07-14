@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
+using WarehouseApp.Web.ViewModels.Warehouse;
+
 
 //using static WarehouseApp.Common.OutputMessages.ErrorMessages.;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
@@ -11,7 +13,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 namespace WarehouseApp.Web.Controllers
 {
     [Authorize]
-    [Route("Warehouse/{warehouseId:guid}/[controller]/[action]/{id:int?}")]
+    [Route("Warehouse/{warehouseId:guid}/{controller}/{action=Index}/{id:guid?}")]
     public class ImportInvoiceController : BaseController<ImportInvoiceController>
     {
         private readonly IImportInvoiceService importInvoiceService;
@@ -22,6 +24,7 @@ namespace WarehouseApp.Web.Controllers
             this.importInvoiceService = importInvoiceService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index(AllImportInvoicesSearchFilterViewModel inputModel, Guid warehouseId)
         {
             string? userId = GetUserId();
@@ -37,10 +40,30 @@ namespace WarehouseApp.Web.Controllers
             if (!result.Success)
             {
                 TempData["ErrorMessage"] = result.ErrorMessage;
-                return RedirectToAction("Index", "Warehouse");
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
+            TempData["SearchQuery"] = inputModel.SearchQuery ?? string.Empty;
+            TempData["YearFilter"] = inputModel.YearFilter ?? string.Empty;
+            TempData["EntitiesPerPage"] = inputModel.EntitiesPerPage;
+            TempData["CurrentPage"] = inputModel.CurrentPage;
+
             return View(inputModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create(Guid warehouseId)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            var model = new CreateImportInvoiceInputModel();
+
+            return View(model);
         }
     }
 }

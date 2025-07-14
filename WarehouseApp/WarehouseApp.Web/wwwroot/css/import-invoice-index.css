@@ -44,3 +44,20 @@
     color: #0078D4;
     border-color: #0078D4
 }
+
+.btn-create-invoice {
+    background-color: #0078D4;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+    .btn-create-invoice:hover {
+        background-color: #0078D4;
+        transform: scale(1.05);
+    }
+
+.warehouse-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+}

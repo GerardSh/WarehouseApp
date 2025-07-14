@@ -8,11 +8,9 @@ using WarehouseApp.Services.Data.Models;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
-using static WarehouseApp.Common.Constants.EntityConstants.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.Constants.EntityConstants.Warehouse;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
-using WarehouseApp.Web.ViewModels.Warehouse;
 
 namespace WarehouseApp.Services.Data
 {
@@ -39,6 +37,9 @@ namespace WarehouseApp.Services.Data
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
+
+            inputModel.WarehouseId = warehouseId;
+            inputModel.WarehouseName = warehouse.Name;
 
             IQueryable<ImportInvoice> allInvoicesQuery = dbContext.ImportInvoices
                 .AsNoTracking()
