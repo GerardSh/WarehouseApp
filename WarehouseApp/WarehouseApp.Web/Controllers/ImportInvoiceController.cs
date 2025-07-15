@@ -35,7 +35,7 @@ namespace WarehouseApp.Web.Controllers
                 return validationResult;
 
             OperationResult result =
-                await importInvoiceService.GetInvoicesForWarehouseAsync(inputModel, warehouseId, userGuid);
+                await importInvoiceService.GetInvoicesForWarehouseAsync(inputModel, userGuid);
 
             if (!result.Success)
             {
@@ -52,7 +52,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(Guid warehouseId)
+        public async Task<IActionResult> Create()
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -64,6 +64,26 @@ namespace WarehouseApp.Web.Controllers
             var model = new CreateImportInvoiceInputModel();
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateImportInvoiceInputModel inputModel)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
+
+            OperationResult result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userGuid);
+
+           return RedirectToAction("Index");
         }
     }
 }

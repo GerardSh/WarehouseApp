@@ -26,24 +26,23 @@ namespace WarehouseApp.Services.Data
         }
 
         public async Task<OperationResult> GetInvoicesForWarehouseAsync(
-            AllImportInvoicesSearchFilterViewModel inputModel, Guid warehouseId, Guid userId)
+            AllImportInvoicesSearchFilterViewModel inputModel, Guid userId)
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+            var warehouse = await GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
-            inputModel.WarehouseId = warehouseId;
             inputModel.WarehouseName = warehouse.Name;
 
             IQueryable<ImportInvoice> allInvoicesQuery = dbContext.ImportInvoices
                 .AsNoTracking()
-                .Where(ii => ii.WarehouseId == warehouseId);
+                .Where(ii => ii.WarehouseId == inputModel.WarehouseId);
 
             inputModel.TotalInvoices = await allInvoicesQuery.CountAsync();
 
@@ -126,6 +125,11 @@ namespace WarehouseApp.Services.Data
             inputModel.Invoices = importInvoices;
 
             return OperationResult.Ok();
+        }
+
+        public Task<OperationResult> CreateImportInvoiceAsync(CreateImportInvoiceInputModel inputModel, Guid userId)
+        {
+            throw new NotImplementedException();
         }
 
         private async Task<Warehouse?> GetWarehouseOwnedByUserAsync(Guid warehouseId, Guid userId)

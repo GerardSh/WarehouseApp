@@ -1,11 +1,14 @@
 ﻿using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
+using WarehouseApp.Web.ViewModels.Warehouse;
 
 namespace WarehouseApp.Services.Data.Interfaces
 {
     public interface IImportInvoiceService
     {
         Task<OperationResult> GetInvoicesForWarehouseAsync(
-            AllImportInvoicesSearchFilterViewModel inputModel, Guid warehouseId, Guid userId);
+            AllImportInvoicesSearchFilterViewModel inputModel, Guid userId);
+
+        Task<OperationResult> CreateImportInvoiceAsync(CreateImportInvoiceInputModel inputModel, Guid userId);
     }
 }

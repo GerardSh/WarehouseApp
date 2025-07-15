@@ -1,0 +1,109 @@
+﻿@model WarehouseApp.Web.ViewModels.ImportInvoice.CreateImportInvoiceInputModel
+
+@section HeadExtras {
+    <link rel="stylesheet" href="~/css/import-invoice-index.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ImportInvoice/create.css" asp-append-version="true" />
+}
+
+<h2>Create Import Invoice</h2>
+
+<form id="importInvoiceForm" asp-action="Create" method="post" novalidate="novalidate">
+    <div class="form-row">
+        <div class="form-group form-column">
+            <label asp-for="InvoiceNumber"></label>
+            <input asp-for="InvoiceNumber" class="form-control" placeholder="Invoice number" />
+            <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-column">
+            <label asp-for="Date"></label>
+            <input asp-for="Date" class="form-control" placeholder="Select date" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-column">
+            <label asp-for="SupplierName"></label>
+            <input asp-for="SupplierName" class="form-control" placeholder="Supplier name" />
+            <span asp-validation-for="SupplierName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-column">
+            <label asp-for="SupplierAddress"></label>
+            <input asp-for="SupplierAddress" class="form-control" placeholder="Supplier address" />
+            <span asp-validation-for="SupplierAddress" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-column">
+            <label asp-for="SupplierPhoneNumber"></label>
+            <input asp-for="SupplierPhoneNumber" class="form-control" placeholder="Supplier phone number" />
+            <span asp-validation-for="SupplierPhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-column">
+            <label asp-for="SupplierEmail"></label>
+            <input asp-for="SupplierEmail" class="form-control" placeholder="Supplier email" />
+            <span asp-validation-for="SupplierEmail" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+    <h4>Products</h4>
+    <table class="product-table" id="products-table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Category Name</th>
+                <th>Category Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="products-container">
+            @for (int i = 0; i < Model.Products.Count; i++)
+            {
+                <tr class="product-group">
+                    <td>
+                        <input asp-for="Products[i].ProductName" class="form-control" placeholder="Product name" />
+                        <span asp-validation-for="Products[i].ProductName" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Products[i].ProductDescription" class="form-control" placeholder="Product description" />
+                        <span asp-validation-for="Products[i].ProductDescription" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Products[i].Quantity" class="form-control" placeholder="Quantity" />
+                        <span asp-validation-for="Products[i].Quantity" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Products[i].Price" class="form-control" placeholder="Price" />
+                        <span asp-validation-for="Products[i].Price" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Products[i].CategoryName" class="form-control" placeholder="Category name" />
+                        <span asp-validation-for="Products[i].CategoryName" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Products[i].CategoryDescription" class="form-control" placeholder="Category description" />
+                        <span asp-validation-for="Products[i].CategoryDescription" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="remove-btn" onclick="removeProduct(this)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-secondary mt-2" onclick="addProduct()">Add Product</button>
+    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        window.productIndex = @Model.Products.Count;
+    </script>
+    <script src="~/js/ImportInvoice/create.js" asp-append-version="true"></script>
+}
