@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data;
@@ -9,7 +9,6 @@ using WarehouseApp.Services.Data.Models;
 public class ClientService : BaseService, IClientService
 {
     private readonly WarehouseDbContext context;
-    private readonly UserManager<ApplicationUser> userManager;
 
     public ClientService(WarehouseDbContext context)
     {
@@ -26,7 +25,6 @@ public class ClientService : BaseService, IClientService
         {
             client = new Client
             {
-                Id = Guid.NewGuid(),
                 Name = name,
                 Address = address,
                 PhoneNumber = phone,
@@ -44,14 +42,6 @@ public class ClientService : BaseService, IClientService
             context.Clients.Update(client);
         }
 
-        try
-        {
-            await context.SaveChangesAsync();
-            return OperationResult<Client>.Ok(client);
-        }
-        catch (Exception ex)
-        {
-            return OperationResult<Client>.Failure("Failed to create or update client: " + ex.Message);
-        }
+        return OperationResult<Client>.Ok(client);
     }
 }

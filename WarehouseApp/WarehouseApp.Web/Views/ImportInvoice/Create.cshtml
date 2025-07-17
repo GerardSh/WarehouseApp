@@ -1,4 +1,4 @@
-﻿@model WarehouseApp.Web.ViewModels.ImportInvoice.CreateImportInvoiceInputModel
+﻿@model WarehouseApp.Web.ViewModels.ImportInvoice.CreateEditImportInvoiceInputModel
 
 @section HeadExtras {
     <link rel="stylesheet" href="~/css/import-invoice-index.css" asp-append-version="true" />
@@ -6,6 +6,8 @@
 }
 
 <h2>Create Import Invoice</h2>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
 <form id="importInvoiceForm" asp-action="Create" method="post" novalidate="novalidate">
     <div class="form-row">

@@ -9,6 +9,8 @@ namespace WarehouseApp.Services.Data.Interfaces
         Task<OperationResult> GetInvoicesForWarehouseAsync(
             AllImportInvoicesSearchFilterViewModel inputModel, Guid userId);
 
-        Task<OperationResult> CreateImportInvoiceAsync(CreateImportInvoiceInputModel inputModel, Guid userId);
+        Task<OperationResult> CreateImportInvoiceAsync(CreateEditImportInvoiceInputModel inputModel, Guid userId);
+
+        Task<OperationResult<CreateEditImportInvoiceInputModel>> GetImportInvoiceForEditingAsync(Guid warehouseId, Guid invoiceId, Guid userId);
     }
 }

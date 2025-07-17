@@ -8,8 +8,10 @@ using WarehouseApp.Common.Constants;
 
 namespace WarehouseApp.Web.ViewModels.ImportInvoice
 {
-    public class CreateImportInvoiceInputModel
+    public class CreateEditImportInvoiceInputModel
     {
+        public Guid? Id { get; set; }
+
         [Required(ErrorMessage = InvoiceNumberRequired)]
         [MaxLength(EntityConstants.ImportInvoice.InvoiceNumberMaxLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]
         [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]

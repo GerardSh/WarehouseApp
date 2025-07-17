@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
-using WarehouseApp.Web.ViewModels.Warehouse;
+using WarehouseApp.Common.OutputMessages;
 
-
-//using static WarehouseApp.Common.OutputMessages.ErrorMessages.;
-using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -25,7 +23,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(AllImportInvoicesSearchFilterViewModel inputModel, Guid warehouseId)
+        public async Task<IActionResult> Index(AllImportInvoicesSearchFilterViewModel inputModel)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -39,6 +37,8 @@ namespace WarehouseApp.Web.Controllers
 
             if (!result.Success)
             {
+                logger.LogError(result.ErrorMessage);
+
                 TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
@@ -52,7 +52,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -61,13 +61,16 @@ namespace WarehouseApp.Web.Controllers
             if (validationResult != null)
                 return validationResult;
 
-            var model = new CreateImportInvoiceInputModel();
+            var model = new CreateEditImportInvoiceInputModel()
+            {
+                Date = DateTime.Now
+            };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateImportInvoiceInputModel inputModel)
+        public async Task<IActionResult> Create(CreateEditImportInvoiceInputModel inputModel)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -83,7 +86,50 @@ namespace WarehouseApp.Web.Controllers
 
             OperationResult result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userGuid);
 
-           return RedirectToAction("Index");
+            if (!result.Success)
+            {
+                if (result.ErrorMessage == DuplicateInvoice || result.ErrorMessage == ErrorMessages.Product.ProductDuplicate)
+                {
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                    return View(inputModel);
+                }
+
+                logger.LogError(result.ErrorMessage);
+
+                TempData["ErrorMessage"] = result.ErrorMessage ?? CreationFailure;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid warehouseId, Guid id)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            var result = await importInvoiceService.GetImportInvoiceForEditingAsync(warehouseId, id, userGuid);
+
+            if (!result.Success)
+            {
+                logger.LogError(result.ErrorMessage);
+
+                TempData["ErrorMessage"] = result.ErrorMessage ?? EditingFailure;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return View("Create", result.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(CreateEditImportInvoiceInputModel inputModel)
+        {
+            return View();
         }
     }
 }

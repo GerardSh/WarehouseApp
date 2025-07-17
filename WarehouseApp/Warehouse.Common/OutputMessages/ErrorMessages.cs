@@ -41,6 +41,11 @@
             public const string InvoiceNumberMaxLength = "Invoice number must be at least 3 characters.";
             public const string InvoiceNumberMinLength = "Invoice number cannot be longer than 20 characters.";
             public const string DateRequired = "Date is required.";
+            public const string DuplicateInvoice = "An invoice with this number already exists.";
+
+            public const string CreationFailure = "Fatal error occurred while creating the Invoice.";
+            public const string EditingFailure = "Fatal error occurred while editing the Invoice.";
+            public const string InvoiceNotFoundOrAccessDeniced = "Invoice not found or access denied.";
         }
 
         public static class Supplier
@@ -67,6 +72,8 @@
             public const string QuantityRequired = "Quantity is required.";
             public const string QuantityRange = "Quantity must be greater than 0.";
             public const string PriceRange = "Price must be a positive number.";
+
+            public const string CreationFailure = "Failed to create or update ImportInvoiceDetail.";
         }
 
         public static class Product
@@ -76,6 +83,8 @@
             public const string ProductNameMaxLength = "Product name cannot be longer than 255 characters.";
             public const string ProductDescriptionMaxLength = "Product description cannot be longer than 1000 characters.";
             public const string ProductDescriptionMinLength = "Product description must be at least 5 characters.";
+            public const string ProductDuplicate = "Cannot have more than one product with the same name and category.";
+            public const string CreationFailure = "Failed to create or update product.";
         }
 
         public static class Category
@@ -85,6 +94,13 @@
             public const string CategoryNameMaxLength = "Category name cannot be longer than 255 characters.";
             public const string CategoryDescriptionMaxLength = "Category description cannot be longer than 1000 characters.";
             public const string CategoryDescriptionMinLength = "Category description must be at least 5 characters.";
+
+            public const string CreationFailure = "Failed to create or update category.";
+        }
+
+        public static class Client
+        {
+            public const string CreationFailure = "Failed to create or update client.";
         }
 
         public static class ApplicationBuilderExtensions
