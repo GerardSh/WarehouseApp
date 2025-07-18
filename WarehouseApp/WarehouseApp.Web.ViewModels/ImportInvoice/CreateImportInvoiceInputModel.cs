@@ -8,10 +8,8 @@ using WarehouseApp.Common.Constants;
 
 namespace WarehouseApp.Web.ViewModels.ImportInvoice
 {
-    public class CreateEditImportInvoiceInputModel
+    public class CreateImportInvoiceInputModel
     {
-        public Guid? Id { get; set; }
-
         [Required(ErrorMessage = InvoiceNumberRequired)]
         [MaxLength(EntityConstants.ImportInvoice.InvoiceNumberMaxLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]
         [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]
@@ -44,7 +42,7 @@ namespace WarehouseApp.Web.ViewModels.ImportInvoice
         [MinLength(EmailMinLength, ErrorMessage = SupplierEmailMinLength)]
         public string? SupplierEmail { get; set; }
 
-        public List<ImportInvoiceDetailInputModel> Products { get; set; }
-            = new List<ImportInvoiceDetailInputModel>();
+        public List<CreateImportInvoiceDetailInputModel> Products { get; set; }
+            = new List<CreateImportInvoiceDetailInputModel>();
     }
 }

@@ -45,8 +45,10 @@ public class ProductService : BaseService, IProductService
         }
         else
         {
-            product.Description = description ?? product.Description;
-            product.CategoryId = categoryId;
+            if (!string.IsNullOrWhiteSpace(description) && product.Description != description)
+            {
+                product.Description = description;
+            }
 
             context.Products.Update(product);
         }

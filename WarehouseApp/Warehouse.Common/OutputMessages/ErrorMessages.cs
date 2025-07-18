@@ -45,7 +45,21 @@
 
             public const string CreationFailure = "Fatal error occurred while creating the Invoice.";
             public const string EditingFailure = "Fatal error occurred while editing the Invoice.";
-            public const string InvoiceNotFoundOrAccessDeniced = "Invoice not found or access denied.";
+            public const string InvoiceNotFoundOrAccessDenied = "Invoice not found or access denied.";
+            public const string CannotCreateInvoiceWithoutProducts = "Invoice must contain at least one product.";
+        }
+
+        public static class ImportInvoiceDetail
+        {
+            public const string QuantityRequired = "Quantity is required.";
+            public const string QuantityRange = "Quantity must be greater than 0.";
+            public const string PriceRange = "Price must be a positive number.";
+
+            public const string ProductNotFound = "Product not found.";
+            public const string CreationFailure = "Failed to create or update ImportInvoiceDetail.";
+            public const string ProductDeletionFailure = "Products that are used in export invoices cannot be removed.";
+            public const string DeletionFailure = "Fatal error occurred while removing the products.";
+            public const string CannnotDeleteAllProducts = "Cannot delete all products.";
         }
 
         public static class Supplier
@@ -65,15 +79,6 @@
             public const string SupplierEmailMinLength = "Email must be at least 5 characters.";
             public const string SupplierEmailMaxLength = "Email cannot be longer than 100 characters.";
             public const string SupplierEmailInvalid = "Invalid email address format.";
-        }
-
-        public static class ImportInvoiceDetail
-        {
-            public const string QuantityRequired = "Quantity is required.";
-            public const string QuantityRange = "Quantity must be greater than 0.";
-            public const string PriceRange = "Price must be a positive number.";
-
-            public const string CreationFailure = "Failed to create or update ImportInvoiceDetail.";
         }
 
         public static class Product

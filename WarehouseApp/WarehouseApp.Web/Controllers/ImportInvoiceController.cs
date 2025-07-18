@@ -7,6 +7,9 @@ using WarehouseApp.Web.ViewModels.ImportInvoice;
 using WarehouseApp.Common.OutputMessages;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
+
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -15,6 +18,14 @@ namespace WarehouseApp.Web.Controllers
     public class ImportInvoiceController : BaseController<ImportInvoiceController>
     {
         private readonly IImportInvoiceService importInvoiceService;
+
+        private readonly HashSet<string> knownClientErrors = new HashSet<string>
+        {
+            DuplicateInvoice,
+            ProductDuplicate,
+            CannotCreateInvoiceWithoutProducts,
+            ProductDeletionFailure
+        };
 
         public ImportInvoiceController(IImportInvoiceService importInvoiceService, ILogger<ImportInvoiceController> logger)
             : base(logger)
@@ -45,6 +56,7 @@ namespace WarehouseApp.Web.Controllers
 
             TempData["SearchQuery"] = inputModel.SearchQuery ?? string.Empty;
             TempData["YearFilter"] = inputModel.YearFilter ?? string.Empty;
+            TempData["SupplierName"] = inputModel.SupplierName ?? string.Empty;
             TempData["EntitiesPerPage"] = inputModel.EntitiesPerPage;
             TempData["CurrentPage"] = inputModel.CurrentPage;
 
@@ -61,7 +73,7 @@ namespace WarehouseApp.Web.Controllers
             if (validationResult != null)
                 return validationResult;
 
-            var model = new CreateEditImportInvoiceInputModel()
+            var model = new CreateImportInvoiceInputModel()
             {
                 Date = DateTime.Now
             };
@@ -70,7 +82,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateEditImportInvoiceInputModel inputModel)
+        public async Task<IActionResult> Create(CreateImportInvoiceInputModel inputModel)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -88,15 +100,15 @@ namespace WarehouseApp.Web.Controllers
 
             if (!result.Success)
             {
-                if (result.ErrorMessage == DuplicateInvoice || result.ErrorMessage == ErrorMessages.Product.ProductDuplicate)
+                if (knownClientErrors.Contains(result.ErrorMessage!))
                 {
-                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage!);
                     return View(inputModel);
                 }
 
                 logger.LogError(result.ErrorMessage);
 
-                TempData["ErrorMessage"] = result.ErrorMessage ?? CreationFailure;
+                TempData["ErrorMessage"] = result.ErrorMessage ?? ErrorMessages.ImportInvoice.CreationFailure;
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
@@ -123,11 +135,46 @@ namespace WarehouseApp.Web.Controllers
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
-            return View("Create", result.Data);
+            return View(result.Data);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditImportInvoiceInputModel inputModel)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
+
+            var result = await importInvoiceService.UpdateImportInvoiceAsync(inputModel, userGuid);
+
+            if (!result.Success)
+            {
+                if (knownClientErrors.Contains(result.ErrorMessage!))
+                {
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage!);
+                    return View(inputModel);
+                }
+
+                logger.LogError(result.ErrorMessage);
+
+                TempData["ErrorMessage"] = result.ErrorMessage ?? EditingFailure;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return RedirectToAction("Index", new { id = inputModel.Id });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(CreateEditImportInvoiceInputModel inputModel)
+        public async Task<IActionResult> Details(CreateImportInvoiceInputModel inputModel)
         {
             return View();
         }

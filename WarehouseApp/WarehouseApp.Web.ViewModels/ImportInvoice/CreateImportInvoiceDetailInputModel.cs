@@ -7,7 +7,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Category;
 
 namespace WarehouseApp.Web.ViewModels.ImportInvoice
 {
-    public class ImportInvoiceDetailInputModel
+    public class CreateImportInvoiceDetailInputModel
     {
         [Required(ErrorMessage = QuantityRequired)]
         [Range(1, int.MaxValue, ErrorMessage = QuantityRange)]

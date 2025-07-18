@@ -1,7 +1,7 @@
-﻿@model WarehouseApp.Web.ViewModels.ImportInvoice.CreateImportInvoiceInputModel
+﻿@model WarehouseApp.Web.ViewModels.ImportInvoice.EditImportInvoiceInputModel
 
 @{
-    ViewData["Title"] = "Create Invoice";
+    ViewData["Title"] = "Edit Invoice";
 }
 
 @section HeadExtras {
@@ -9,11 +9,15 @@
     <link rel="stylesheet" href="~/css/ImportInvoice/create.css" asp-append-version="true" />
 }
 
-<h2>Create Import Invoice</h2>
+<h2>Edit Import Invoice</h2>
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<form id="importInvoiceForm" asp-action="Create" method="post" novalidate="novalidate">
+<form id="importInvoiceForm" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate="novalidate">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
     <div class="form-row">
         <div class="form-group form-column">
             <label asp-for="InvoiceNumber"></label>
@@ -70,6 +74,7 @@
             @for (int i = 0; i < Model.Products.Count; i++)
             {
                 <tr class="product-group">
+                    <input type="hidden" asp-for="Products[i].Id" />
                     <td>
                         <input asp-for="Products[i].ProductName" class="form-control" placeholder="Product name" />
                         <span asp-validation-for="Products[i].ProductName" class="text-danger"></span>
@@ -103,7 +108,7 @@
     </table>
 
     <button type="button" class="btn btn-secondary mt-2" onclick="addProduct()">Add Product</button>
-    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
 </form>
 
 @section Scripts {
