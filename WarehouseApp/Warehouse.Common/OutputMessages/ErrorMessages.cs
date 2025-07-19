@@ -24,9 +24,6 @@
             public const string CreationFailure = "Fatal error occurred while creating the warehouse.";
             public const string EditingFailure = "Fatal error occurred while editing the warehouse.";
             public const string DeletionFailure = "Fatal error occurred while deleting the warehouse.";
-            public const string CreationSuccess = "The warehouse was successfully created.";
-            public const string EditingSuccess = "The warehouse was successfully edited.";
-            public const string DeletionSuccess = "The warehouse was successfully deleted.";
 
             public const string WarehouseDuplicateName = "A warehouse with the same name already exists. Please choose a different name.";
             public const string WarehouseNotFound = "Warehouse not found.";
@@ -42,11 +39,15 @@
             public const string InvoiceNumberMinLength = "Invoice number cannot be longer than 20 characters.";
             public const string DateRequired = "Date is required.";
             public const string DuplicateInvoice = "An invoice with this number already exists.";
+            public const string NoPermissionOrImportInvoiceNotFound = "Invoice not found or access denied.";
 
             public const string CreationFailure = "Fatal error occurred while creating the Invoice.";
             public const string EditingFailure = "Fatal error occurred while editing the Invoice.";
-            public const string InvoiceNotFoundOrAccessDenied = "Invoice not found or access denied.";
+            public const string DeletionFailure = "Fatal error occurred while deleting the Invoice.";
+
             public const string CannotCreateInvoiceWithoutProducts = "Invoice must contain at least one product.";
+            public const string InvalidDate = "Cannot set import invoice date later than export invoice date: ";
+            public const string ExistingExportInvoices = "Cannot delete an invoice with existing exports.";
         }
 
         public static class ImportInvoiceDetail

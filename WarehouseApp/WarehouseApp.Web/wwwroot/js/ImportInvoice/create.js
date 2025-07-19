@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="text"
                                name="Products[${newIndex}].ProductName"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Product name"
                                data-val="true"
                                data-val-required="Product name is required."
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="text"
                                name="Products[${newIndex}].ProductDescription"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Product description"
                                data-val="true"
                                data-val-minlength="Product description must be at least 5 characters."
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="number"
                                name="Products[${newIndex}].Quantity"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Quantity"
                                data-val="true"
                                data-val-required="Quantity is required."
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <input type="number"
                                step="0.01"
                                name="Products[${newIndex}].Price"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Price"
                                data-val="true"
                                data-val-range="Price must be a positive number."
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="text"
                                name="Products[${newIndex}].CategoryName"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Category name"
                                data-val="true"
                                data-val-required="Category name is required."
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="text"
                                name="Products[${newIndex}].CategoryDescription"
-                               class="form-control"
+                               class="form-control bg-dark text-white"
                                placeholder="Category description"
                                data-val="true"
                                data-val-minlength="Category description must be at least 5 characters."

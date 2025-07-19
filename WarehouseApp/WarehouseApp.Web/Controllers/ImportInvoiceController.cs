@@ -9,6 +9,9 @@ using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
+using static WarehouseApp.Common.OutputMessages.SuccessMessages.ImportInvoice;
+using WarehouseApp.Services.Data;
+using WarehouseApp.Web.ViewModels.Warehouse;
 
 
 namespace WarehouseApp.Web.Controllers
@@ -24,7 +27,9 @@ namespace WarehouseApp.Web.Controllers
             DuplicateInvoice,
             ProductDuplicate,
             CannotCreateInvoiceWithoutProducts,
-            ProductDeletionFailure
+            ProductDeletionFailure,
+            QuantityRange,
+            ExistingExportInvoices
         };
 
         public ImportInvoiceController(IImportInvoiceService importInvoiceService, ILogger<ImportInvoiceController> logger)
@@ -112,11 +117,34 @@ namespace WarehouseApp.Web.Controllers
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
+            TempData["Message"] = CreationSuccess;
             return RedirectToAction("Index");
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid warehouseId, Guid id)
+        public async Task<IActionResult> Details(Guid warehouseId, Guid id)
+        {
+            string userId = GetUserId()!;
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult<ImportInvoiceDetailsViewModel> result =
+                await importInvoiceService.GetImportInvoiceDetailsAsync(warehouseId, id, userGuid);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = NoPermissionOrImportInvoiceNotFound;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            return View(result.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid warehouseId, Guid id, bool returnToDetails = false)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -124,6 +152,9 @@ namespace WarehouseApp.Web.Controllers
             IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
             if (validationResult != null)
                 return validationResult;
+
+
+            TempData["ReturnToDetails"] = returnToDetails;
 
             var result = await importInvoiceService.GetImportInvoiceForEditingAsync(warehouseId, id, userGuid);
 
@@ -137,7 +168,6 @@ namespace WarehouseApp.Web.Controllers
 
             return View(result.Data);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Edit(EditImportInvoiceInputModel inputModel)
@@ -158,7 +188,9 @@ namespace WarehouseApp.Web.Controllers
 
             if (!result.Success)
             {
-                if (knownClientErrors.Contains(result.ErrorMessage!))
+                if (knownClientErrors.Contains(result.ErrorMessage!) ||
+                    result.ErrorMessage!.StartsWith(InvalidDate) ||
+                    result.ErrorMessage!.StartsWith("Cannot set quantity for product"))
                 {
                     ModelState.AddModelError(string.Empty, result.ErrorMessage!);
                     return View(inputModel);
@@ -170,13 +202,57 @@ namespace WarehouseApp.Web.Controllers
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });
             }
 
-            return RedirectToAction("Index", new { id = inputModel.Id });
+            TempData["Message"] = EditingSuccess;
+
+            if (TempData["ReturnToDetails"] != null && (bool)TempData["ReturnToDetails"]!)
+            {
+                return RedirectToAction(nameof(Details), new { warehouseId = inputModel.WarehouseId, id = inputModel.Id });
+            }
+
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var supplierName = TempData.Peek("SupplierName") as string ?? string.Empty;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+
+            return RedirectToAction(nameof(Index), new { searchQuery, supplierName, yearFilter, entitiesPerPage, currentPage });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Details(CreateImportInvoiceInputModel inputModel)
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid warehouseId, Guid id)
         {
-            return View();
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            OperationResult result = await importInvoiceService.DeleteImportInvoiceAsync(warehouseId, id, userGuid);
+
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var supplierName = TempData.Peek("SupplierName") as string ?? string.Empty;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+
+            if (!result.Success)
+            {
+                if (knownClientErrors.Contains(result.ErrorMessage!))
+                {
+                    TempData["Message"] = result.ErrorMessage;
+                    return RedirectToAction(nameof(Index), new { searchQuery, supplierName, yearFilter, entitiesPerPage, currentPage });
+                }
+
+                logger.LogError(result.ErrorMessage);
+
+                TempData["ErrorMessage"] = result.ErrorMessage ?? ErrorMessages.ImportInvoice.DeletionFailure;
+                return RedirectToAction("Error", "Home", new { statusCode = 403 });
+            }
+
+            TempData["Message"] = DeletionSuccess;
+
+            return RedirectToAction(nameof(Index), new { searchQuery, supplierName, yearFilter, entitiesPerPage, currentPage });
         }
     }
 }

@@ -1,0 +1,164 @@
+﻿.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.form-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+table.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.product-table th {
+    background-color: #f9f9f9;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+    .remove-btn:hover {
+        background-color: #c82333;
+    }
+
+.disabled-btn {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.form-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+table.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+    background-color: var(--accent-bg);
+}
+
+.product-table th {
+    background-color: var(--accent-bg);
+    color: #0078D4;
+    font-weight: 600;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+    .remove-btn:hover:not(:disabled) {
+        background-color: #c82333;
+    }
+
+.disabled-btn {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+button.btn {
+    margin-top: 1rem;
+}
+
+input.form-control {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    input.form-control:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 5px rgba(0,123,255,.25);
+    }
+
+.text-danger {
+    font-size: 0.875rem;
+    color: #dc3545;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .product-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .product-table thead {
+            display: none;
+        }
+
+        .product-table,
+        .product-table tbody,
+        .product-table tr,
+        .product-table td {
+            display: block;
+            width: 100%;
+        }
+
+            .product-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid #ccc;
+                background: #f9f9f9;
+                padding: 0.5rem;
+            }
+
+            .product-table td {
+                padding: 0.5rem;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+                .product-table td:last-child {
+                    border-bottom: none;
+                }
+}

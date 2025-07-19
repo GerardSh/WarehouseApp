@@ -97,7 +97,7 @@ namespace WarehouseApp.Services.Data
                 }
             }
 
-            allInvoicesQuery = allInvoicesQuery.OrderBy(ii => ii.Date);
+            allInvoicesQuery = allInvoicesQuery.OrderByDescending(ii => ii.Date);
 
             inputModel.TotalItemsBeforePagination = await allInvoicesQuery.CountAsync();
 
@@ -260,6 +260,54 @@ namespace WarehouseApp.Services.Data
             }
         }
 
+        public async Task<OperationResult<ImportInvoiceDetailsViewModel>> GetImportInvoiceDetailsAsync(
+            Guid warehouseId, Guid invoiceId, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult<ImportInvoiceDetailsViewModel>.Failure(UserNotFound);
+
+            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+
+            if (warehouse == null)
+                return OperationResult<ImportInvoiceDetailsViewModel>.Failure(NoPermissionOrWarehouseNotFound);
+
+            var invoice = await dbContext.ImportInvoices
+                .AsNoTracking()
+                .Include(i => i.Supplier)
+                .Include(i => i.ImportInvoicesDetails)
+                    .ThenInclude(d => d.Product)
+                        .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
+
+            if (invoice == null)
+                return OperationResult<ImportInvoiceDetailsViewModel>.Failure(NoPermissionOrImportInvoiceNotFound);
+
+            var viewModel = new ImportInvoiceDetailsViewModel
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                Date = invoice.Date,
+                SupplierName = invoice.Supplier.Name,
+                SupplierAddress = invoice.Supplier.Address,
+                SupplierPhone = invoice.Supplier.PhoneNumber ?? "N/A",
+                SupplierEmail = invoice.Supplier.Email ?? "N/A",
+                Products = invoice.ImportInvoicesDetails.Select(iid => new ImportInvoiceDetailDetailsViewModel()
+                {
+                    ProductName = iid.Product.Name,
+                    ProductDescription = iid.Product.Description,
+                    CategoryName = iid.Product.Category.Name,
+                    CategoryDescription = iid.Product.Category.Description ?? "N/A",
+                    Quantity = iid.Quantity,
+                    UnitPrice = iid.UnitPrice ?? 0,
+                    Total = iid.Quantity * iid.UnitPrice ?? 0
+                }).ToList()
+            };
+
+            return OperationResult<ImportInvoiceDetailsViewModel>.Ok(viewModel);
+        }
+
         public async Task<OperationResult<EditImportInvoiceInputModel>> GetImportInvoiceForEditingAsync(
             Guid warehouseId, Guid invoiceId, Guid userId)
         {
@@ -281,10 +329,11 @@ namespace WarehouseApp.Services.Data
                 .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
 
             if (invoice == null)
-                return OperationResult<EditImportInvoiceInputModel>.Failure(InvoiceNotFoundOrAccessDenied);
+                return OperationResult<EditImportInvoiceInputModel>.Failure(NoPermissionOrImportInvoiceNotFound);
 
             var model = new EditImportInvoiceInputModel
             {
+                Id = invoice.Id,
                 InvoiceNumber = invoice.InvoiceNumber,
                 Date = invoice.Date,
                 WarehouseId = invoice.WarehouseId,
@@ -294,6 +343,7 @@ namespace WarehouseApp.Services.Data
                 SupplierPhoneNumber = invoice.Supplier.PhoneNumber,
                 Products = invoice.ImportInvoicesDetails.Select(d => new EditImportInvoiceDetailInputModel
                 {
+                    Id = d.Id,
                     ProductName = d.Product.Name,
                     ProductDescription = d.Product.Description,
                     CategoryName = d.Product.Category.Name,
@@ -322,7 +372,7 @@ namespace WarehouseApp.Services.Data
                 .FirstOrDefaultAsync(i => i.Id == inputModel.Id && i.WarehouseId == inputModel.WarehouseId);
 
             if (invoice == null)
-                return OperationResult.Failure(InvoiceNotFoundOrAccessDenied);
+                return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
 
             bool invoiceExists = await dbContext.ImportInvoices
                 .AnyAsync(i => i.InvoiceNumber == inputModel.InvoiceNumber &&
@@ -355,6 +405,31 @@ namespace WarehouseApp.Services.Data
             }
 
             invoice.InvoiceNumber = inputModel.InvoiceNumber;
+
+
+            var newImportDate = inputModel.Date;
+
+            var existingDetailsIds = await dbContext.ImportInvoiceDetails
+                .Where(d => d.ImportInvoiceId == invoice.Id)
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            var invalidExportDate = await dbContext.ExportInvoiceDetails
+                .Where(e => existingDetailsIds.Contains(e.ImportInvoiceDetailId))
+                .Include(e => e.ExportInvoice)
+                .Include(e => e.ImportInvoiceDetail)
+                    .ThenInclude(d => d.Product)
+                .Where(e => e.ExportInvoice.Date < newImportDate)
+                .OrderBy(e => e.ExportInvoice.Date)
+                .FirstOrDefaultAsync();
+
+            if (invalidExportDate != null)
+            {
+                return OperationResult.Failure(
+                    InvalidDate +
+                    $"{invalidExportDate.ExportInvoice.Date:yyyy-MM-dd} with product {invalidExportDate.ImportInvoiceDetail.Product.Name}.");
+            }
+
             invoice.Date = inputModel.Date;
             invoice.Supplier = client;
 
@@ -413,6 +488,16 @@ namespace WarehouseApp.Services.Data
                             return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.ProductNotFound);
                         }
 
+                        var exportedQuantity = await dbContext.ExportInvoiceDetails
+                                   .Where(e => e.ImportInvoiceDetailId == detail.Id)
+                                   .SumAsync(e => (int?)e.Quantity) ?? 0;
+
+                        if (detail.Quantity < exportedQuantity)
+                        {
+                            return OperationResult.Failure(
+                                $"Cannot set quantity for product \"{invoiceDetail.Product.Name}\" to {detail.Quantity}, because {exportedQuantity} have already been exported.");
+                        }
+
                         invoiceDetail.Quantity = detail.Quantity;
                         invoiceDetail.UnitPrice = detail.Price;
                         invoiceDetail.Product = product;
@@ -430,7 +515,6 @@ namespace WarehouseApp.Services.Data
 
                         dbContext.ImportInvoiceDetails.Add(invoiceDetail);
                     }
-
                 }
                 catch
                 {
@@ -506,6 +590,40 @@ namespace WarehouseApp.Services.Data
             {
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.CreationFailure);
             }
+        }
+
+        public async Task<OperationResult> DeleteImportInvoiceAsync(Guid warehouseId, Guid invoiceId, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
+
+            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+
+            if (warehouse == null)
+                return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
+
+            ImportInvoice? invoice = await dbContext.ImportInvoices
+                .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
+
+            if (invoice == null)
+                return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
+
+            var exportInvoicesExist = await dbContext.ExportInvoiceDetails
+                .AnyAsync(e => e.ImportInvoiceDetail.ImportInvoiceId == invoice.Id);
+
+            if (exportInvoicesExist)
+            {
+                return OperationResult.Failure(ExistingExportInvoices);
+            }
+
+            dbContext.ImportInvoices
+                .Remove(invoice);
+
+            await dbContext.SaveChangesAsync();
+
+            return OperationResult.Ok();
         }
 
         private async Task<Warehouse?> GetWarehouseOwnedByUserAsync(Guid warehouseId, Guid userId)

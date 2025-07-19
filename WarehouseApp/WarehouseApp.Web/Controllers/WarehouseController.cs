@@ -7,6 +7,7 @@ using WarehouseApp.Web.ViewModels.Shared;
 using WarehouseApp.Web.ViewModels.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
+using static WarehouseApp.Common.OutputMessages.SuccessMessages.Warehouse;
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -143,7 +144,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditWarehouseInputModel model)
+        public async Task<IActionResult> Edit(EditWarehouseInputModel inputModel)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -154,18 +155,18 @@ namespace WarehouseApp.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(inputModel);
             }
 
             OperationResult result =
-                await warehouseService.UpdateWarehouseAsync(model, userGuid);
+                await warehouseService.UpdateWarehouseAsync(inputModel, userGuid);
 
             if (!result.Success)
             {
                 if (result.ErrorMessage == WarehouseDuplicateName)
                 {
                     ModelState.AddModelError(string.Empty, result.ErrorMessage ?? EditingFailure);
-                    return View(model);
+                    return View(inputModel);
                 }
 
                 TempData["ErrorMessage"] = NoPermissionOrWarehouseNotFound;
@@ -176,7 +177,7 @@ namespace WarehouseApp.Web.Controllers
 
             if (TempData["ReturnToDetails"] != null && (bool)TempData["ReturnToDetails"]!)
             {
-                return RedirectToAction("Details", new { id = model.Id });
+                return RedirectToAction(nameof(Details), new { id = inputModel.Id });
             }
 
             var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
@@ -199,12 +200,17 @@ namespace WarehouseApp.Web.Controllers
 
             OperationResult result = await warehouseService.DeleteWarehouseAsync(id, userGuid);
 
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
             if (!result.Success)
             {
                 if (result.ErrorMessage == AlreadyDeleted)
                 {
-                    TempData["InfoMessage"] = AlreadyDeleted;
-                    return RedirectToAction("Index");
+                    TempData["Message"] = AlreadyDeleted;
+                    return RedirectToAction(nameof(Index), new { currentPage, searchQuery, yearFilter, entitiesPerPage });
                 }
 
                 TempData["ErrorMessage"] = result.ErrorMessage ?? DeletionFailure;
@@ -212,11 +218,6 @@ namespace WarehouseApp.Web.Controllers
             }
 
             TempData["Message"] = DeletionSuccess;
-
-            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
-            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
-            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
-            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
 
             return RedirectToAction(nameof(Index), new { currentPage, searchQuery, yearFilter, entitiesPerPage });
         }
