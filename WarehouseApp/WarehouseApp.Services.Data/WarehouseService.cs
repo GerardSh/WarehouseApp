@@ -159,8 +159,19 @@ namespace WarehouseApp.Services.Data
                 .AsNoTracking()
                 .Include(w => w.WarehouseUsers)
                 .Include(w => w.CreatedByUser)
-                .Where(w => !w.IsDeleted)
+                .Include(w => w.ImportInvoices)
+                .Include(w => w.ExportInvoices)
                 .FirstOrDefaultAsync(w => w.Id == warehouseId);
+
+            int totalAvailableGoods = await dbContext.ImportInvoiceDetails
+                .AsNoTracking()
+                .Where(detail => detail.ImportInvoice.WarehouseId == warehouseId)
+                .Select(detail => new
+                {
+                    ImportQuantity = detail.Quantity,
+                    ExportedQuantity = detail.ExportInvoicesPerProduct.Sum(e => (int?)e.Quantity) ?? 0
+                })
+                .CountAsync(q => (q.ImportQuantity - q.ExportedQuantity) > 0);
 
             if (warehouse == null || warehouse.IsDeleted)
                 return OperationResult<WarehouseDetailsViewModel>.Failure(WarehouseNotFound);
@@ -179,7 +190,10 @@ namespace WarehouseApp.Services.Data
                 CreatedByUser = warehouse.CreatedByUser?.Email!,
                 CreatedDate = warehouse.CreatedDate.ToString(DateFormat),
                 IsUserOwner = warehouse.CreatedByUser?.Email == user.Email,
-                Size = warehouse.Size.ToString()
+                Size = warehouse.Size.ToString(),
+                TotalImportInvoices = warehouse.ImportInvoices.Count,
+                TotalExportInvoices = warehouse.ExportInvoices.Count,
+                TotalAvailableGoods = totalAvailableGoods
             };
 
             return OperationResult<WarehouseDetailsViewModel>.Ok(viewModel);
