@@ -238,7 +238,7 @@ namespace WarehouseApp.Services.Data
                         ImportInvoice = importInvoice,
                         ProductId = product.Id,
                         Quantity = detail.Quantity,
-                        UnitPrice = detail.Price
+                        UnitPrice = detail.UnitPrice
                     };
 
                     dbContext.ImportInvoiceDetails.Add(invoiceDetail);
@@ -349,7 +349,7 @@ namespace WarehouseApp.Services.Data
                     CategoryName = d.Product.Category.Name,
                     CategoryDescription = d.Product.Category.Description,
                     Quantity = d.Quantity,
-                    Price = d.UnitPrice
+                    UnitPrice = d.UnitPrice
                 }).ToList()
             };
 
@@ -499,7 +499,7 @@ namespace WarehouseApp.Services.Data
                         }
 
                         invoiceDetail.Quantity = detail.Quantity;
-                        invoiceDetail.UnitPrice = detail.Price;
+                        invoiceDetail.UnitPrice = detail.UnitPrice;
                         invoiceDetail.Product = product;
                         invoiceDetail.Product.Category = category;
                     }
@@ -510,7 +510,7 @@ namespace WarehouseApp.Services.Data
                             ImportInvoiceId = invoice.Id,
                             ProductId = product.Id,
                             Quantity = detail.Quantity,
-                            UnitPrice = detail.Price
+                            UnitPrice = detail.UnitPrice
                         };
 
                         dbContext.ImportInvoiceDetails.Add(invoiceDetail);
@@ -556,7 +556,7 @@ namespace WarehouseApp.Services.Data
                         ProductDescription = d.Product.Description,
                         ProductName = d.Product.Name,
                         Quantity = d.Quantity,
-                        Price = d.UnitPrice,
+                        UnitPrice = d.UnitPrice,
                         CategoryDescription = d.Product.Category.Description,
                         CategoryName = d.Product.Category.Name
                     });

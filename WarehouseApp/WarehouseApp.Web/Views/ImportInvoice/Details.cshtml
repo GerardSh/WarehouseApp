@@ -6,202 +6,7 @@
 }
 
 @section HeadExtras {
-
-    <style>
-        .invoice-details-container {
-            background-color: inherit;
-
-            color: white;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            flex: 1 1 30%;
-        }
-
-        .form-group label {
-            color: #0078D4;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-control-plaintext {
-            color: white;
-            font-size: 1.05rem;
-            background-color: transparent;
-            border: none;
-            padding-left: 0;
-        }
-
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            background-color: #2c2c3a;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .product-table th,
-        .product-table td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid #444;
-            color: white;
-        }
-
-        .product-table th {
-            background-color: #0078D4;
-            color: white;
-        }
-
-        .btn-gradient {
-            background: rgb(63, 81, 181);
-            border: none;
-            color: #fff;
-            transition: background 0.4s ease, transform 0.2s ease;
-            box-shadow: 0 4px 12px rgba(63, 81, 181, 0.4);
-        }
-
-        .button-group {
-            display: inline-flex;
-            gap: 0.75rem;
-            align-items: center;
-            margin-top: 2rem;
-        }
-
-            .button-group form {
-                margin: 0;
-                padding: 0;
-                display: flex;
-                align-items: center;
-            }
-
-            .button-group button {
-                margin: 0;
-                vertical-align: middle;
-            }
-
-            .button-group .btn {
-                transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-                cursor: pointer;
-            }
-
-                .button-group .btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-                }
-
-                .button-group .btn:active {
-                    transform: scale(0.98);
-                    box-shadow: none;
-                }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #0078D4, #3F39E8);
-            border: none;
-            padding: 0.5rem 1.25rem;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            transition: background-position 0.4s ease, transform 0.2s ease;
-            background-size: 200%;
-            background-position: left;
-        }
-
-            .btn-primary:hover {
-                background-position: right;
-            }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #d9534f, #ff6f61);
-            border: none;
-            padding: 0.5rem 1.25rem;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            transition: background-position 0.4s ease, transform 0.2s ease;
-            background-size: 200%;
-            background-position: left;
-            margin-left: 0.5rem;
-        }
-
-            .btn-danger:hover {
-                background-position: right;
-            }
-
-        .mt-3 {
-            margin-top: 2rem;
-        }
-
-        .invoice-summary {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: transparent;
-            color: white;
-            font-size: 1.1rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 2rem;
-        }
-
-        .currency-selector {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1rem;
-        }
-
-        .currency-selector select {
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        tbody {
-            background-color: #1e1e2f;
-        }
-
-        div.form-row,
-        tbody {
-            background-color: #1e1e2f;
-        }
-
-        div.form-row {
-            padding: 1.5rem;
-            border-radius: 12px;
-            color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            margin-bottom: 2rem;
-        }
-
-        th {
-            background-color: var(--accent-bg) !important;
-            color: #0078D4 !important;
-            padding: 0.2rem 0.5rem !important;
-        }
-
-        th {
-            background-color: var(--accent-bg) !important;
-            color: #0078D4 !important;
-            padding: 0.2rem 0.5rem !important;
-        }
-        #currency {
-            background-color: inherit;
-            color: white;
-            border-color:grey;
-        }
-
-        option {
-            color: white;
-            background-color: #3a3a3d;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/ImportInvoice/details.css" asp-append-version="true" />
 }
 
 <h2>Invoice Details</h2>
@@ -258,13 +63,13 @@
         @foreach (var product in Model.Products)
         {
             <tr>
-                <td>@product.ProductName</td>
-                <td>@product.ProductDescription</td>
-                <td>@product.Quantity</td>
-                <td class="unit-price" data-value="@product.UnitPrice">@product.UnitPrice</td>
-                <td class="total-price" data-value="@product.Total">@product.Total</td>
-                <td>@product.CategoryName</td>
-                <td>@product.CategoryDescription</td>
+                <td data-label="Product Name">@product.ProductName</td>
+                <td data-label="Description">@product.ProductDescription</td>
+                <td data-label="Quantity">@product.Quantity</td>
+                <td class="unit-price" data-label="Unit Price" data-value="@product.UnitPrice">@product.UnitPrice</td>
+                <td class="total-price" data-label="Total Price" data-value="@product.Total">@product.Total</td>
+                <td data-label="Category Name">@product.CategoryName</td>
+                <td data-label="Category Description">@product.CategoryDescription</td>
             </tr>
         }
     </tbody>
@@ -294,26 +99,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        function changeCurrency() {
-            const symbol = document.getElementById("currency").value;
-
-            document.querySelectorAll('.unit-price').forEach(td => {
-                const val = parseFloat(td.getAttribute('data-value'));
-                td.textContent = symbol + ' ' + val.toFixed(2);
-            });
-
-            document.querySelectorAll('.total-price').forEach(td => {
-                const val = parseFloat(td.getAttribute('data-value'));
-                td.textContent = symbol + ' ' + val.toFixed(2);
-            });
-
-            const totalSpan = document.getElementById('summaryTotal');
-            const totalValue = parseFloat(totalSpan.getAttribute('data-value'));
-            totalSpan.textContent = symbol + ' ' + totalValue.toFixed(2);
-        }
-
-        // Set initial currency
-        window.addEventListener('DOMContentLoaded', changeCurrency);
-    </script>
+    <script src="~/js/ImportInvoice/details.js" asp-append-version="true"></script>
 }

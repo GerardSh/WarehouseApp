@@ -14,7 +14,7 @@ namespace WarehouseApp.Web.ViewModels.ImportInvoice
         public int Quantity { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = PriceRange)]
-        public decimal? Price { get; set; }
+        public decimal? UnitPrice { get; set; }
 
         [Required(ErrorMessage = ProductNameRequired)]
         [MaxLength(Product.NameMaxLength, ErrorMessage = ProductNameMaxLength)]
