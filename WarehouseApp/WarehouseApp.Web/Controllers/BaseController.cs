@@ -22,7 +22,7 @@ namespace WarehouseApp.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out parsedUserId))
             {
-                logger.LogWarning("Unauthorized access attempt with invalid user ID.");
+                logger.LogWarning(UnauthorizedAccess);
 
                 TempData["ErrorMessage"] = UserNotFound;
                 return RedirectToAction("Error", "Home", new { statusCode = 403 });

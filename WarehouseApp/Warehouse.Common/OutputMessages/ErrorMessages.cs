@@ -5,6 +5,7 @@
         public static class Application
         {
             public const string UserNotFound = "User not found.";
+            public const string UnauthorizedAccess = "Unauthorized access attempt with invalid user ID.";
         }
 
         public static class UserManager
@@ -63,6 +64,43 @@
             public const string CannnotDeleteAllProducts = "Cannot delete all products.";
         }
 
+        public static class ExportInvoice
+        {
+            public const string InvoiceNumberRequired = "Invoice number is required.";
+            public const string InvoiceNumberMaxLength = "Invoice number must be at least 3 characters.";
+            public const string InvoiceNumberMinLength = "Invoice number cannot be longer than 20 characters.";
+            public const string DateRequired = "Date is required.";
+            public const string DuplicateInvoice = "An Export Invoice with this number already exists.";
+            public const string NoPermissionOrImportInvoiceNotFound = "Import Invoice not found or access denied.";
+            public const string NoPermissionOrExportInvoiceNotFound = "Export Invoice not found or access denied.";
+            public const string ProductNotFoundInImportInvoice = "Product not found in the selected Import Invoice.";
+            public const string InsufficientStock = "Insufficient stock.";
+            public const string CannotExportBeforeImportDate = "Cannot export before import date.";
+            public const string DuplicateProduct = "Duplicate product entries from the same import invoice are not allowed.";
+
+            public const string CreationFailure = "Fatal error occurred while creating the Export Invoice.";
+            public const string EditingFailure = "Fatal error occurred while editing the Export Invoice.";
+            public const string DeletionFailure = "Fatal error occurred while deleting the Export Invoice.";
+
+            public const string CannotCreateExportInvoiceWithoutExports = "Export Invoice must contain at least one exported product.";
+            //public const string InvalidDate = "Cannot set Import Invoice date later than export invoice date: ";
+            //public const string ExistingExportInvoices = "Cannot delete an Invoice with existing exports.";
+        }
+
+        public static class ExportInvoiceDetail
+        {
+            public const string ImportInvoiceNumberRequired = "Import invoice number is required.";
+            public const string QuantityRequired = "Quantity is required.";
+            public const string QuantityRange = "Quantity must be greater than 0.";
+            public const string PriceRange = "Price must be a positive number.";
+
+            public const string ProductNotFound = "Product not found.";
+            public const string CreationFailure = "Failed to create or update ExportInvoiceDetail.";
+            //public const string ProductDeletionFailure = "Products that are used in export invoices cannot be removed.";
+            //public const string DeletionFailure = "Fatal error occurred while removing the exports.";
+            //public const string CannnotDeleteAllProducts = "Cannot delete all exports.";
+        }
+
         public static class Supplier
         {
             public const string SupplierNameRequired = "Supplier name is required.";
@@ -107,6 +145,27 @@
         public static class Client
         {
             public const string CreationFailure = "Failed to create or update client.";
+
+            public const string ClientNameRequired = "Client name is required.";
+            public const string ClientNameMinLength = "Client name must be at least 3 characters.";
+            public const string ClientNameMaxLength = "Client name cannot be longer than 150 characters.";
+
+            public const string ClientAddressRequired = "Client address is required.";
+            public const string ClientAddressMinLength = "Client address must be at least 5 characters.";
+            public const string ClientAddressMaxLength = "Client address cannot be longer than 150 characters.";
+
+            public const string ClientPhoneNumberMinLength = "Phone number must be at least 10 characters.";
+            public const string ClientPhoneNumberMaxLength = "Phone number cannot be longer than 30 characters.";
+            public const string ClientPhoneNumberInvalid = "Invalid phone number format.";
+
+            public const string ClientEmailMinLength = "Email must be at least 5 characters.";
+            public const string ClientEmailMaxLength = "Email cannot be longer than 100 characters.";
+            public const string ClientEmailInvalid = "Invalid email address format.";
+        }
+
+        public static class Stock
+        {
+            public const string ProductNotFound = "Product not found.";
         }
 
         public static class ApplicationBuilderExtensions

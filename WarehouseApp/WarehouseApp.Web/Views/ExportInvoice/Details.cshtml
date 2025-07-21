@@ -1,5 +1,5 @@
 ﻿@using static WarehouseApp.Common.Constants.ApplicationConstants
-@model WarehouseApp.Web.ViewModels.ImportInvoice.ImportInvoiceDetailsViewModel
+@model WarehouseApp.Web.ViewModels.ExportInvoice.ExportInvoiceDetailsViewModel
 
 @{
     ViewData["Title"] = "Invoice Details";
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/ImportInvoice/details.css" asp-append-version="true" />
 }
 
-<h2>Invoice Details</h2>
+<h2>Export Invoice Details</h2>
 
 <div class="invoice-details-container">
     <div class="form-row">
@@ -24,32 +24,33 @@
         </div>
 
         <div class="form-group form-column">
-            <label>Supplier Name</label>
-            <p class="form-control-plaintext">@Model.SupplierName</p>
+            <label>Client Name</label>
+            <p class="form-control-plaintext">@Model.ClientName</p>
         </div>
 
         <div class="form-group form-column">
-            <label>Supplier Address</label>
-            <p class="form-control-plaintext">@Model.SupplierAddress</p>
+            <label>Client Address</label>
+            <p class="form-control-plaintext">@Model.ClientAddress</p>
         </div>
 
         <div class="form-group form-column">
-            <label>Supplier Phone Number</label>
-            <p class="form-control-plaintext">@Model.SupplierPhone</p>
+            <label>Client Phone Number</label>
+            <p class="form-control-plaintext">@Model.ClientPhone</p>
         </div>
 
         <div class="form-group form-column">
-            <label>Supplier Email</label>
-            <p class="form-control-plaintext">@Model.SupplierEmail</p>
+            <label>Client Email</label>
+            <p class="form-control-plaintext">@Model.ClientEmail</p>
         </div>
     </div>
 </div>
 
-<h4>@Model.Products.Count @(Model.Products.Count > 1 ? "Products" : "Product")</h4>
+<h4>@Model.ExportedProducts.Count @(Model.ExportedProducts.Count > 1 ? "Products" : "Product")</h4>
 
 <table class="product-table">
     <thead>
         <tr>
+            <th>Import Invoice</th>
             <th>Product Name</th>
             <th>Description</th>
             <th>Quantity</th>
@@ -60,9 +61,10 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var product in Model.Products)
+        @foreach (var product in Model.ExportedProducts)
         {
             <tr>
+                <td data-label="Import Invoice">@product.ImportInvoiceNumber</td>
                 <td data-label="Product Name">@product.ProductName</td>
                 <td data-label="Description">@product.ProductDescription</td>
                 <td data-label="Quantity">@product.Quantity</td>
@@ -76,8 +78,8 @@
 </table>
 
 <div class="invoice-summary mt-2">
-    <div><strong>Total Quantity:</strong> @Model.Products.Sum(p => p.Quantity)</div>
-    <div><strong>Total Price:</strong> <span id="summaryTotal" data-value="@Model.Products.Sum(p => p.Total)">@Model.Products.Sum(p => p.Total)</span></div>
+    <div><strong>Total Quantity:</strong> @Model.ExportedProducts.Sum(p => p.Quantity)</div>
+    <div><strong>Total Price:</strong> <span id="summaryTotal" data-value="@Model.ExportedProducts.Sum(p => p.Total)">@Model.ExportedProducts.Sum(p => p.Total)</span></div>
 </div>
 
 <div class="button-group">

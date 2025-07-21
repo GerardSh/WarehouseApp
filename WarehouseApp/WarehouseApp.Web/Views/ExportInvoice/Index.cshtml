@@ -1,5 +1,5 @@
-﻿@using WarehouseApp.Web.ViewModels.ImportInvoice
-@model AllImportInvoicesSearchFilterViewModel
+﻿@using WarehouseApp.Web.ViewModels.ExportInvoice
+@model AllExportInvoicesSearchFilterViewModel
 
 @{
     ViewData["Title"] = @Model.WarehouseName;
@@ -13,7 +13,7 @@
     if (Model.Invoices.Any())
     {
         <h2>
-            You have @Model.TotalInvoices
+            You have @Model.TotalInvoices Export 
             @(Model.TotalInvoices == 1 ? "Invoice" : "Invoices")
         </h2>
     }
@@ -23,16 +23,16 @@
     }
     else
     {
-        <h2>You dont have Invoices, create your first!</h2>
+        <h2>You dont have Export Invoices, create your first!</h2>
     }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
     <h1 class="warehouse-title m-0 position-absolute start-50 translate-middle-x">@Model.WarehouseName</h1>
 
-    <a asp-controller="ImportInvoice" asp-action="Create" asp-route-warehouseId="@Model.WarehouseId"
+    <a asp-controller="ExportInvoice" asp-action="Create" asp-route-warehouseId="@Model.WarehouseId"
        class="btn btn-create-invoice ms-auto">
-        <i class="fas fa-plus"></i> Create New Invoice
+        <i class="fas fa-plus"></i> Create New Export Invoice
     </a>
 </div>
 
@@ -43,8 +43,8 @@
             <input asp-for="SearchQuery" class="form-control bg-dark text-white border-secondary" placeholder="Invoice..." />
         </div>
         <div class="col-md-3">
-            <label asp-for="SupplierName" class="form-label">Filter by Supplier Name</label>
-            <input asp-for="SupplierName" class="form-control bg-dark text-white border-secondary" placeholder="Search by supplier..." />
+            <label asp-for="ClientName" class="form-label">Filter by Client Name</label>
+            <input asp-for="ClientName" class="form-control bg-dark text-white border-secondary" placeholder="Search by client..." />
         </div>
         <div class="col-md-3">
             <label asp-for="YearFilter" class="form-label">Filter by year or range</label>
@@ -73,10 +73,10 @@
         <table class="table-custom-dark align-middle">
             <thead>
                 <tr>
-                    <th>Invoice #</th>
-                    <th>Supplier</th>
+                    <th>Export Invoice #</th>
+                    <th>Client</th>
                     <th>Date</th>
-                    <th>Products</th>
+                    <th>Exported Products</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -85,19 +85,19 @@
                 {
                     <tr>
                         <td>@invoice.InvoiceNumber</td>
-                        <td>@invoice.SupplierName</td>
+                        <td>@invoice.ClientName</td>
                         <td>@invoice.Date</td>
-                        <td>@invoice.ProductCount</td>
+                        <td>@invoice.ExportedProductsCount</td>
                         <td class="d-flex gap-2 flex-wrap">
-                            <a asp-controller="ImportInvoice" asp-action="Details" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId"  class="btn btn-sm btn-outline-info">
+                            <a asp-controller="ExportInvoice" asp-action="Details" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId"  class="btn btn-sm btn-outline-info">
                                 <i class="fas fa-eye"></i> View
                             </a>
 
-                            <a asp-controller="ImportInvoice" asp-action="Edit" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-sm btn-outline-info">
+                            <a asp-controller="ExportInvoice" asp-action="Edit" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-sm btn-outline-info">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
 
-                            <form asp-controller="ImportInvoice" asp-action="Delete" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId" method="post" onsubmit="return confirm('Are you sure you want to delete this invoice?');" class="d-inline">
+                            <form asp-controller="ExportInvoice" asp-action="Delete" asp-route-id="@invoice.Id" asp-route-warehouseId="@Model.WarehouseId" method="post" onsubmit="return confirm('Are you sure you want to delete this invoice?');" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>

@@ -19,18 +19,8 @@ public class ProductService : BaseService, IProductService
 
     public async Task<OperationResult<Product>> GetOrCreateOrUpdateProductAsync(string name, string? description, Guid categoryId)
     {
-        // Check in local context first (unsaved entities)
-        var localProduct = context.ChangeTracker.Entries<Product>()
-            .Select(e => e.Entity)
-            .FirstOrDefault(p => p.Name == name && p.CategoryId == categoryId);
-
-        if (localProduct != null)
-        {
-            return OperationResult<Product>.Failure(ProductDuplicate);
-        }
-
         var product = await context.Products
-                .FirstOrDefaultAsync(p => p.Name == name && p.CategoryId == categoryId);
+                        .FirstOrDefaultAsync(p => p.Name == name && p.CategoryId == categoryId);
 
         if (product == null)
         {

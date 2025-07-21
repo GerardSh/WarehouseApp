@@ -7,14 +7,15 @@ using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
-using WarehouseApp.Common.OutputMessages;
 
+using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
 using static WarehouseApp.Common.Constants.EntityConstants.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
 
 namespace WarehouseApp.Services.Data
 {
@@ -166,6 +167,16 @@ namespace WarehouseApp.Services.Data
                 return OperationResult.Failure(CannotCreateInvoiceWithoutProducts);
             }
 
+            var duplicateProducts = inputModel.Products
+                .GroupBy(p => new { p.ProductName, p.CategoryName })
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicateProducts.Any())
+            {
+                return OperationResult.Failure(ProductDuplicate);
+            }
+
             Client client;
 
             try
@@ -218,11 +229,6 @@ namespace WarehouseApp.Services.Data
                     detail.ProductName,
                     detail.ProductDescription,
                     category.Id);
-
-                    if (!productResult.Success)
-                    {
-                        return OperationResult.Failure(productResult.ErrorMessage!);
-                    }
 
                     product = productResult.Data!;
                 }
@@ -387,6 +393,16 @@ namespace WarehouseApp.Services.Data
                 return OperationResult.Failure(CannnotDeleteAllProducts);
             }
 
+            var duplicateProducts = inputModel.Products
+                .GroupBy(p => new { p.ProductName, p.CategoryName })
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicateProducts.Any())
+            {
+                return OperationResult.Failure(ProductDuplicate);
+            }
+
             Client client;
 
             try
@@ -405,7 +421,6 @@ namespace WarehouseApp.Services.Data
             }
 
             invoice.InvoiceNumber = inputModel.InvoiceNumber;
-
 
             var newImportDate = inputModel.Date;
 

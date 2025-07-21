@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                placeholder="Quantity"
                                data-val="true"
                                data-val-required="Quantity is required."
-                               data-val-range="Quantity must be greater than 0."
+                               data-val-range="Quantity must be between 1 and 2147483647."
                                data-val-range-min="1"
-                               data-val-range-max="${Number.MAX_SAFE_INTEGER}" />
+                               data-val-range-max="2147483647" />
                         <span class="text-danger field-validation-valid"
                               data-valmsg-for="Products[${newIndex}].Quantity"
                               data-valmsg-replace="true"></span>
@@ -68,15 +68,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>
                         <input type="number"
                                step="0.01"
-                               name="Products[${newIndex}].Price"
+                               name="Products[${newIndex}].UnitPrice"
                                class="form-control bg-dark text-white"
-                               placeholder="Price"
+                               placeholder="Unit price"
                                data-val="true"
-                               data-val-range="Price must be a positive number."
+                               data-val-range="Unit Price must be between 0 and 9007199254740991."
                                data-val-range-min="0"
-                               data-val-range-max="${Number.MAX_SAFE_INTEGER}" />
+                               data-val-range-max="9007199254740991" />
                         <span class="text-danger field-validation-valid"
-                              data-valmsg-for="Products[${newIndex}].Price"
+                              data-valmsg-for="Products[${newIndex}].UnitPrice"
                               data-valmsg-replace="true"></span>
                     </td>
                     <td>

@@ -15,15 +15,24 @@
     .nav-tabs .nav-link:hover,
     .nav-tabs .nav-link:focus {
         background-color: #343a40;
-        color: #0dcaf0 !important;
+        color: #0078D4 !important;
         border-bottom: none !important;
         cursor: pointer;
         text-decoration: none !important;
     }
 
     .nav-tabs .nav-link.active {
-        background-color: #0dcaf0;
+        background-color: #0078D4;
         color: #1e1e2f !important;
         border-bottom: none !important;
         transition: background-color 0.3s ease, color 0.3s ease;
     }
+
+.text-info {
+    color: #0078D4 !important;
+}
+
+.btn-outline-info {
+    color: #0078D4 !important;
+    border-color: #0078D4 !important;
+}

@@ -4,16 +4,23 @@
     {
         public static class Warehouse
         {
-            public const string CreationSuccess = "The warehouse was successfully created.";
-            public const string EditingSuccess = "The warehouse was successfully edited.";
-            public const string DeletionSuccess = "The warehouse was successfully deleted.";
+            public const string CreationSuccess = "The Warehouse was successfully created.";
+            public const string EditingSuccess = "The Warehouse was successfully edited.";
+            public const string DeletionSuccess = "The Warehouse was successfully deleted.";
         }
 
         public static class ImportInvoice
         {
-            public const string CreationSuccess = "The import invoice was successfully created.";
-            public const string EditingSuccess = "The import invoice was successfully edited.";
-            public const string DeletionSuccess = "The import invoice was successfully deleted.";
+            public const string CreationSuccess = "The Import Invoice was successfully created.";
+            public const string EditingSuccess = "The Import Invoice was successfully edited.";
+            public const string DeletionSuccess = "The Import Invoice was successfully deleted.";
+        }
+
+        public static class ExportInvoice
+        {
+            public const string CreationSuccess = "The Export Invoice was successfully created.";
+            public const string EditingSuccess = "The Export Invoice was successfully edited.";
+            public const string DeletionSuccess = "The Export Invoice was successfully deleted.";
         }
     }
 }
