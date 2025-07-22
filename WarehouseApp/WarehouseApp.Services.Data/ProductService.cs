@@ -40,6 +40,11 @@ public class ProductService : BaseService, IProductService
                 product.Description = description;
             }
 
+            if (product.Name != name)
+            {
+                product.Name = name;
+            }
+
             context.Products.Update(product);
         }
 

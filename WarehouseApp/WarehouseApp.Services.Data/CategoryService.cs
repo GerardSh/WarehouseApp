@@ -42,7 +42,16 @@ public class CategoryService : BaseService, ICategoryService
         }
         else
         {
-            category.Description = description ?? category.Description;
+            if (!string.IsNullOrWhiteSpace(description) && category.Description != description)
+            {
+                category.Description = description;
+            }
+
+            if (category.Name != name)
+            {
+                category.Name = name;
+            }
+
             context.Categories.Update(category);
         }
 

@@ -15,18 +15,28 @@ public class StockService : BaseService, IStockService
         this.dbContext = dbContext;
     }
 
-    public async Task<OperationResult<int>> GetAvailableQuantityAsync(Guid importInvoiceDetailId)
+    /// <summary>
+    /// Returns available stock for the given import detail, optionally excluding one export detail.
+    /// </summary>
+    /// <param name="importDetailId">ID of the import detail to check.</param>
+    /// <param name="excludeExportDetailId">Optional export detail to exclude from calculation.</param>
+    /// <returns>Available quantity as an <see cref="OperationResult{T}"/>.</returns>
+    public async Task<OperationResult<int>> GetAvailableQuantityAsync(
+        Guid importDetailId,
+        Guid? excludeExportDetailId = null)
     {
-        var importDetail = await dbContext.ImportInvoiceDetails
-            .Include(iid => iid.ExportInvoicesPerProduct)
-            .FirstOrDefaultAsync(iid => iid.Id == importInvoiceDetailId);
+        var imported = await dbContext.ImportInvoiceDetails
+            .Where(i => i.Id == importDetailId)
+            .Select(i => (int?)i.Quantity)
+            .FirstOrDefaultAsync() ?? 0;
 
-        if (importDetail == null)
-            return OperationResult<int>.Failure(ProductNotFound);
+        var exported = await dbContext.ExportInvoiceDetails
+            .Where(e => e.ImportInvoiceDetailId == importDetailId &&
+                (excludeExportDetailId == null || e.Id != excludeExportDetailId))
+            .SumAsync(e => (int?)e.Quantity) ?? 0;
 
-        var exportedQty = importDetail.ExportInvoicesPerProduct.Sum(e => e.Quantity);
-        var availableQty = importDetail.Quantity - exportedQty;
+        var available = imported - exported;
 
-        return OperationResult<int>.Ok(availableQty);
+        return OperationResult<int>.Ok(available);
     }
 }

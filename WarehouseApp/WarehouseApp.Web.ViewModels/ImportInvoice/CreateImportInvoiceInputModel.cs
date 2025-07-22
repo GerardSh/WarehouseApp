@@ -14,7 +14,7 @@ namespace WarehouseApp.Web.ViewModels.ImportInvoice
 
         [Required(ErrorMessage = InvoiceNumberRequired)]
         [MaxLength(EntityConstants.ImportInvoice.InvoiceNumberMaxLength, ErrorMessage = InvoiceNumberMaxLength)]
-        [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = InvoiceNumberMaxLength)]
+        [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = InvoiceNumberMinLength)]
         public string InvoiceNumber { get; set; } = null!;
 
         [Required(ErrorMessage = DateRequired)]

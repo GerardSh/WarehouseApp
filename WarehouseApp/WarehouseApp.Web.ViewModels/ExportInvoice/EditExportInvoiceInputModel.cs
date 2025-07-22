@@ -7,8 +7,11 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportInvoice;
 
 namespace WarehouseApp.Web.ViewModels.ExportInvoice
 {
-    public class CreateExportInvoiceInputModel
+    public class EditExportInvoiceInputModel
     {
+        [Required]
+        public Guid Id { get; set; }
+
         [Required]
         public Guid WarehouseId { get; set; }
 
@@ -41,7 +44,7 @@ namespace WarehouseApp.Web.ViewModels.ExportInvoice
         [MinLength(EmailMinLength, ErrorMessage = ClientEmailMinLength)]
         public string? ClientEmail { get; set; }
 
-        public List<CreateExportInvoiceDetailInputModel> ExportedProducts { get; set; }
-            = new List<CreateExportInvoiceDetailInputModel>();
+        public List<EditExportInvoiceDetailInputModel> ExportedProducts { get; set; }
+            = new List<EditExportInvoiceDetailInputModel>();
     }
 }

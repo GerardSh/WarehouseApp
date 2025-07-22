@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
+using WarehouseApp.Common.Constants;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Supplier;
 using static WarehouseApp.Common.Constants.EntityConstants.Client;
-using WarehouseApp.Common.OutputMessages;
-using WarehouseApp.Common.Constants;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 
 namespace WarehouseApp.Web.ViewModels.ImportInvoice
 {
@@ -13,17 +12,17 @@ namespace WarehouseApp.Web.ViewModels.ImportInvoice
         [Required]
         public Guid Id { get; set; }
 
+        [Required]
+        public Guid WarehouseId { get; set; }
+
         [Required(ErrorMessage = InvoiceNumberRequired)]
-        [MaxLength(EntityConstants.ImportInvoice.InvoiceNumberMaxLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]
-        [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = ErrorMessages.ImportInvoice.InvoiceNumberMaxLength)]
+        [MaxLength(EntityConstants.ImportInvoice.InvoiceNumberMaxLength, ErrorMessage = InvoiceNumberMaxLength)]
+        [MinLength(EntityConstants.ImportInvoice.InvoiceNumberMinLength, ErrorMessage = InvoiceNumberMinLength)]
         public string InvoiceNumber { get; set; } = null!;
 
         [Required(ErrorMessage = DateRequired)]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
-
-        [Required]
-        public Guid WarehouseId { get; set; }
 
         [Required(ErrorMessage = SupplierNameRequired)]
         [MaxLength(NameMaxLength, ErrorMessage = SupplierNameMaxLength)]

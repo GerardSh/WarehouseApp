@@ -15,7 +15,6 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
-using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
 
 namespace WarehouseApp.Services.Data
 {
@@ -168,14 +167,16 @@ namespace WarehouseApp.Services.Data
             }
 
             var duplicateProducts = inputModel.Products
-                .GroupBy(p => new { p.ProductName, p.CategoryName })
+                .GroupBy(p => new
+                {
+                    ProductName = p.ProductName.ToLower(),
+                    CategoryName = p.CategoryName.ToLower()
+                })
                 .Where(g => g.Count() > 1)
                 .ToList();
 
             if (duplicateProducts.Any())
-            {
                 return OperationResult.Failure(ProductDuplicate);
-            }
 
             Client client;
 
@@ -394,14 +395,16 @@ namespace WarehouseApp.Services.Data
             }
 
             var duplicateProducts = inputModel.Products
-                .GroupBy(p => new { p.ProductName, p.CategoryName })
+                .GroupBy(p => new
+                {
+                    ProductName = p.ProductName.ToLower(),
+                    CategoryName = p.CategoryName.ToLower()
+                })
                 .Where(g => g.Count() > 1)
                 .ToList();
 
             if (duplicateProducts.Any())
-            {
                 return OperationResult.Failure(ProductDuplicate);
-            }
 
             Client client;
 
@@ -490,28 +493,21 @@ namespace WarehouseApp.Services.Data
                 {
                     if (detail.Id.HasValue)
                     {
-                        var localDetail = dbContext.ImportInvoiceDetails.Local
-                            .FirstOrDefault(i => i.Id == detail.Id);
-
-                        var invoiceDetail = localDetail ?? await dbContext.ImportInvoiceDetails
+                        var invoiceDetail = await dbContext.ImportInvoiceDetails
                             .Include(iid => iid.Product)
                             .ThenInclude(p => p.Category)
                             .FirstOrDefaultAsync(iid => iid.Id == detail.Id);
 
                         if (invoiceDetail == null)
-                        {
-                            return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.ProductNotFound);
-                        }
+                            return OperationResult.Failure(ProductNotFound);
 
                         var exportedQuantity = await dbContext.ExportInvoiceDetails
                                    .Where(e => e.ImportInvoiceDetailId == detail.Id)
                                    .SumAsync(e => (int?)e.Quantity) ?? 0;
 
                         if (detail.Quantity < exportedQuantity)
-                        {
-                            return OperationResult.Failure(
-                                $"Cannot set quantity for product \"{invoiceDetail.Product.Name}\" to {detail.Quantity}, because {exportedQuantity} have already been exported.");
-                        }
+                            return OperationResult.Failure($"Cannot set quantity for product \"{invoiceDetail.Product.Name}\" to {detail.Quantity}, because {exportedQuantity} have already been exported.");
+                        
 
                         invoiceDetail.Quantity = detail.Quantity;
                         invoiceDetail.UnitPrice = detail.UnitPrice;
@@ -555,16 +551,12 @@ namespace WarehouseApp.Services.Data
                     .Include(d => d.ExportInvoicesPerProduct)
                     .ToListAsync();
 
-                var safeToDelete = detailsToRemove
-                    .Where(d => d.ExportInvoicesPerProduct == null || d.ExportInvoicesPerProduct.Count == 0)
+                var undeletableDetails = detailsToRemove
+                    .Where(d => d.ExportInvoicesPerProduct != null && d.ExportInvoicesPerProduct.Count > 0)
                     .ToList();
 
-                if (safeToDelete.Count < detailsToRemove.Count)
+                if (undeletableDetails.Count > 0)
                 {
-                    var undeletableDetails = detailsToRemove
-                        .Where(d => d.ExportInvoicesPerProduct != null && d.ExportInvoicesPerProduct.Count > 0)
-                        .ToList();
-
                     var undeletableProductInputs = undeletableDetails.Select(d => new EditImportInvoiceDetailInputModel
                     {
                         Id = d.Id,
@@ -576,14 +568,9 @@ namespace WarehouseApp.Services.Data
                         CategoryName = d.Product.Category.Name
                     });
 
-                    var existingProductIds = inputModel.Products.Select(p => p.Id).ToHashSet();
-
                     foreach (var product in undeletableProductInputs)
                     {
-                        if (!existingProductIds.Contains(product.Id))
-                        {
-                            inputModel.Products.Add(product);
-                        }
+                        inputModel.Products.Add(product);
                     }
 
                     return OperationResult.Failure(ProductDeletionFailure);
@@ -593,7 +580,7 @@ namespace WarehouseApp.Services.Data
             }
             catch
             {
-                return OperationResult.Failure(ProductDeletionFailure);
+                return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.DeletionFailure);
             }
 
             try

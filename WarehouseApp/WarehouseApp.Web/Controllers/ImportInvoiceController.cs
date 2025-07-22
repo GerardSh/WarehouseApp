@@ -10,9 +10,6 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
 using static WarehouseApp.Common.OutputMessages.SuccessMessages.ImportInvoice;
-using WarehouseApp.Services.Data;
-using WarehouseApp.Web.ViewModels.Warehouse;
-
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -29,7 +26,8 @@ namespace WarehouseApp.Web.Controllers
             CannotCreateInvoiceWithoutProducts,
             ProductDeletionFailure,
             QuantityRange,
-            ExistingExportInvoices
+            ExistingExportInvoices,
+            CannnotDeleteAllProducts
         };
 
         public ImportInvoiceController(IImportInvoiceService importInvoiceService, ILogger<ImportInvoiceController> logger)

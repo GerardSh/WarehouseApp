@@ -12,10 +12,10 @@ namespace WarehouseApp.Services.Data.Interfaces
 
         Task<OperationResult<ExportInvoiceDetailsViewModel>> GetExportInvoiceDetailsAsync(Guid warehouseId, Guid invoiceId, Guid userId);
 
-        //Task<OperationResult<EditExportInvoiceInputModel>> GetExportInvoiceForEditingAsync(Guid warehouseId, Guid invoiceId, Guid userId);
+        Task<OperationResult<EditExportInvoiceInputModel>> GetExportInvoiceForEditingAsync(Guid warehouseId, Guid invoiceId, Guid userId);
 
-        //Task<OperationResult> UpdateExportInvoiceAsync(EditExportInvoiceInputModel inputModel, Guid userId);
+        Task<OperationResult> UpdateExportInvoiceAsync(EditExportInvoiceInputModel inputModel, Guid userId);
 
-        //Task<OperationResult> DeleteExportInvoiceAsync(Guid warehouseId, Guid invoiceId, Guid userId);
+        Task<OperationResult> DeleteExportInvoiceAsync(Guid warehouseId, Guid invoiceId, Guid userId);
     }
 }

@@ -36,8 +36,8 @@
         public static class ImportInvoice
         {
             public const string InvoiceNumberRequired = "Invoice number is required.";
-            public const string InvoiceNumberMaxLength = "Invoice number must be at least 3 characters.";
-            public const string InvoiceNumberMinLength = "Invoice number cannot be longer than 20 characters.";
+            public const string InvoiceNumberMaxLength = "Invoice number cannot be longer than 20 characters.";
+            public const string InvoiceNumberMinLength = "Invoice number must be at least 3 characters.";
             public const string DateRequired = "Date is required.";
             public const string DuplicateInvoice = "An invoice with this number already exists.";
             public const string NoPermissionOrImportInvoiceNotFound = "Invoice not found or access denied.";
@@ -56,7 +56,7 @@
             public const string QuantityRequired = "Quantity is required.";
             public const string QuantityRange = "Quantity must be greater than 0.";
             public const string PriceRange = "Price must be a positive number.";
-
+            public const string ProductDuplicate = "Cannot have more than one product with the same name and category.";
             public const string ProductNotFound = "Product not found.";
             public const string CreationFailure = "Failed to create or update ImportInvoiceDetail.";
             public const string ProductDeletionFailure = "Products that are used in export invoices cannot be removed.";
@@ -67,13 +67,12 @@
         public static class ExportInvoice
         {
             public const string InvoiceNumberRequired = "Invoice number is required.";
-            public const string InvoiceNumberMaxLength = "Invoice number must be at least 3 characters.";
-            public const string InvoiceNumberMinLength = "Invoice number cannot be longer than 20 characters.";
+            public const string InvoiceNumberMaxLength = "Invoice number cannot be longer than 20 characters.";
+            public const string InvoiceNumberMinLength = "Invoice number must be at least 3 characters.";
             public const string DateRequired = "Date is required.";
             public const string DuplicateInvoice = "An Export Invoice with this number already exists.";
             public const string NoPermissionOrImportInvoiceNotFound = "Import Invoice not found or access denied.";
             public const string NoPermissionOrExportInvoiceNotFound = "Export Invoice not found or access denied.";
-            public const string ProductNotFoundInImportInvoice = "Product not found in the selected Import Invoice.";
             public const string InsufficientStock = "Insufficient stock.";
             public const string CannotExportBeforeImportDate = "Cannot export before import date.";
             public const string DuplicateProduct = "Duplicate product entries from the same import invoice are not allowed.";
@@ -83,8 +82,7 @@
             public const string DeletionFailure = "Fatal error occurred while deleting the Export Invoice.";
 
             public const string CannotCreateExportInvoiceWithoutExports = "Export Invoice must contain at least one exported product.";
-            //public const string InvalidDate = "Cannot set Import Invoice date later than export invoice date: ";
-            //public const string ExistingExportInvoices = "Cannot delete an Invoice with existing exports.";
+            public const string InvalidDate = "Cannot set Export Invoice date earlier than invoice date: ";
         }
 
         public static class ExportInvoiceDetail
@@ -93,12 +91,12 @@
             public const string QuantityRequired = "Quantity is required.";
             public const string QuantityRange = "Quantity must be greater than 0.";
             public const string PriceRange = "Price must be a positive number.";
-
-            public const string ProductNotFound = "Product not found.";
+            public const string ProductNotFoundInImportInvoice = "Product not found - please check the product name, category, and invoice number.";
+            public const string ExportNotFound = "Export not found.";
             public const string CreationFailure = "Failed to create or update ExportInvoiceDetail.";
-            //public const string ProductDeletionFailure = "Products that are used in export invoices cannot be removed.";
-            //public const string DeletionFailure = "Fatal error occurred while removing the exports.";
-            //public const string CannnotDeleteAllProducts = "Cannot delete all exports.";
+            public const string ExportDuplicate = "Cannot have more than one export with the same product name, category and Import Invoice.";
+            public const string DeletionFailure = "Fatal error occurred while removing the exports.";
+            public const string CannnotDeleteAllExports = "Cannot delete all exports.";
         }
 
         public static class Supplier
@@ -127,7 +125,6 @@
             public const string ProductNameMaxLength = "Product name cannot be longer than 255 characters.";
             public const string ProductDescriptionMaxLength = "Product description cannot be longer than 1000 characters.";
             public const string ProductDescriptionMinLength = "Product description must be at least 5 characters.";
-            public const string ProductDuplicate = "Cannot have more than one product with the same name and category.";
             public const string CreationFailure = "Failed to create or update product.";
         }
 

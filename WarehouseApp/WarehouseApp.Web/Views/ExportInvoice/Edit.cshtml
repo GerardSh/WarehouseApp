@@ -1,0 +1,106 @@
+﻿@model WarehouseApp.Web.ViewModels.ExportInvoice.EditExportInvoiceInputModel
+
+@{
+    ViewData["Title"] = "Edit Export Invoice";
+}
+
+@section HeadExtras {
+    <link rel="stylesheet" href="~/css/ImportInvoice/create-edit.css" asp-append-version="true" />
+}
+
+<h2>Edit Export Invoice</h2>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form id="exportInvoiceForm" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate="novalidate">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-row">
+        <div class="form-group form-column">
+            <label asp-for="InvoiceNumber"></label>
+            <input asp-for="InvoiceNumber" class="form-control bg-dark text-white" placeholder="Invoice number" />
+            <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group form-column">
+            <label asp-for="Date"></label>
+            <input asp-for="Date" class="form-control bg-dark text-white" placeholder="Select date" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+        <div class="form-group form-column">
+            <label asp-for="ClientName"></label>
+            <input asp-for="ClientName" class="form-control bg-dark text-white" placeholder="Client name" />
+            <span asp-validation-for="ClientName" class="text-danger"></span>
+        </div>
+        <div class="form-group form-column">
+            <label asp-for="ClientAddress"></label>
+            <input asp-for="ClientAddress" class="form-control bg-dark text-white" placeholder="Client address" />
+            <span asp-validation-for="ClientAddress" class="text-danger"></span>
+        </div>
+        <div class="form-group form-column">
+            <label asp-for="ClientPhoneNumber"></label>
+            <input asp-for="ClientPhoneNumber" class="form-control bg-dark text-white" placeholder="Client phone number" />
+            <span asp-validation-for="ClientPhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group form-column">
+            <label asp-for="ClientEmail"></label>
+            <input asp-for="ClientEmail" class="form-control bg-dark text-white" placeholder="Client email" />
+            <span asp-validation-for="ClientEmail" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h4>Exported Products</h4>
+    <table class="product-table" id="exported-products-table">
+        <thead>
+            <tr>
+                <th>Import Invoice Number</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Category Name</th>        
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="products-container">
+            @for (int i = 0; i < Model.ExportedProducts.Count; i++)
+            {
+                <tr class="product-group">
+                    <input type="hidden" asp-for="ExportedProducts[i].Id" />
+                    <td>
+                        <input asp-for="ExportedProducts[i].ImportInvoiceNumber" class="form-control bg-dark text-white" placeholder="Import Invoice Number" />
+                        <span asp-validation-for="ExportedProducts[i].ImportInvoiceNumber" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExportedProducts[i].ProductName" class="form-control bg-dark text-white" placeholder="Product name" />
+                        <span asp-validation-for="ExportedProducts[i].ProductName" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExportedProducts[i].Quantity" class="form-control bg-dark text-white" placeholder="Quantity" />
+                        <span asp-validation-for="ExportedProducts[i].Quantity" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExportedProducts[i].UnitPrice" class="form-control bg-dark text-white" placeholder="Unit price" />
+                        <span asp-validation-for="ExportedProducts[i].UnitPrice" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExportedProducts[i].CategoryName" class="form-control bg-dark text-white" placeholder="Category name" />
+                        <span asp-validation-for="ExportedProducts[i].CategoryName" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="remove-btn" onclick="removeProduct(this)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-secondary mt-2" onclick="addProduct()">Add Product</button>
+    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        window.productIndex = @Model.ExportedProducts.Count;
+    </script>
+    <script src="~/js/ExportInvoice/create.js" asp-append-version="true"></script>
+}
