@@ -19,7 +19,8 @@ namespace WarehouseApp.Web.Controllers
         private readonly IExportInvoiceService exportInvoiceService;
 
         private readonly HashSet<string> knownClientErrors = new HashSet<string>
-        {   DuplicateInvoice,
+        {
+            DuplicateInvoice,
             ProductNotFoundInImportInvoice,
             InsufficientStock,
             CannotExportBeforeImportDate,

@@ -13,7 +13,7 @@
     if (Model.Invoices.Any())
     {
         <h2>
-            You have @Model.TotalInvoices
+            @Model.TotalInvoices
             @(Model.TotalInvoices == 1 ? "Invoice" : "Invoices")
         </h2>
     }
@@ -28,7 +28,9 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
-    <h1 class="warehouse-title m-0 position-absolute start-50 translate-middle-x">@Model.WarehouseName</h1>
+    <h1 class="warehouse-title m-0 position-absolute start-50 translate-middle-x">
+        @Model.WarehouseName
+    </h1>
 
     <a asp-controller="ImportInvoice" asp-action="Create" asp-route-warehouseId="@Model.WarehouseId"
        class="btn btn-create-invoice ms-auto">
@@ -110,6 +112,13 @@
     </div>
 }
 
+<a asp-controller="Warehouse"
+   asp-action="Details"
+   asp-route-id="@Model.WarehouseId"
+   class="btn btn-secondary">
+    ← Back to Warehouse
+</a>
+
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center flex-wrap">
         @if (Model.CurrentPage > 1)
@@ -118,6 +127,7 @@
                 <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
                    asp-route-currentPage="@(Model.CurrentPage - 1)"
                    asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-supplierName="@Model.SupplierName"
                    asp-route-yearFilter="@Model.YearFilter"
                    asp-route-entitiesPerPage="@Model.EntitiesPerPage">
                     <i class="fas fa-chevron-left me-1"></i> Previous
@@ -132,6 +142,7 @@
                    asp-action="Index"
                    asp-route-currentPage="@i"
                    asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-supplierName="@Model.SupplierName"
                    asp-route-yearFilter="@Model.YearFilter"
                    asp-route-entitiesPerPage="@Model.EntitiesPerPage">
                     @i
@@ -145,6 +156,7 @@
                 <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
                    asp-route-currentPage="@(Model.CurrentPage + 1)"
                    asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-supplierName="@Model.SupplierName"
                    asp-route-yearFilter="@Model.YearFilter"
                    asp-route-entitiesPerPage="@Model.EntitiesPerPage">
                     Next <i class="fas fa-chevron-right ms-1"></i>

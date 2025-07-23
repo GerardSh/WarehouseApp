@@ -1,0 +1,166 @@
+﻿@using WarehouseApp.Web.ViewModels.Stock
+@model AllProductsSearchFilterViewModel
+
+@{
+    ViewData["Title"] = @Model.WarehouseName + " Products";
+}
+
+@section HeadExtras {
+    <link rel="stylesheet" href="~/css/Shared/invoices-index.css" asp-append-version="true" />
+}
+
+@{
+    if (Model.Products.Any())
+    {
+        <h2>
+            @Model.TotalProducts Available
+            @(Model.TotalProducts == 1 ? "Product" : "Products")
+        </h2>
+    }
+    else if (Model.TotalProducts > 0)
+    {
+        <h2>No Products found!</h2>
+    }
+    else
+    {
+        <h2>No available Products in the Warehouse.</h2>
+    }
+}
+
+<div class="d-flex align-items-center mb-4 position-relative">
+    <h1 class="warehouse-title m-0 position-absolute start-50 translate-middle-x">
+        @Model.WarehouseName
+    </h1>
+
+    @if (Model.Products != null && Model.Products.Any())
+    {
+        <a asp-controller="Stock"
+           asp-action="InvoiceDetails"
+           asp-route-warehouseId="@Model.WarehouseId"
+           class="btn btn-primary ms-auto">
+            View Invoice & Export Details
+        </a>
+    }
+</div>
+
+
+
+<form method="get" asp-action="Index" class="mb-5 p-4 rounded" style="background-color:#1e1e2f; border: 1px solid #3a3a4d; color: #ffffff;">
+    <div class="row g-3">
+        <div class="col">
+            <label asp-for="ProductQuery" class="form-label">Search by product</label>
+            <input asp-for="ProductQuery" class="form-control bg-dark text-white border-secondary" placeholder="Product..." />
+        </div>
+        <div class="col">
+            <label asp-for="CategoryQuery" class="form-label">Filter by category</label>
+            <input asp-for="CategoryQuery" class="form-control bg-dark text-white border-secondary" placeholder="Search by category..." />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="EntitiesPerPage" class="form-label">Items</label>
+            <select asp-for="EntitiesPerPage" class="form-select bg-dark text-white border-secondary">
+                @for (int i = 5; i <= 30; i += 5)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-outline-light w-100">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-auto">
+            <div class="form-check">
+                <input class="form-check-input bg-dark border-secondary" type="checkbox" asp-for="IncludeExportedProducts" />
+                <label class="form-check-label text-white" asp-for="IncludeExportedProducts">
+                    Show fully exported
+                </label>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (Model.Products != null && Model.Products.Any())
+{
+    <div class="table-responsive mt-4">
+        <table class="table-custom-dark align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Total Imported</th>
+                    <th>Total Exported</th>
+                    <th>Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td>@product.ProductName</td>
+                        <td>@product.CategoryName</td>
+                        <td>@product.TotalImported</td>
+                        <td>@product.TotalExported</td>
+                        <td>@product.Available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-controller="Warehouse"
+   asp-action="Details"
+   asp-route-id="@Model.WarehouseId"
+   class="btn btn-secondary">
+    ← Back to Warehouse
+</a>
+
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center flex-wrap">
+        @if (Model.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
+                   asp-route-currentPage="@(Model.CurrentPage - 1)"
+                   asp-route-productQuery="@Model.ProductQuery"
+                   asp-route-categoryQuery="@Model.CategoryQuery"
+                   asp-route-includeExportedProducts="@Model.IncludeExportedProducts"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    <i class="fas fa-chevron-left me-1"></i> Previous
+                </a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link @(i == Model.CurrentPage ? "bg-primary border-primary text-white" : "bg-dark text-light border-secondary")"
+                   asp-action="Index"
+                   asp-route-currentPage="@i"
+                   asp-route-productQuery="@Model.ProductQuery"
+                   asp-route-categoryQuery="@Model.CategoryQuery"
+                   asp-route-includeExportedProducts="@Model.IncludeExportedProducts"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    @i
+                </a>
+            </li>
+        }
+
+        @if (Model.CurrentPage < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link bg-dark text-light border-secondary" asp-action="Index"
+                   asp-route-currentPage="@(Model.CurrentPage + 1)"
+                   asp-route-productQuery="@Model.ProductQuery"
+                   asp-route-categoryQuery="@Model.CategoryQuery"
+                   asp-route-includeExportedProducts="@Model.IncludeExportedProducts"
+                   asp-route-entitiesPerPage="@Model.EntitiesPerPage">
+                    Next <i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

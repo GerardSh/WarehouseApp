@@ -211,14 +211,12 @@ namespace WarehouseApp.Services.Data
                 if (importInvoice == null)
                     return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
 
-
                 var importDetail = importInvoice.ImportInvoicesDetails.FirstOrDefault(iid =>
                     iid.Product.Name == detail.ProductName &&
                     iid.Product.Category.Name == detail.CategoryName);
 
                 if (importDetail == null)
                     return OperationResult.Failure(ProductNotFoundInImportInvoice);
-          
 
                 if (importInvoice.Date > inputModel.Date)
                 {
@@ -481,7 +479,7 @@ namespace WarehouseApp.Services.Data
                         ExportInvoiceId = exportInvoice.Id,
                         ImportInvoiceDetailId = importInvoiceDetail.Id,
                         Quantity = detail.Quantity,
-                        UnitPrice = detail.UnitPrice,                
+                        UnitPrice = detail.UnitPrice,
                     };
 
                     dbContext.ExportInvoiceDetails.Add(newDetail);

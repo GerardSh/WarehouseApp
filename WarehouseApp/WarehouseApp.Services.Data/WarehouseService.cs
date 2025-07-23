@@ -163,16 +163,6 @@ namespace WarehouseApp.Services.Data
                 .Include(w => w.ExportInvoices)
                 .FirstOrDefaultAsync(w => w.Id == warehouseId);
 
-            int totalAvailableGoods = await dbContext.ImportInvoiceDetails
-                .AsNoTracking()
-                .Where(detail => detail.ImportInvoice.WarehouseId == warehouseId)
-                .Select(detail => new
-                {
-                    ImportQuantity = detail.Quantity,
-                    ExportedQuantity = detail.ExportInvoicesPerProduct.Sum(e => (int?)e.Quantity) ?? 0
-                })
-                .CountAsync(q => (q.ImportQuantity - q.ExportedQuantity) > 0);
-
             if (warehouse == null || warehouse.IsDeleted)
                 return OperationResult<WarehouseDetailsViewModel>.Failure(WarehouseNotFound);
 
@@ -181,6 +171,27 @@ namespace WarehouseApp.Services.Data
 
             if (!hasPermission)
                 return OperationResult<WarehouseDetailsViewModel>.Failure(NoPermission);
+
+            var products = await dbContext.ImportInvoiceDetails
+                .AsNoTracking()
+                .Include(iid => iid.Product)
+                     .ThenInclude(p => p.Category)
+                .Include(iid => iid.ExportInvoicesPerProduct)
+                .Where(iid => iid.ImportInvoice.WarehouseId == warehouseId &&
+                iid.Quantity > iid.ExportInvoicesPerProduct.Sum(eip=> eip.Quantity))
+                .ToListAsync();
+
+            var totalAvailableGoods = products
+                .GroupBy(iid => new
+                {
+                    iid.ProductId,
+                    ProductName = iid.Product.Name,
+                    CategoryName = iid.Product.Category.Name
+                })
+                .Where(g =>
+                    g.Sum(iid => iid.Quantity) >
+                    g.Sum(iid => iid.ExportInvoicesPerProduct.Sum(e => e.Quantity)))
+                .Count();
 
             var viewModel = new WarehouseDetailsViewModel
             {
