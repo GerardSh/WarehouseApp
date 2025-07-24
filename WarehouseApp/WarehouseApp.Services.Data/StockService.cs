@@ -65,7 +65,7 @@ public class StockService : BaseService, IStockService
                           iid.Product.Category.Name.ToLower().Contains(inputModel.CategoryQuery.ToLower()))
             .ToList();
 
-        var groupedProducts = filteredProducts
+        var groupedProductsQuery = filteredProducts
             .GroupBy(iid => new
             {
                 iid.ProductId,
@@ -78,9 +78,15 @@ public class StockService : BaseService, IStockService
                 CategoryName = g.Key.CategoryName,
                 TotalImported = g.Sum(x => x.Quantity),
                 TotalExported = g.Sum(x => x.ExportInvoicesPerProduct.Sum(e => e.Quantity))
-            })
-            .Where(p => p.Available > 0)
-            .ToList();
+            });
+
+        if (!inputModel.IncludeExportedProducts)
+        {
+            groupedProductsQuery = groupedProductsQuery
+                .Where(p => p.Available > 0);
+        }
+
+        var groupedProducts = groupedProductsQuery.ToList();
 
         inputModel.TotalItemsBeforePagination = groupedProducts.Count;
 
@@ -108,10 +114,10 @@ public class StockService : BaseService, IStockService
         }
 
         groupedProducts = groupedProducts
-            .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
-            .Take(inputModel.EntitiesPerPage.Value)
             .OrderByDescending(p => p.Available)
             .ThenBy(p => p.ProductName)
+            .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
+            .Take(inputModel.EntitiesPerPage.Value)
             .ToList();
 
         inputModel.Products = groupedProducts;

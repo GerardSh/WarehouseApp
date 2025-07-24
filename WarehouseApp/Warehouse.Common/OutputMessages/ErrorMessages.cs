@@ -22,7 +22,9 @@
             public const string RequiredAddress = "Warehouse address is required.";
             public const string ZeroSize = "Size must be greater than 0 and lower than 100,000.";
 
+            public const string RetrievingFailure = "Fatal error occurred while retrieving the warehouse.";
             public const string CreationFailure = "Fatal error occurred while creating the warehouse.";
+            public const string GetModelFailure = "Fatal error occurred while getting the warehouse.";
             public const string EditingFailure = "Fatal error occurred while editing the warehouse.";
             public const string DeletionFailure = "Fatal error occurred while deleting the warehouse.";
 

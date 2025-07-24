@@ -8,14 +8,14 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void RegisterRepositories(this IServiceCollection services, Assembly modelsAssembly)
+        public static void RegisterRepositories(this IServiceCollection services, Assembly modelsAssembly, Assembly repositoriesAssembly)
         {
-            // TODO: Re-write the implementation in such way that the user must create a single class for every repository
+            // 1. Register generic base repositories for models
             Type[] typesToExclude = new Type[] { typeof(ApplicationUser) };
+
             Type[] modelTypes = modelsAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && !t.IsInterface &&
-                            !t.Name.ToLower().EndsWith("attribute"))
+                .Where(t => !t.IsAbstract && !t.IsInterface && !t.Name.ToLower().EndsWith("attribute"))
                 .ToArray();
 
             foreach (Type type in modelTypes)
@@ -24,27 +24,35 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
                 {
                     Type repositoryInterface = typeof(IRepository<,>);
                     Type repositoryInstanceType = typeof(BaseRepository<,>);
+
                     PropertyInfo? idPropInfo = type
                         .GetProperties()
-                        .Where(p => p.Name.ToLower() == "id")
-                        .SingleOrDefault();
+                        .SingleOrDefault(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
 
-                    Type[] constructArgs = new Type[2];
-                    constructArgs[0] = type;
+                    Type idType = idPropInfo?.PropertyType ?? typeof(object);
 
-                    if (idPropInfo == null)
-                    {
-                        constructArgs[1] = typeof(object);
-                    }
-                    else
-                    {
-                        constructArgs[1] = idPropInfo.PropertyType;
-                    }
+                    Type[] typeArgs = new Type[] { type, idType };
+                    Type interfaceType = repositoryInterface.MakeGenericType(typeArgs);
+                    Type implementationType = repositoryInstanceType.MakeGenericType(typeArgs);
 
-                    repositoryInterface = repositoryInterface.MakeGenericType(constructArgs);
-                    repositoryInstanceType = repositoryInstanceType.MakeGenericType(constructArgs);
+                    services.AddScoped(interfaceType, implementationType);
+                }
+            }
 
-                    services.AddScoped(repositoryInterface, repositoryInstanceType);
+            // 2. Register custom repositories from repositoriesAssembly
+            Type[] customRepositories = repositoriesAssembly
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Repository"))
+                .ToArray();
+
+            foreach (var implType in customRepositories)
+            {
+                var interfaceType = implType.GetInterfaces()
+                    .FirstOrDefault(i => i.Name == $"I{implType.Name}");
+
+                if (interfaceType != null)
+                {
+                    services.AddScoped(interfaceType, implType);
                 }
             }
         }

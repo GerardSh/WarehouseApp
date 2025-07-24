@@ -9,6 +9,7 @@ using WarehouseApp.Web.ViewModels.Shared;
 using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Web.Infrastructure.Middlewares;
+using WarehouseApp.Data.Repositories;
 
 namespace WarehouseApp.Web
 {
@@ -55,7 +56,10 @@ namespace WarehouseApp.Web
                 cfg.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
-            builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
+            builder.Services.RegisterRepositories(
+                typeof(ApplicationUser).Assembly,
+                typeof(WarehouseRepository).Assembly
+            );
             builder.Services.RegisterUserDefinedServices(typeof(IBaseService).Assembly);
 
             builder.Services.AddRazorPages();
