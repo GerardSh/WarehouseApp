@@ -56,10 +56,9 @@ namespace WarehouseApp.Web
                 cfg.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
-            builder.Services.RegisterRepositories(
-                typeof(ApplicationUser).Assembly,
-                typeof(WarehouseRepository).Assembly
-            );
+            builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly,
+                                                  typeof(WarehouseRepository).Assembly);
+
             builder.Services.RegisterUserDefinedServices(typeof(IBaseService).Assembly);
 
             builder.Services.AddRazorPages();

@@ -3,7 +3,6 @@
 using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository;
-using System.Collections.Generic;
 
 namespace WarehouseApp.Data.Repositories
 {

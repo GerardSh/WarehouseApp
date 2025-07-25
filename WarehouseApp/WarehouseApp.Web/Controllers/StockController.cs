@@ -61,6 +61,7 @@ namespace WarehouseApp.Web.Controllers
 
         public async Task<IActionResult> InvoiceDetails(Guid warehouseId)
         {
+            await Task.CompletedTask;
             return View("_UnderConstruction");
         }
     }

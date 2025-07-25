@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="temp\Enums\**" />
-    <EmbeddedResource Remove="temp\Enums\**" />
-    <None Remove="temp\Enums\**" />
+    <Compile Remove="temp\**" />
+    <EmbeddedResource Remove="temp\**" />
+    <None Remove="temp\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,8 +33,6 @@
   <ItemGroup>
     <Folder Include="Dtos\" />
     <Folder Include="Migrations\" />
-    <Folder Include="temp\ExportDTOs\" />
-    <Folder Include="temp\ImportDTOs\" />
   </ItemGroup>
 
   <ItemGroup>
