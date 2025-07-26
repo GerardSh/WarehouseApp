@@ -26,5 +26,12 @@ namespace WarehouseApp.Data.Repositories
                                 uw.Warehouse.Name.ToLower() == warehouseName.ToLower() &&
                                 uw.WarehouseId != excludeWarehouseId);
         }
+
+        public async Task<IEnumerable<ApplicationUserWarehouse?>> GetAllByUserIdAsync(Guid userId)
+        {
+            return await dbSet
+                .Where(uw => uw.ApplicationUserId == userId)
+                .ToListAsync();
+        }
     }
 }

@@ -10,10 +10,16 @@
 
         public static class UserManager
         {
-            public const string UserOrRoleNotFound = "User or role not found.";
+            public const string RoleNotFound = "Role not found.";
             public const string FailedToAssignRole = "Failed to assign the selected role to the user.";
             public const string FailedToRemoveRole = "Failed to remove the selected role from the user.";
             public const string FailedToDeleteUser = "Failed to delete the selected user.";
+            public const string FailedToMarkWarehouse = "Failed to mark warehouse as deleted.";
+            public const string DeletionFailure = "Fatal error occurred while deleting the user.";
+            public const string RemoveRoleFailure = "Fatal error occurred while removing the user role.";
+            public const string AssignRoleFailure = "Fatal error occurred while assigning the user role.";
+            public const string GetAllUsersFailure = "Fatal error occurred while getting all users.";
+            public const string UserExistsFailure = "Fatal error occurred while checking the user.";
         }
 
         public static class Warehouse

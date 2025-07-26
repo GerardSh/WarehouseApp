@@ -81,7 +81,7 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
             var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
 
-            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
+            return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
 
         [HttpPost]
@@ -111,7 +111,7 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
             var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
 
-            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
+            return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
 
         [HttpPost]
@@ -141,7 +141,7 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
             var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
 
-            return RedirectToAction("Index", new { currentPage, searchQuery, entitiesPerPage });
+            return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
     }
 }

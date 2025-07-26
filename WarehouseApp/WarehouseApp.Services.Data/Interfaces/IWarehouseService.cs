@@ -17,5 +17,7 @@ namespace WarehouseApp.Services.Data.Interfaces
         Task<OperationResult> UpdateWarehouseAsync(EditWarehouseInputModel model, Guid userId);
 
         Task<OperationResult> DeleteWarehouseAsync(Guid warehouseId, Guid userId);
+
+        Task<OperationResult> MarkAsDeletedWithoutSavingAsync(Guid warehouseId);
     }
 }

@@ -19,9 +19,9 @@ namespace WarehouseApp.Services.Data
     public class WarehouseService : BaseService, IWarehouseService
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IWarehouseRepository warehouseRepository;
+        private readonly IWarehouseRepository warehouseRepo;
         private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
-        private readonly IImportInvoiceDetailRepository importInvoiceDetailRepository;
+        private readonly IImportInvoiceDetailRepository importInvoiceDetailRepo;
 
         public WarehouseService(
             UserManager<ApplicationUser> userManager,
@@ -30,13 +30,21 @@ namespace WarehouseApp.Services.Data
             IImportInvoiceDetailRepository importInvoiceDetailRepository)
         {
             this.userManager = userManager;
-            this.warehouseRepository = warehouseRepository;
+            this.warehouseRepo = warehouseRepository;
             this.appUserWarehouseRepo = appUserWarehouseRepo;
-            this.importInvoiceDetailRepository = importInvoiceDetailRepository;
+            this.importInvoiceDetailRepo = importInvoiceDetailRepository;
         }
 
-        /// Retrieves a filtered list of warehouses for the specified user.
+        /// <summary>
+        /// Retrieves a filtered and paginated list of warehouses for the specified user.
         /// Returns failure if the user is not found.
+        /// </summary>
+        /// <param name="inputModel">The search and pagination filter model.</param>
+        /// <param name="userId">The ID of the user whose warehouses are queried.</param>
+        /// <returns>
+        /// An <see cref="OperationResult"/> indicating success or failure of the retrieval operation.
+        /// On success, the input model is populated with the filtered warehouse list and pagination data.
+        /// </returns>
         public async Task<OperationResult> GetWarehousesForUserAsync(
             AllWarehousesSearchFilterViewModel inputModel, Guid userId)
         {
@@ -47,7 +55,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult.Failure(UserNotFound);
 
-                IQueryable<Warehouse> allWarehousesQuery = warehouseRepository
+                IQueryable<Warehouse> allWarehousesQuery = warehouseRepo
                     .All()
                     .Where(w => w.WarehouseUsers.Any(uw => uw.ApplicationUserId == userId));
 
@@ -134,8 +142,15 @@ namespace WarehouseApp.Services.Data
             }
         }
 
+        /// <summary>
         /// Creates a new warehouse for the specified user.
-        /// Returns failure if the user is not found or a warehouse with the same name already exists.
+        /// Returns failure if the user is not found or if a warehouse with the same name already exists for the user.
+        /// </summary>
+        /// <param name="inputModel">The input model containing warehouse details.</param>
+        /// <param name="userId">The ID of the user creating the warehouse.</param>
+        /// <returns>
+        /// An <see cref="OperationResult"/> indicating success or failure of the creation operation.
+        /// </returns>
         public async Task<OperationResult> CreateWarehouseAsync(CreateWarehouseInputModel inputModel, Guid userId)
         {
             try
@@ -176,8 +191,17 @@ namespace WarehouseApp.Services.Data
             }
         }
 
-        /// Retrieves detailed information about a warehouse if it exists and is owned by the user.
-        /// Returns failure if the user is not found, the warehouse doesn't exist, or access is denied.
+        /// <summary>
+        /// Retrieves detailed information about a warehouse if it exists and is accessible by the specified user.
+        /// Returns failure if the user is not found, the warehouse does not exist or is deleted,
+        /// or if the user lacks permission to view the warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to retrieve details for.</param>
+        /// <param name="userId">The ID of the user requesting the warehouse details.</param>
+        /// <returns>
+        /// An <see cref="OperationResult{WarehouseDetailsViewModel}"/> containing detailed warehouse information
+        /// on success, or failure information otherwise.
+        /// </returns>
         public async Task<OperationResult<WarehouseDetailsViewModel>> GetWarehouseDetailsAsync(Guid warehouseId, Guid userId)
         {
             try
@@ -187,7 +211,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult<WarehouseDetailsViewModel>.Failure(UserNotFound);
 
-                Warehouse? warehouse = await warehouseRepository.GetWarehouseDetailsByIdAsync(warehouseId);
+                Warehouse? warehouse = await warehouseRepo.GetWarehouseDetailsByIdAsync(warehouseId);
 
                 if (warehouse == null || warehouse.IsDeleted)
                     return OperationResult<WarehouseDetailsViewModel>.Failure(WarehouseNotFound);
@@ -198,7 +222,7 @@ namespace WarehouseApp.Services.Data
                 if (!hasPermission)
                     return OperationResult<WarehouseDetailsViewModel>.Failure(NoPermission);
 
-                var products = await importInvoiceDetailRepository
+                var products = await importInvoiceDetailRepo
                      .GetAvailableProductsByWarehouseIdAsync(warehouseId);
 
                 var totalAvailableGoods = products
@@ -235,8 +259,17 @@ namespace WarehouseApp.Services.Data
             }
         }
 
-        /// Retrieves a warehouse for editing if it exists and is owned by the user.
-        /// Returns failure if the user is not found, the warehouse doesn't exist, or access is denied.
+        /// <summary>
+        /// Retrieves a warehouse for editing if it exists and is owned by the specified user.
+        /// Returns failure if the user is not found, the warehouse does not exist,
+        /// or the user does not have permission to access it.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to retrieve.</param>
+        /// <param name="userId">The ID of the user requesting the warehouse.</param>
+        /// <returns>
+        /// An <see cref="OperationResult{EditWarehouseInputModel}"/> containing the warehouse data
+        /// for editing on success, or failure information otherwise.
+        /// </returns>
         public async Task<OperationResult<EditWarehouseInputModel>> GetWarehouseForEditingAsync(Guid warehouseId, Guid userId)
         {
             try
@@ -246,7 +279,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult<EditWarehouseInputModel>.Failure(UserNotFound);
 
-                Warehouse? warehouse = await warehouseRepository.GetByIdAsNoTrackingAsync(warehouseId);
+                Warehouse? warehouse = await warehouseRepo.GetByIdAsNoTrackingAsync(warehouseId);
 
                 if (warehouse == null)
                     return OperationResult<EditWarehouseInputModel>.Failure(WarehouseNotFound);
@@ -270,8 +303,14 @@ namespace WarehouseApp.Services.Data
             }
         }
 
-        /// Updates a warehouse's details if the user is the owner.
-        /// Returns failure if the user is unauthorized or the warehouse doesn't exist.
+        /// <summary>
+        /// Updates the details of a warehouse if the specified user is the owner.
+        /// Returns failure if the user is not found, the warehouse does not exist,
+        /// the user lacks permission, or if a warehouse with the same name already exists.
+        /// </summary>
+        /// <param name="inputModel">The input model containing updated warehouse data.</param>
+        /// <param name="userId">The ID of the user attempting the update.</param>
+        /// <returns>An <see cref="OperationResult"/> indicating success or failure.</returns>
         public async Task<OperationResult> UpdateWarehouseAsync(EditWarehouseInputModel inputModel, Guid userId)
         {
             try
@@ -281,7 +320,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult.Failure(UserNotFound);
 
-                Warehouse? warehouse = await warehouseRepository.GetByIdAsync(inputModel.Id);
+                Warehouse? warehouse = await warehouseRepo.GetByIdAsync(inputModel.Id);
 
                 if (warehouse == null)
                     return OperationResult.Failure(WarehouseNotFound);
@@ -299,7 +338,7 @@ namespace WarehouseApp.Services.Data
                 warehouse.Address = inputModel.Address;
                 warehouse.Size = inputModel.Size;
 
-                await warehouseRepository.SaveChangesAsync();
+                await warehouseRepo.SaveChangesAsync();
 
                 return OperationResult.Ok();
             }
@@ -311,6 +350,14 @@ namespace WarehouseApp.Services.Data
 
         /// Deletes a warehouse by marking it as deleted if the user is the owner.
         /// Returns failure if the user or warehouse is not found, or if already deleted.
+        /// /// <summary>
+        /// Deletes a warehouse by marking it as deleted if the specified user is the owner.
+        /// Returns failure if the user or warehouse is not found, if the warehouse is already deleted,
+        /// or if the user does not have permission to delete the warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to delete.</param>
+        /// <param name="userId">The ID of the user attempting the deletion.</param>
+        /// <returns>An <see cref="OperationResult"/> indicating success or failure.</returns>
         public async Task<OperationResult> DeleteWarehouseAsync(Guid warehouseId, Guid userId)
         {
             try
@@ -320,7 +367,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult.Failure(UserNotFound);
 
-                Warehouse? warehouse = await warehouseRepository.GetByIdAsync(warehouseId);
+                Warehouse? warehouse = await warehouseRepo.GetByIdAsync(warehouseId);
 
                 if (warehouse == null)
                     return OperationResult.Failure(WarehouseNotFound);
@@ -334,7 +381,37 @@ namespace WarehouseApp.Services.Data
                 warehouse.Name += $"/DeletedOn/{DateTime.Now:dd-MM-yyyy/HH:mm:ss}";
                 warehouse.IsDeleted = true;
 
-                await warehouseRepository.SaveChangesAsync();
+                await warehouseRepo.SaveChangesAsync();
+
+                return OperationResult.Ok();
+            }
+            catch
+            {
+                return OperationResult.Failure(DeletionFailure);
+            }
+        }
+
+        /// <summary>
+        /// Forcefully marks a warehouse as deleted without checking ownership.
+        /// This is intended for internal system use (e.g., during user cleanup).
+        /// Returns failure if the warehouse is not found or is already marked as deleted.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to mark as deleted.</param>
+        /// <returns>An <see cref="OperationResult"/> indicating success or failure.</returns>
+        public async Task<OperationResult> MarkAsDeletedWithoutSavingAsync(Guid warehouseId)
+        {
+            try
+            {
+                var warehouse = await warehouseRepo.GetByIdAsync(warehouseId);
+
+                if (warehouse == null)
+                    return OperationResult.Failure(WarehouseNotFound);
+
+                if (warehouse.IsDeleted)
+                    return OperationResult.Failure(AlreadyDeleted);
+
+                warehouse.Name += $"/DeletedOn/{DateTime.Now:dd-MM-yyyy/HH:mm:ss}";
+                warehouse.IsDeleted = true;
 
                 return OperationResult.Ok();
             }
