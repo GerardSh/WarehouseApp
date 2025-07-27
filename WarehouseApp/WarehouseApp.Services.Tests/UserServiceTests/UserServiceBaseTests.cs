@@ -22,6 +22,8 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
         protected static readonly Guid userId = Guid.Parse("C994999B-02DD-46C2-ABC4-00C4787E629F");
 
         protected ApplicationUser validUser;
+        protected List<ApplicationUser> usersList;
+        protected List<IdentityRole<Guid>> rolesList;
 
         [SetUp]
         public void Setup()
@@ -42,12 +44,23 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             appUserWarehouseRepo = new Mock<IApplicationUserWarehouseRepository>();
 
-
             userService = new UserService(
                 userManager.Object,
                 roleManager.Object,
                 warehouseService.Object,
                 appUserWarehouseRepo.Object);
+
+            usersList = new List<ApplicationUser>
+            {
+                new ApplicationUser { Id = Guid.Parse("11F7B60E-9C39-4E28-B2BD-35E750C6FBAE"), Email = "a@example.com" },
+                new ApplicationUser { Id = Guid.Parse("22C13E6A-798C-4D49-8A34-1C399F77C37A"), Email = "b@example.com" }
+            };
+
+            rolesList = new List<IdentityRole<Guid>>
+            {
+                new IdentityRole<Guid>("Administrator"),
+                new IdentityRole<Guid>("User")
+            };
         }
 
         protected void SetupUserNotFound() =>
