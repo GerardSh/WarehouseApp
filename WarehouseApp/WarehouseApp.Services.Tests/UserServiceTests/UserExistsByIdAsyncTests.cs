@@ -1,9 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using MockQueryable;
-using Moq;
-
-using WarehouseApp.Data.Models;
-using WarehouseApp.Web.ViewModels.Admin.UserManagement;
+﻿using Moq;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
@@ -21,7 +16,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             // Assert
             Assert.That(result.Success, Is.True);
-            Assert.That(result.ErrorMessage, Is.Empty);
+            Assert.That(result.ErrorMessage, Is.Null);
         }
 
         [Test]
@@ -35,7 +30,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             // Assert
             Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Has.One.EqualTo(UserNotFound));
+            Assert.That(result.ErrorMessage, Is.EqualTo(UserNotFound));
         }
 
         [Test]
@@ -50,7 +45,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             // Assert
             Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Has.One.EqualTo(UserExistsFailure));
+            Assert.That(result.ErrorMessage, Is.EqualTo(UserExistsFailure));
         }
     }
 }

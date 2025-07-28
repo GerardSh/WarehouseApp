@@ -27,7 +27,7 @@ namespace WarehouseApp.Data.Repositories
                                 uw.WarehouseId != excludeWarehouseId);
         }
 
-        public async Task<IEnumerable<ApplicationUserWarehouse?>> GetAllByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<ApplicationUserWarehouse>> GetAllByUserIdAsync(Guid userId)
         {
             return await dbSet
                 .Where(uw => uw.ApplicationUserId == userId)

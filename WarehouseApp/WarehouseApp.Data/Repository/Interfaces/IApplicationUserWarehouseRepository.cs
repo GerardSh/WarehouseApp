@@ -8,6 +8,6 @@ namespace WarehouseApp.Data.Repository.Interfaces
 
         Task<bool> UserHasWarehouseWithNameAsync(Guid userId, string warehouseName, Guid excludeWarehouseId);
 
-        Task<IEnumerable<ApplicationUserWarehouse>?> GetAllByUserIdAsync(Guid userId);
+        Task<IEnumerable<ApplicationUserWarehouse>> GetAllByUserIdAsync(Guid userId);
     }
 }

@@ -19,7 +19,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
         protected static readonly string UserRole = "User";
         protected static readonly string AdministratorRole = "Administrator";
-        protected static readonly Guid userId = Guid.Parse("C994999B-02DD-46C2-ABC4-00C4787E629F");
+        protected static readonly Guid userId = Guid.Parse("11F7B60E-9C39-4E28-B2BD-35E750C6FBAE");
 
         protected ApplicationUser validUser;
         protected List<ApplicationUser> usersList;
