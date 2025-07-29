@@ -63,7 +63,6 @@ namespace WarehouseApp.Data.Repository
             dbContext.Set<TEntity>().RemoveRange(entities);
         }
 
-
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await dbSet.AnyAsync(predicate);
