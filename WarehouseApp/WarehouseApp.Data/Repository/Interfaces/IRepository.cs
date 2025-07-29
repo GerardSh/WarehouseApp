@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace WarehouseApp.Data.Repository.Interfaces
 {
@@ -6,6 +7,8 @@ namespace WarehouseApp.Data.Repository.Interfaces
         where TEntity : class
     {
         IQueryable<TEntity> All();
+
+        IQueryable<TEntity> AllTracked();
 
         Task<TEntity?> GetByIdAsync(TId id);
 
@@ -18,6 +21,8 @@ namespace WarehouseApp.Data.Repository.Interfaces
         void Update(TEntity entity);
 
         void Delete(TEntity entity);
+
+        void DeleteRange(IEnumerable<TEntity> entities);
 
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
 

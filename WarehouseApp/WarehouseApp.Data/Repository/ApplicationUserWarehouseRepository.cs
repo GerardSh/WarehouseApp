@@ -33,5 +33,14 @@ namespace WarehouseApp.Data.Repositories
                 .Where(uw => uw.ApplicationUserId == userId)
                 .ToListAsync();
         }
+
+        public async Task<Warehouse?> GetWarehouseOwnedByUserAsync(Guid warehouseId, Guid userId)
+        {
+            return await dbSet
+                .Where(uw => uw.WarehouseId == warehouseId && uw.ApplicationUserId == userId)
+                .Select(uw => uw.Warehouse)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+        }
     }
 }

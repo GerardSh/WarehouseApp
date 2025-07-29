@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
 
 using WarehouseApp.Services.Data.Interfaces;
-using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
+using WarehouseApp.Data.Repository.Interfaces;
 
 using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
@@ -20,7 +20,10 @@ namespace WarehouseApp.Services.Data
 {
     public class ImportInvoiceService : BaseService, IImportInvoiceService
     {
-        private readonly WarehouseDbContext dbContext;
+        private readonly IImportInvoiceRepository importInvoiceRepo;
+        private readonly IImportInvoiceDetailRepository importInvoiceDetailRepo;
+        private readonly IExportInvoiceDetailRepository exportInvoiceDetailRepo;
+        private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
         private readonly UserManager<ApplicationUser> userManager;
 
         private readonly IClientService clientService;
@@ -28,13 +31,19 @@ namespace WarehouseApp.Services.Data
         private readonly IProductService productService;
 
         public ImportInvoiceService(
-            WarehouseDbContext dbContext,
             UserManager<ApplicationUser> userManager,
+            IImportInvoiceRepository importInvoiceRepo,
+            IImportInvoiceDetailRepository importInvoiceDetailRepo,
+            IExportInvoiceDetailRepository exportInvoiceDetailRepo,
+            IApplicationUserWarehouseRepository appUserWarehouseRepo,
             IClientService clientService,
             ICategoryService categoryService,
             IProductService productService)
         {
-            this.dbContext = dbContext;
+            this.importInvoiceRepo = importInvoiceRepo;
+            this.importInvoiceDetailRepo = importInvoiceDetailRepo;
+            this.exportInvoiceDetailRepo = exportInvoiceDetailRepo;
+            this.appUserWarehouseRepo = appUserWarehouseRepo;
             this.userManager = userManager;
             this.clientService = clientService;
             this.categoryService = categoryService;
@@ -49,16 +58,15 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
             inputModel.WarehouseName = warehouse.Name;
 
-            IQueryable<ImportInvoice> allInvoicesQuery = dbContext.ImportInvoices
-                .AsNoTracking()
-                .Where(ii => ii.WarehouseId == inputModel.WarehouseId);
+            IQueryable<ImportInvoice> allInvoicesQuery = importInvoiceRepo
+                .GetAllForWarehouse(inputModel.WarehouseId);
 
             inputModel.TotalInvoices = await allInvoicesQuery.CountAsync();
 
@@ -150,13 +158,13 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
-            bool invoiceExists = await dbContext.ImportInvoices
-                .AnyAsync(i => i.InvoiceNumber == inputModel.InvoiceNumber && i.WarehouseId == inputModel.WarehouseId);
+            bool invoiceExists = await importInvoiceRepo
+                .ExistsAsync(ii => ii.InvoiceNumber == inputModel.InvoiceNumber && ii.WarehouseId == inputModel.WarehouseId);
 
             if (invoiceExists)
                 return OperationResult.Failure(DuplicateInvoice);
@@ -203,7 +211,7 @@ namespace WarehouseApp.Services.Data
                 WarehouseId = inputModel.WarehouseId
             };
 
-            dbContext.ImportInvoices.Add(importInvoice);
+            await importInvoiceRepo.AddAsync(importInvoice);
 
             foreach (var detail in inputModel.Products)
             {
@@ -248,7 +256,8 @@ namespace WarehouseApp.Services.Data
                         UnitPrice = detail.UnitPrice
                     };
 
-                    dbContext.ImportInvoiceDetails.Add(invoiceDetail);
+                    await importInvoiceDetailRepo.AddAsync(invoiceDetail);
+
                 }
                 catch
                 {
@@ -258,7 +267,7 @@ namespace WarehouseApp.Services.Data
 
             try
             {
-                await dbContext.SaveChangesAsync();
+                await importInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
             catch
@@ -275,18 +284,12 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult<ImportInvoiceDetailsViewModel>.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(warehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult<ImportInvoiceDetailsViewModel>.Failure(NoPermissionOrWarehouseNotFound);
 
-            var invoice = await dbContext.ImportInvoices
-                .AsNoTracking()
-                .Include(i => i.Supplier)
-                .Include(i => i.ImportInvoicesDetails)
-                    .ThenInclude(d => d.Product)
-                        .ThenInclude(p => p.Category)
-                .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
+            var invoice = await importInvoiceRepo.GetInvoiceWithDetailsAsync(invoiceId, warehouseId);
 
             if (invoice == null)
                 return OperationResult<ImportInvoiceDetailsViewModel>.Failure(NoPermissionOrImportInvoiceNotFound);
@@ -323,17 +326,12 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult<EditImportInvoiceInputModel>.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(warehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult<EditImportInvoiceInputModel>.Failure(NoPermissionOrWarehouseNotFound);
 
-            var invoice = await dbContext.ImportInvoices
-                .Include(i => i.Supplier)
-                .Include(i => i.ImportInvoicesDetails)
-                    .ThenInclude(d => d.Product)
-                        .ThenInclude(p => p.Category)
-                .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
+            var invoice = await importInvoiceRepo.GetInvoiceWithDetailsAsync(invoiceId, warehouseId);
 
             if (invoice == null)
                 return OperationResult<EditImportInvoiceInputModel>.Failure(NoPermissionOrImportInvoiceNotFound);
@@ -370,19 +368,20 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
-            ImportInvoice? invoice = await dbContext.ImportInvoices
+            var invoice = await importInvoiceRepo
+                .AllTracked()
                 .FirstOrDefaultAsync(i => i.Id == inputModel.Id && i.WarehouseId == inputModel.WarehouseId);
 
             if (invoice == null)
                 return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
 
-            bool invoiceExists = await dbContext.ImportInvoices
-                .AnyAsync(i => i.InvoiceNumber == inputModel.InvoiceNumber &&
+            bool invoiceExists = await importInvoiceRepo.ExistsAsync(i =>
+                i.InvoiceNumber == inputModel.InvoiceNumber &&
                 i.WarehouseId == inputModel.WarehouseId &&
                 i.Id != inputModel.Id);
 
@@ -427,12 +426,12 @@ namespace WarehouseApp.Services.Data
 
             var newImportDate = inputModel.Date;
 
-            var existingDetailsIds = await dbContext.ImportInvoiceDetails
+            var existingDetailsIds = await importInvoiceDetailRepo.All()
                 .Where(d => d.ImportInvoiceId == invoice.Id)
                 .Select(d => d.Id)
                 .ToListAsync();
 
-            var invalidExportDate = await dbContext.ExportInvoiceDetails
+            var invalidExportDate = await exportInvoiceDetailRepo.All()
                 .Where(e => existingDetailsIds.Contains(e.ImportInvoiceDetailId))
                 .Include(e => e.ExportInvoice)
                 .Include(e => e.ImportInvoiceDetail)
@@ -493,21 +492,21 @@ namespace WarehouseApp.Services.Data
                 {
                     if (detail.Id.HasValue)
                     {
-                        var invoiceDetail = await dbContext.ImportInvoiceDetails
+                        var invoiceDetail = await importInvoiceDetailRepo.AllTracked()
                             .Include(iid => iid.Product)
-                            .ThenInclude(p => p.Category)
+                                .ThenInclude(p => p.Category)
                             .FirstOrDefaultAsync(iid => iid.Id == detail.Id);
 
                         if (invoiceDetail == null)
                             return OperationResult.Failure(ProductNotFound);
 
-                        var exportedQuantity = await dbContext.ExportInvoiceDetails
-                                   .Where(e => e.ImportInvoiceDetailId == detail.Id)
-                                   .SumAsync(e => (int?)e.Quantity) ?? 0;
+                        var exportedQuantity = await exportInvoiceDetailRepo.All()
+                            .Where(e => e.ImportInvoiceDetailId == detail.Id)
+                            .SumAsync(e => (int?)e.Quantity) ?? 0;
 
                         if (detail.Quantity < exportedQuantity)
                             return OperationResult.Failure($"Cannot set quantity for product \"{invoiceDetail.Product.Name}\" to {detail.Quantity}, because {exportedQuantity} have already been exported.");
-                        
+
 
                         invoiceDetail.Quantity = detail.Quantity;
                         invoiceDetail.UnitPrice = detail.UnitPrice;
@@ -524,7 +523,7 @@ namespace WarehouseApp.Services.Data
                             UnitPrice = detail.UnitPrice
                         };
 
-                        dbContext.ImportInvoiceDetails.Add(invoiceDetail);
+                        await importInvoiceDetailRepo.AddAsync(invoiceDetail);
                     }
                 }
                 catch
@@ -535,18 +534,18 @@ namespace WarehouseApp.Services.Data
 
             try
             {
-                var existingDetails = await dbContext.ImportInvoiceDetails
-                .Where(d => d.ImportInvoiceId == invoice.Id)
-                .Include(d => d.Product)
-                .ThenInclude(d => d.Category)
-                .ToListAsync();
+                var existingDetails = await importInvoiceDetailRepo.All()
+                    .Where(d => d.ImportInvoiceId == invoice.Id)
+                    .Include(d => d.Product)
+                        .ThenInclude(p => p.Category)
+                    .ToListAsync();
 
                 var inputDetailIds = inputModel.Products
                     .Where(p => p.Id.HasValue)
                     .Select(p => p.Id!.Value)
                     .ToHashSet();
 
-                var detailsToRemove = await dbContext.ImportInvoiceDetails
+                var detailsToRemove = await importInvoiceDetailRepo.AllTracked()
                     .Where(d => d.ImportInvoiceId == invoice.Id && !inputDetailIds.Contains(d.Id))
                     .Include(d => d.ExportInvoicesPerProduct)
                     .ToListAsync();
@@ -576,7 +575,7 @@ namespace WarehouseApp.Services.Data
                     return OperationResult.Failure(ProductDeletionFailure);
                 }
 
-                dbContext.ImportInvoiceDetails.RemoveRange(detailsToRemove);
+                importInvoiceDetailRepo.DeleteRange(detailsToRemove);
             }
             catch
             {
@@ -585,7 +584,7 @@ namespace WarehouseApp.Services.Data
 
             try
             {
-                await dbContext.SaveChangesAsync();
+                await importInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
             catch
@@ -601,40 +600,32 @@ namespace WarehouseApp.Services.Data
             if (user == null)
                 return OperationResult.Failure(UserNotFound);
 
-            var warehouse = await GetWarehouseOwnedByUserAsync(warehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(warehouseId, userId);
 
             if (warehouse == null)
                 return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
-            ImportInvoice? invoice = await dbContext.ImportInvoices
+            ImportInvoice? invoice = await importInvoiceRepo
+                .AllTracked()
                 .FirstOrDefaultAsync(i => i.Id == invoiceId && i.WarehouseId == warehouseId);
 
             if (invoice == null)
                 return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
 
-            var exportInvoicesExist = await dbContext.ExportInvoiceDetails
-                .AnyAsync(e => e.ImportInvoiceDetail.ImportInvoiceId == invoice.Id);
+            var exportInvoicesExist = await exportInvoiceDetailRepo.ExistsAsync(
+                e => e.ImportInvoiceDetail.ImportInvoiceId == invoice.Id);
 
             if (exportInvoicesExist)
             {
                 return OperationResult.Failure(ExistingExportInvoices);
             }
 
-            dbContext.ImportInvoices
-                .Remove(invoice);
+            importInvoiceRepo
+                .Delete(invoice);
 
-            await dbContext.SaveChangesAsync();
+            await importInvoiceRepo.SaveChangesAsync();
 
             return OperationResult.Ok();
-        }
-
-        private async Task<Warehouse?> GetWarehouseOwnedByUserAsync(Guid warehouseId, Guid userId)
-        {
-            return await dbContext.UsersWarehouses
-                      .Where(uw => uw.WarehouseId == warehouseId && uw.ApplicationUserId == userId)
-                      .Select(uw => uw.Warehouse)
-                      .AsNoTracking()
-                      .FirstOrDefaultAsync();
         }
     }
 }

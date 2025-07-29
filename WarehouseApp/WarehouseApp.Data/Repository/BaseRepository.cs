@@ -21,6 +21,11 @@ namespace WarehouseApp.Data.Repository
             return dbSet.AsNoTracking();
         }
 
+        public IQueryable<TEntity> AllTracked()
+        {
+            return dbSet;
+        }
+
         public async Task<TEntity?> GetByIdAsync(TId id)
         {
             return await dbSet.FindAsync(id);
@@ -52,6 +57,12 @@ namespace WarehouseApp.Data.Repository
         {
             dbSet.Remove(entity);
         }
+
+        public void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            dbContext.Set<TEntity>().RemoveRange(entities);
+        }
+
 
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
         {
