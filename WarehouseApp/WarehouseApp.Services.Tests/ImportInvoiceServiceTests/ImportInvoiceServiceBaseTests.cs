@@ -5,7 +5,7 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data;
-using WarehouseApp.Web.ViewModels.ImportInvoice;
+using MockQueryable;
 
 namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 {
@@ -28,13 +28,18 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 
         protected static readonly Guid warehouseId = Guid.Parse("A1F7B60E-9C39-4E28-B2BD-35E750C6FBAE");
 
+        protected List<ImportInvoice> invoices = null!;
+
+        protected Warehouse warehouse = null!;
+
         protected ApplicationUser validUser;
 
         [SetUp]
         public void Setup()
         {
             var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
-            userManager = new Mock<UserManager<ApplicationUser>>(userStoreMock.Object, null, null, null, null, null, null, null, null);
+            userManager = new Mock<UserManager<ApplicationUser>>(
+                userStoreMock.Object, null, null, null, null, null, null, null, null);
 
             validUser = new ApplicationUser { Id = userId };
 
@@ -59,6 +64,46 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
                 clientService.Object,
                 categoryService.Object,
                 productService.Object);
+
+            warehouse = new Warehouse
+            {
+                Id = Guid.Parse("A1F7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                Name = "Alpha Warehouse",
+                Address = "123 Alpha St",
+                CreatedDate = new DateTime(2022, 5, 1),
+                Size = 100,
+                WarehouseUsers = new List<ApplicationUserWarehouse> {
+                        new ApplicationUserWarehouse { ApplicationUserId = userId }
+                    }
+            };
+
+            appUserWarehouseRepo.Setup(x => x.GetWarehouseOwnedByUserAsync(warehouseId, userId))
+               .ReturnsAsync(warehouse);
+
+            invoices = new List<ImportInvoice>
+            {
+                new ImportInvoice
+                {
+                    Id = Guid.Parse("1FF7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                    InvoiceNumber = "INV-001",
+                    Supplier = new Client { Name = "SupplierA", Address = "AddressA" },
+                    Date = new DateTime(2023, 1, 1),
+                    ImportInvoicesDetails = new List<ImportInvoiceDetail> {
+                        new ImportInvoiceDetail(), new ImportInvoiceDetail() }
+                },
+                new ImportInvoice
+                {
+                    Id = Guid.Parse("2FF7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                    InvoiceNumber = "INV-002",
+                    Supplier = new Client { Name = "SupplierB", Address = "AddressB" },
+                    Date = new DateTime(2025, 2, 1),
+                    ImportInvoicesDetails = new List<ImportInvoiceDetail> {
+                        new ImportInvoiceDetail() }
+                }
+            };
+
+            importInvoiceRepo.Setup(r => r.GetAllForWarehouse(warehouseId))
+               .Returns(invoices.AsQueryable().BuildMock());
         }
 
         protected void SetupUserNotFound() =>
