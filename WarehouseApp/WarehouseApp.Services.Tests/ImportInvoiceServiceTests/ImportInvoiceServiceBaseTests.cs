@@ -85,6 +85,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
                 new ImportInvoice
                 {
                     Id = Guid.Parse("1FF7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                    WarehouseId = warehouseId,
                     InvoiceNumber = "INV-001",
                     Supplier = new Client { Name = "SupplierA", Address = "AddressA" },
                     Date = new DateTime(2023, 1, 1),
@@ -94,6 +95,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
                 new ImportInvoice
                 {
                     Id = Guid.Parse("2FF7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                    WarehouseId = warehouseId,
                     InvoiceNumber = "INV-002",
                     Supplier = new Client { Name = "SupplierB", Address = "AddressB" },
                     Date = new DateTime(2025, 2, 1),
@@ -102,7 +104,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
                 }
             };
 
-            importInvoiceRepo.Setup(r => r.GetAllForWarehouse(warehouseId))
+            importInvoiceRepo.Setup(r => r.All())
                .Returns(invoices.AsQueryable().BuildMock());
         }
 

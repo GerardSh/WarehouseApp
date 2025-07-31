@@ -20,11 +20,11 @@ namespace WarehouseApp.Services.Data
 {
     public class ImportInvoiceService : BaseService, IImportInvoiceService
     {
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly IImportInvoiceRepository importInvoiceRepo;
         private readonly IImportInvoiceDetailRepository importInvoiceDetailRepo;
         private readonly IExportInvoiceDetailRepository exportInvoiceDetailRepo;
         private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
-        private readonly UserManager<ApplicationUser> userManager;
 
         private readonly IClientService clientService;
         private readonly ICategoryService categoryService;
@@ -40,11 +40,11 @@ namespace WarehouseApp.Services.Data
             ICategoryService categoryService,
             IProductService productService)
         {
+            this.userManager = userManager;
             this.importInvoiceRepo = importInvoiceRepo;
             this.importInvoiceDetailRepo = importInvoiceDetailRepo;
             this.exportInvoiceDetailRepo = exportInvoiceDetailRepo;
             this.appUserWarehouseRepo = appUserWarehouseRepo;
-            this.userManager = userManager;
             this.clientService = clientService;
             this.categoryService = categoryService;
             this.productService = productService;
@@ -82,7 +82,8 @@ namespace WarehouseApp.Services.Data
                 inputModel.WarehouseName = warehouse.Name;
 
                 IQueryable<ImportInvoice> allInvoicesQuery = importInvoiceRepo
-                    .GetAllForWarehouse(inputModel.WarehouseId);
+                    .All()
+                    .Where(ii => ii.WarehouseId == inputModel.WarehouseId);
 
                 inputModel.TotalInvoices = await allInvoicesQuery.CountAsync();
 
@@ -584,11 +585,6 @@ namespace WarehouseApp.Services.Data
                         detail.ProductDescription,
                         category.Id);
 
-                        if (!productResult.Success)
-                        {
-                            return OperationResult.Failure(productResult.ErrorMessage!);
-                        }
-
                         product = productResult.Data!;
                     }
                     catch
@@ -614,7 +610,6 @@ namespace WarehouseApp.Services.Data
 
                             if (detail.Quantity < exportedQuantity)
                                 return OperationResult.Failure($"Cannot set quantity for product \"{invoiceDetail.Product.Name}\" to {detail.Quantity}, because {exportedQuantity} have already been exported.");
-
 
                             invoiceDetail.Quantity = detail.Quantity;
                             invoiceDetail.UnitPrice = detail.UnitPrice;

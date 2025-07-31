@@ -15,284 +15,280 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
     [TestFixture]
     public class CreateImportInvoiceAsyncTests : ImportInvoiceServiceBaseTests
     {
-        [TestFixture]
-        public class ImportInvoiceServiceCreateTests : ImportInvoiceServiceBaseTests
+        private CreateImportInvoiceInputModel inputModel;
+
+        private Guid categoryId;
+
+        [SetUp]
+        public void TestSetup()
         {
-            private CreateImportInvoiceInputModel inputModel;
-
-            private Guid categoryId;
-
-            [SetUp]
-            public void TestSetup()
+            inputModel = new CreateImportInvoiceInputModel
             {
-                inputModel = new CreateImportInvoiceInputModel
-                {
-                    WarehouseId = warehouseId,
-                    InvoiceNumber = "INV-123",
-                    Products = new List<CreateImportInvoiceDetailInputModel>
+                WarehouseId = warehouseId,
+                InvoiceNumber = "INV-123",
+                Products = new List<CreateImportInvoiceDetailInputModel>
                     {
                         new CreateImportInvoiceDetailInputModel { ProductName = "Prod1", CategoryName = "Cat1" }
                     },
-                    SupplierName = "SupplierX",
-                    SupplierAddress = "AddressX",
-                    SupplierPhoneNumber = "12345",
-                    SupplierEmail = "email@example.com"
-                };
+                SupplierName = "SupplierX",
+                SupplierAddress = "AddressX",
+                SupplierPhoneNumber = "12345",
+                SupplierEmail = "email@example.com"
+            };
 
-                clientService.Setup(x => x.GetOrCreateOrUpdateClientAsync(
-                        It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                    .ReturnsAsync(OperationResult<Client>.Ok(new Client
+            clientService.Setup(x => x.GetOrCreateOrUpdateClientAsync(
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(OperationResult<Client>.Ok(new Client
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "ClientName",
+                    Address = "ClientAddress",
+                    PhoneNumber = "12345",
+                    Email = "email@test.com"
+                }));
+
+            categoryId = Guid.NewGuid();
+
+            categoryService
+                .Setup(x => x.GetOrCreateOrUpdateCategoryAsync(
+                    It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(OperationResult<Category>.Ok(
+                    new Category
                     {
-                        Id = Guid.NewGuid(),
-                        Name = "ClientName",
-                        Address = "ClientAddress",
-                        PhoneNumber = "12345",
-                        Email = "email@test.com"
+                        Id = categoryId,
+                        Name = "CategoryName",
+                        Description = "CategoryDescription"
                     }));
 
-                categoryId = Guid.NewGuid();
 
-                categoryService
-                    .Setup(x => x.GetOrCreateOrUpdateCategoryAsync(
-                        It.IsAny<string>(), It.IsAny<string>()))
-                    .ReturnsAsync(OperationResult<Category>.Ok(
-                        new Category
-                        {
-                            Id = categoryId,
-                            Name = "CategoryName",
-                            Description = "CategoryDescription"
-                        }));
+            productService
+                .Setup(x => x.GetOrCreateOrUpdateProductAsync(
+                    It.IsAny<string>(), It.IsAny<string>(), categoryId))
+                .ReturnsAsync(OperationResult<Product>.Ok(
+                    new Product
+                    {
+                        Id = categoryId,
+                        Name = "ProductName",
+                        Description = "ProductDescription"
+                    }));
+        }
 
+        [Test]
+        public async Task ReturnsFailureUserNotFound_WhenUserNotFound()
+        {
+            // Arrange
+            SetupUserNotFound();
 
-                productService
-                    .Setup(x => x.GetOrCreateOrUpdateProductAsync(
-                        It.IsAny<string>(), It.IsAny<string>(), categoryId))
-                    .ReturnsAsync(OperationResult<Product>.Ok(
-                        new Product
-                        {
-                            Id = categoryId,
-                            Name = "ProductName",
-                            Description = "ProductDescription"
-                        }));
-            }
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-            [Test]
-            public async Task ReturnsFailureUserNotFound_WhenUserNotFound()
-            {
-                // Arrange
-                SetupUserNotFound();
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(UserNotFound));
+        }
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+        [Test]
+        public async Task ReturnsFailureNoPermissionOrWarehouseNotFound_WhenWarehouseNotFound()
+        {
+            // Arrange
+            SetupWarehouseNotFound();
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(UserNotFound));
-            }
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-            [Test]
-            public async Task ReturnsFailureNoPermissionOrWarehouseNotFound_WhenWarehouseNotFound()
-            {
-                // Arrange
-                SetupWarehouseNotFound();
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(NoPermissionOrWarehouseNotFound));
+        }
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+        [Test]
+        public async Task ReturnsFailureDuplicateInvoice_WhenInvoiceAlreadyExists()
+        {
+            // Arrange
+            importInvoiceRepo.Setup(x => x.ExistsAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
+                .ReturnsAsync(true);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(NoPermissionOrWarehouseNotFound));
-            }
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-            [Test]
-            public async Task ReturnsFailureDuplicateInvoice_WhenInvoiceAlreadyExists()
-            {
-                // Arrange
-                importInvoiceRepo.Setup(x => x.ExistsAsync(
-                    It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
-                    .ReturnsAsync(true);
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(DuplicateInvoice));
+        }
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+        [Test]
+        public async Task ReturnsFailureCannotCreateInvoiceWithoutProducts_WhenProductsListEmpty()
+        {
+            // Arrange
+            importInvoiceRepo.Setup(x => x.ExistsAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
+                .ReturnsAsync(false);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(DuplicateInvoice));
-            }
+            inputModel.Products.Clear();
 
-            [Test]
-            public async Task ReturnsFailureCannotCreateInvoiceWithoutProducts_WhenProductsListEmpty()
-            {
-                // Arrange
-                importInvoiceRepo.Setup(x => x.ExistsAsync(
-                    It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
-                    .ReturnsAsync(false);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                inputModel.Products.Clear();
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(CannotCreateInvoiceWithoutProducts));
+        }
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+        [Test]
+        public async Task ReturnsFailureProductDuplicate_WhenInputContainsDuplicateProducts()
+        {
+            // Arrange
+            importInvoiceRepo.Setup(x => x.ExistsAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
+                .ReturnsAsync(false);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(CannotCreateInvoiceWithoutProducts));
-            }
-
-            [Test]
-            public async Task ReturnsFailureProductDuplicate_WhenInputContainsDuplicateProducts()
-            {
-                // Arrange
-                importInvoiceRepo.Setup(x => x.ExistsAsync(
-                    It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
-                    .ReturnsAsync(false);
-
-                inputModel.Products = new List<CreateImportInvoiceDetailInputModel>
+            inputModel.Products = new List<CreateImportInvoiceDetailInputModel>
                 {
                     new CreateImportInvoiceDetailInputModel { ProductName = "Prod1", CategoryName = "Cat1" },
                     new CreateImportInvoiceDetailInputModel { ProductName = "prod1", CategoryName = "cat1" }
                 };
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ProductDuplicate));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ProductDuplicate));
+        }
 
-            [Test]
-            public async Task ReturnsFailureClientCreationFailure_WhenClientServiceThrows()
-            {
-                // Arrange
-                importInvoiceRepo.Setup(x => x.ExistsAsync(It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
-                    .ReturnsAsync(false);
+        [Test]
+        public async Task ReturnsFailureClientCreationFailure_WhenClientServiceThrows()
+        {
+            // Arrange
+            importInvoiceRepo.Setup(x => x.ExistsAsync(It.IsAny<System.Linq.Expressions.Expression<Func<ImportInvoice, bool>>>()))
+                .ReturnsAsync(false);
 
-                clientService.Setup(x => x.GetOrCreateOrUpdateClientAsync(
-                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                    .ThrowsAsync(new Exception("Client creation failed"));
+            clientService.Setup(x => x.GetOrCreateOrUpdateClientAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception("Client creation failed"));
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Client.CreationFailure));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Client.CreationFailure));
+        }
 
-            [Test]
-            public async Task ReturnsFailureCategoryCreationFailure_WhenCategoryServiceThrows()
-            {
-                // Arrange
-                categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync(
-                    It.IsAny<string>(), It.IsAny<string>()))
-                    .ThrowsAsync(new Exception("category fail"));
+        [Test]
+        public async Task ReturnsFailureCategoryCreationFailure_WhenCategoryServiceThrows()
+        {
+            // Arrange
+            categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync(
+                It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception("category fail"));
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Category.CreationFailure));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Category.CreationFailure));
+        }
 
-            [Test]
-            public async Task ReturnsFailureProductCreationFailure_WhenProductServiceThrows()
-            {
-                // Arrange
-                var categoryId = Guid.NewGuid();
+        [Test]
+        public async Task ReturnsFailureProductCreationFailure_WhenProductServiceThrows()
+        {
+            // Arrange
+            var categoryId = Guid.NewGuid();
 
-                productService.Setup(x => x.GetOrCreateOrUpdateProductAsync(
-                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
-                    .ThrowsAsync(new Exception("product fail"));
+            productService.Setup(x => x.GetOrCreateOrUpdateProductAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
+                .ThrowsAsync(new Exception("product fail"));
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Product.CreationFailure));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Product.CreationFailure));
+        }
 
-            [Test]
-            public async Task ReturnsFailureDetailCreationFailure_WhenDetailRepoThrows()
-            {
-                // Arrange
-                importInvoiceDetailRepo.Setup(x => x.AddAsync(It.IsAny<ImportInvoiceDetail>()))
-                    .ThrowsAsync(new Exception("detail fail"));
+        [Test]
+        public async Task ReturnsFailureDetailCreationFailure_WhenDetailRepoThrows()
+        {
+            // Arrange
+            importInvoiceDetailRepo.Setup(x => x.AddAsync(It.IsAny<ImportInvoiceDetail>()))
+                .ThrowsAsync(new Exception("detail fail"));
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoiceDetail.CreationFailure));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoiceDetail.CreationFailure));
+        }
 
-            [Test]
-            public async Task ReturnsFailureInvoiceCreationFailure_WhenSaveThrows()
-            {
-                // Arrange
-                importInvoiceRepo.Setup(x => x.SaveChangesAsync())
-                    .ThrowsAsync(new Exception("save fail"));
+        [Test]
+        public async Task ReturnsFailureInvoiceCreationFailure_WhenSaveThrows()
+        {
+            // Arrange
+            importInvoiceRepo.Setup(x => x.SaveChangesAsync())
+                .ThrowsAsync(new Exception("save fail"));
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoice.CreationFailure));
-            }
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoice.CreationFailure));
+        }
 
-            [Test]
-            public async Task ReturnsSuccess_WhenInvoiceCreatedSuccessfully()
-            {
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+        [Test]
+        public async Task ReturnsSuccess_WhenInvoiceCreatedSuccessfully()
+        {
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.True);
-            }
+            // Assert
+            Assert.That(result.Success, Is.True);
+        }
 
-            [Test]
-            public async Task ReturnsSuccessWithCorrectProducts_WhenMultipleProductsAreGiven()
-            {
-                // Arrange
-                inputModel.Products = new List<CreateImportInvoiceDetailInputModel>
+        [Test]
+        public async Task ReturnsSuccessWithCorrectProducts_WhenMultipleProductsAreGiven()
+        {
+            // Arrange
+            inputModel.Products = new List<CreateImportInvoiceDetailInputModel>
                 {
                     new CreateImportInvoiceDetailInputModel { ProductName = "ProdA", ProductDescription = "DescA", CategoryName = "CatA" },
                     new CreateImportInvoiceDetailInputModel { ProductName = "ProdB", ProductDescription = "DescB", CategoryName = "CatB" }
                 };
 
-                var productA = new Product { Id = Guid.NewGuid(), Name = "ProdA", Description = "DescA" };
-                var productB = new Product { Id = Guid.NewGuid(), Name = "ProdB", Description = "DescB" };
+            var productA = new Product { Id = Guid.NewGuid(), Name = "ProdA", Description = "DescA" };
+            var productB = new Product { Id = Guid.NewGuid(), Name = "ProdB", Description = "DescB" };
 
-                // Setup the category service to return unique category Ids
-                var catAId = Guid.NewGuid();
-                var catBId = Guid.NewGuid();
-                categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync("CatA", null))
-                    .ReturnsAsync(OperationResult<Category>.Ok(new Category { Id = catAId, Name = "CatA" }));
-                categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync("CatB", null))
-                    .ReturnsAsync(OperationResult<Category>.Ok(new Category { Id = catBId, Name = "CatB" }));
+            // Setup the category service to return unique category Ids
+            var catAId = Guid.NewGuid();
+            var catBId = Guid.NewGuid();
+            categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync("CatA", null))
+                .ReturnsAsync(OperationResult<Category>.Ok(new Category { Id = catAId, Name = "CatA" }));
+            categoryService.Setup(x => x.GetOrCreateOrUpdateCategoryAsync("CatB", null))
+                .ReturnsAsync(OperationResult<Category>.Ok(new Category { Id = catBId, Name = "CatB" }));
 
-                // Setup product service to return the correct product based on input
-                productService.Setup(x => x.GetOrCreateOrUpdateProductAsync("ProdA", "DescA", catAId))
-                    .ReturnsAsync(OperationResult<Product>.Ok(productA));
-                productService.Setup(x => x.GetOrCreateOrUpdateProductAsync("ProdB", "DescB", catBId))
-                    .ReturnsAsync(OperationResult<Product>.Ok(productB));
+            // Setup product service to return the correct product based on input
+            productService.Setup(x => x.GetOrCreateOrUpdateProductAsync("ProdA", "DescA", catAId))
+                .ReturnsAsync(OperationResult<Product>.Ok(productA));
+            productService.Setup(x => x.GetOrCreateOrUpdateProductAsync("ProdB", "DescB", catBId))
+                .ReturnsAsync(OperationResult<Product>.Ok(productB));
 
-                var capturedDetails = new List<ImportInvoiceDetail>();
+            var capturedDetails = new List<ImportInvoiceDetail>();
 
-                importInvoiceDetailRepo.Setup(x => x.AddAsync(It.IsAny<ImportInvoiceDetail>()))
-                    .Callback<ImportInvoiceDetail>(detail => capturedDetails.Add(detail))
-                    .Returns(Task.CompletedTask);
+            importInvoiceDetailRepo.Setup(x => x.AddAsync(It.IsAny<ImportInvoiceDetail>()))
+                .Callback<ImportInvoiceDetail>(detail => capturedDetails.Add(detail))
+                .Returns(Task.CompletedTask);
 
-                // Act
-                var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
+            // Act
+            var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
 
-                // Assert
-                Assert.That(result.Success, Is.True);
-                Assert.That(capturedDetails.Count, Is.EqualTo(2));
-            }
+            // Assert
+            Assert.That(result.Success, Is.True);
+            Assert.That(capturedDetails.Count, Is.EqualTo(2));
         }
     }
 }

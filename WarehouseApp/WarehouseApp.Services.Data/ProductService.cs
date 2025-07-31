@@ -6,8 +6,6 @@ using WarehouseApp.Services.Data;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 
-using static WarehouseApp.Common.OutputMessages.ErrorMessages.Product;
-
 public class ProductService : BaseService, IProductService
 {
     private readonly WarehouseDbContext context;

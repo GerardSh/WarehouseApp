@@ -13,13 +13,6 @@ namespace WarehouseApp.Data.Repositories
         {
         }
 
-        public IQueryable<ImportInvoice> GetAllForWarehouse(Guid warehouseId)
-        {
-            return dbSet
-                .AsNoTracking()
-                .Where(ii => ii.WarehouseId == warehouseId);
-        }
-
         public async Task<ImportInvoice?> GetInvoiceWithDetailsAsync(Guid invoiceId, Guid warehouseId)
         {
             return await dbSet

@@ -108,12 +108,13 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         public async Task AppliesYearFilterCorrectly()
         {
             // Arrange
-            importInvoiceRepo.Setup(x => x.GetAllForWarehouse(warehouseId))
+            importInvoiceRepo.Setup(x => x.All())
                 .Returns(invoices.AsQueryable().BuildMock());
 
             invoices.Add(new ImportInvoice()
             {
                 Id = Guid.Parse("3FF7B60E-9C39-4E28-B2BD-35E750C6FBAE"),
+                WarehouseId = warehouseId,
                 InvoiceNumber = "INV-2020",
                 Supplier = new Client { Name = "SupplierC", Address = "AddressC" },
                 Date = new DateTime(2020, 1, 1),
@@ -205,7 +206,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         {
             // Arrange
             invoices.Clear();
-            importInvoiceRepo.Setup(x => x.GetAllForWarehouse(warehouseId))
+            importInvoiceRepo.Setup(x => x.All())
                 .Returns(invoices.AsQueryable().BuildMock());
 
             // Act
