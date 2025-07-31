@@ -54,7 +54,7 @@
             public const string EditingFailure = "Fatal error occurred while editing the Invoice.";
             public const string DeletionFailure = "Fatal error occurred while deleting the Invoice.";
             public const string RetrievingFailure = "Fatal error occurred while retrieving the Invoices.";
-            public const string GetModelFailure = "Fatal error occurred while getting the invoice.";
+            public const string GetModelFailure = "Fatal error occurred while getting the Invoice.";
 
             public const string CannotCreateInvoiceWithoutProducts = "Invoice must contain at least one product.";
             public const string InvalidDate = "Cannot set import invoice date later than export invoice date: ";
@@ -90,6 +90,8 @@
             public const string CreationFailure = "Fatal error occurred while creating the Export Invoice.";
             public const string EditingFailure = "Fatal error occurred while editing the Export Invoice.";
             public const string DeletionFailure = "Fatal error occurred while deleting the Export Invoice.";
+            public const string RetrievingFailure = "Fatal error occurred while retrieving the Export Invoices.";
+            public const string GetModelFailure = "Fatal error occurred while getting the Export Invoice.";
 
             public const string CannotCreateExportInvoiceWithoutExports = "Export Invoice must contain at least one exported product.";
             public const string InvalidDate = "Cannot set Export Invoice date earlier than invoice date: ";
