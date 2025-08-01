@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
 
 using WarehouseApp.Services.Data.Interfaces;
-using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ExportInvoice;
@@ -84,7 +83,7 @@ namespace WarehouseApp.Services.Data
 
                 IQueryable<ExportInvoice> allInvoicesQuery = exportInvoiceRepo
                     .All()
-                    .Where(ii => ii.WarehouseId == inputModel.WarehouseId);
+                    .Where(ei => ei.WarehouseId == inputModel.WarehouseId);
 
                 inputModel.TotalInvoices = await allInvoicesQuery.CountAsync();
 
@@ -162,7 +161,7 @@ namespace WarehouseApp.Services.Data
                     Date = ei.Date.ToString(DateFormat),
                     ExportedProductsCount = ei.ExportInvoicesDetails.Count.ToString(),
                 })
-                    .ToArrayAsync();
+                .ToArrayAsync();
 
                 inputModel.Invoices = exportInvoices;
 
@@ -200,6 +199,9 @@ namespace WarehouseApp.Services.Data
                     return OperationResult.Failure(UserNotFound);
 
                 var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+
+                if (warehouse == null)
+                    return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
                 bool invoiceExists = await exportInvoiceRepo.ExistsAsync(
                     i => i.InvoiceNumber == inputModel.InvoiceNumber &&
@@ -339,7 +341,7 @@ namespace WarehouseApp.Services.Data
                 if (user == null)
                     return OperationResult<ExportInvoiceDetailsViewModel>.Failure(UserNotFound);
 
-                var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+                var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(warehouseId, userId);
 
                 if (warehouse == null)
                     return OperationResult<ExportInvoiceDetailsViewModel>.Failure(NoPermissionOrWarehouseNotFound);
@@ -363,7 +365,7 @@ namespace WarehouseApp.Services.Data
                     {
                         ImportInvoiceNumber = eid.ImportInvoiceDetail.ImportInvoice.InvoiceNumber,
                         ProductName = eid.ImportInvoiceDetail.Product.Name,
-                        ProductDescription = eid.ImportInvoiceDetail.Product.Description,
+                        ProductDescription = eid.ImportInvoiceDetail.Product.Description ?? "N/A",
                         CategoryName = eid.ImportInvoiceDetail.Product.Category.Name,
                         CategoryDescription = eid.ImportInvoiceDetail.Product.Category.Description ?? "N/A",
                         Quantity = eid.Quantity,
