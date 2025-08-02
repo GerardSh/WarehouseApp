@@ -26,7 +26,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         private Guid invoiceId = Guid.NewGuid();
         private Guid detailId = Guid.NewGuid();
         private Guid detailId2 = Guid.NewGuid();
-        private Guid categoryId;
+        private Guid categoryId = Guid.NewGuid();
         private Guid clientId = Guid.NewGuid();
         private Guid productId = Guid.NewGuid();
         private Guid productId2 = Guid.NewGuid();
