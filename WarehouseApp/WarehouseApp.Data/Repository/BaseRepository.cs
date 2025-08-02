@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+
 using WarehouseApp.Data.Repository.Interfaces;
 
 namespace WarehouseApp.Data.Repository
@@ -71,6 +72,14 @@ namespace WarehouseApp.Data.Repository
         public async Task SaveChangesAsync()
         {
             await dbContext.SaveChangesAsync();
+        }
+
+        public TEntity? GetTrackedLocal(Func<TEntity, bool> predicate)
+        {
+            return dbContext.ChangeTracker
+                .Entries<TEntity>()
+                .Select(e => e.Entity)
+                .FirstOrDefault(predicate);
         }
     }
 }

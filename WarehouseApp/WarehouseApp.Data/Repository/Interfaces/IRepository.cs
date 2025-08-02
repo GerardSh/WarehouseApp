@@ -27,5 +27,7 @@ namespace WarehouseApp.Data.Repository.Interfaces
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
 
         Task SaveChangesAsync();
+
+        TEntity? GetTrackedLocal(Func<TEntity, bool> predicate);
     }
 }

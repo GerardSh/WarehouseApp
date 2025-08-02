@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System.Text.RegularExpressions;
 
-using WarehouseApp.Data;
 using WarehouseApp.Data.Models;
+using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Services.Data;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
@@ -14,17 +12,38 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 
 public class StockService : BaseService, IStockService
 {
-    private readonly WarehouseDbContext dbContext;
     private readonly UserManager<ApplicationUser> userManager;
+    private readonly IImportInvoiceDetailRepository importInvoiceDetailRepo;
+    private readonly IExportInvoiceDetailRepository exportInvoiceDetailRepo;
+    private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
 
     public StockService(
-        WarehouseDbContext dbContext,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IImportInvoiceDetailRepository importInvoiceDetailRepo,
+        IExportInvoiceDetailRepository exportInvoiceDetailRepo,
+        IApplicationUserWarehouseRepository appUserWarehouseRepo)
     {
-        this.dbContext = dbContext;
         this.userManager = userManager;
+        this.importInvoiceDetailRepo = importInvoiceDetailRepo;
+        this.exportInvoiceDetailRepo = exportInvoiceDetailRepo;
+        this.appUserWarehouseRepo = appUserWarehouseRepo;
     }
 
+    /// <summary>
+    /// Retrieves a filtered and paginated list of product stock information for a warehouse owned by the specified user.
+    /// </summary>
+    /// <param name="inputModel">
+    /// The search filter and pagination model containing warehouse ID, product and category queries, pagination settings,
+    /// and flags such as whether to include fully exported products. This model is updated with the filtered products,
+    /// total items, total pages, current page, and warehouse name.
+    /// </param>
+    /// <param name="userId">
+    /// The unique identifier of the user requesting the stock information.
+    /// </param>
+    /// <returns>
+    /// An <see cref="OperationResult"/> indicating success if the stock information was retrieved successfully,
+    /// or failure with an appropriate error message if the user is not found or the warehouse is inaccessible.
+    /// </returns>
     public async Task<OperationResult> GetInvoicesForWarehouseAsync(
         AllProductsSearchFilterViewModel inputModel, Guid userId)
     {
@@ -33,18 +52,18 @@ public class StockService : BaseService, IStockService
         if (user == null)
             return OperationResult.Failure(UserNotFound);
 
-        var warehouse = await GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+        var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
         if (warehouse == null)
             return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
         inputModel.WarehouseName = warehouse.Name;
 
-        var products = await dbContext.ImportInvoiceDetails
-            .AsNoTracking()
+        var products = await importInvoiceDetailRepo
+            .All()
             .Include(iid => iid.Product)
                 .ThenInclude(p => p.Category)
-                .Include(iid => iid.ExportInvoicesPerProduct)
+            .Include(iid => iid.ExportInvoicesPerProduct)
             .Where(iid => iid.ImportInvoice.WarehouseId == inputModel.WarehouseId)
             .ToListAsync();
 
@@ -135,12 +154,14 @@ public class StockService : BaseService, IStockService
         Guid importDetailId,
         Guid? excludeExportDetailId = null)
     {
-        var imported = await dbContext.ImportInvoiceDetails
+        var imported = await importInvoiceDetailRepo
+            .All()
             .Where(i => i.Id == importDetailId)
             .Select(i => (int?)i.Quantity)
             .FirstOrDefaultAsync() ?? 0;
 
-        var exported = await dbContext.ExportInvoiceDetails
+        var exported = await exportInvoiceDetailRepo
+            .All()
             .Where(e => e.ImportInvoiceDetailId == importDetailId &&
                 (excludeExportDetailId == null || e.Id != excludeExportDetailId))
             .SumAsync(e => (int?)e.Quantity) ?? 0;
@@ -148,14 +169,5 @@ public class StockService : BaseService, IStockService
         var available = imported - exported;
 
         return OperationResult<int>.Ok(available);
-    }
-
-    private async Task<Warehouse?> GetWarehouseOwnedByUserAsync(Guid warehouseId, Guid userId)
-    {
-        return await dbContext.UsersWarehouses
-                  .Where(uw => uw.WarehouseId == warehouseId && uw.ApplicationUserId == userId)
-                  .Select(uw => uw.Warehouse)
-                  .AsNoTracking()
-                  .FirstOrDefaultAsync();
     }
 }
