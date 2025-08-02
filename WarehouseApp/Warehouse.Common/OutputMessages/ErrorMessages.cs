@@ -175,6 +175,7 @@
         public static class Stock
         {
             public const string ProductNotFound = "Product not found.";
+            public const string RetrievingFailure = "Fatal error occurred while retrieving the products.";
         }
 
         public static class ApplicationBuilderExtensions

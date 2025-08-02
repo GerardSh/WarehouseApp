@@ -7,6 +7,8 @@ using WarehouseApp.Services.Data;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Stock;
+
+using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 
@@ -47,101 +49,108 @@ public class StockService : BaseService, IStockService
     public async Task<OperationResult> GetInvoicesForWarehouseAsync(
         AllProductsSearchFilterViewModel inputModel, Guid userId)
     {
-        var user = await userManager.FindByIdAsync(userId.ToString());
+        try
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
 
-        if (user == null)
-            return OperationResult.Failure(UserNotFound);
+            if (user == null)
+                return OperationResult.Failure(UserNotFound);
 
-        var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
+            var warehouse = await appUserWarehouseRepo.GetWarehouseOwnedByUserAsync(inputModel.WarehouseId, userId);
 
-        if (warehouse == null)
-            return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
+            if (warehouse == null)
+                return OperationResult.Failure(NoPermissionOrWarehouseNotFound);
 
-        inputModel.WarehouseName = warehouse.Name;
+            inputModel.WarehouseName = warehouse.Name;
 
-        var products = await importInvoiceDetailRepo
-            .All()
-            .Include(iid => iid.Product)
-                .ThenInclude(p => p.Category)
-            .Include(iid => iid.ExportInvoicesPerProduct)
-            .Where(iid => iid.ImportInvoice.WarehouseId == inputModel.WarehouseId)
-            .ToListAsync();
+            var products = await importInvoiceDetailRepo
+                .All()
+                .Include(iid => iid.Product)
+                    .ThenInclude(p => p.Category)
+                .Include(iid => iid.ExportInvoicesPerProduct)
+                .Where(iid => iid.ImportInvoice.WarehouseId == inputModel.WarehouseId)
+                .ToListAsync();
 
-        inputModel.TotalProducts = products
-             .GroupBy(iid => new
-             {
-                 iid.ProductId,
-                 ProductName = iid.Product.Name,
-                 CategoryName = iid.Product.Category.Name
-             })
-             .Where(g => g.Sum(iid => iid.Quantity) > g.Sum(iid => iid.ExportInvoicesPerProduct.Sum(e => e.Quantity)))
-             .Count();
+            inputModel.TotalProducts = products
+                 .GroupBy(iid => new
+                 {
+                     iid.ProductId,
+                     ProductName = iid.Product.Name,
+                     CategoryName = iid.Product.Category.Name
+                 })
+                 .Where(g => g.Sum(iid => iid.Quantity) > g.Sum(iid => iid.ExportInvoicesPerProduct.Sum(e => e.Quantity)))
+                 .Count();
 
-        var filteredProducts = products
-            .Where(iid => string.IsNullOrWhiteSpace(inputModel.ProductQuery) ||
-                          iid.Product.Name.ToLower().Contains(inputModel.ProductQuery.ToLower()))
-            .Where(iid => string.IsNullOrWhiteSpace(inputModel.CategoryQuery) ||
-                          iid.Product.Category.Name.ToLower().Contains(inputModel.CategoryQuery.ToLower()))
-            .ToList();
+            var filteredProducts = products
+                .Where(iid => string.IsNullOrWhiteSpace(inputModel.ProductQuery) ||
+                              iid.Product.Name.ToLower().Contains(inputModel.ProductQuery.ToLower()))
+                .Where(iid => string.IsNullOrWhiteSpace(inputModel.CategoryQuery) ||
+                              iid.Product.Category.Name.ToLower().Contains(inputModel.CategoryQuery.ToLower()))
+                .ToList();
 
-        var groupedProductsQuery = filteredProducts
-            .GroupBy(iid => new
+            var groupedProducts = filteredProducts
+                .GroupBy(iid => new
+                {
+                    iid.ProductId,
+                    ProductName = iid.Product.Name,
+                    CategoryName = iid.Product.Category.Name
+                })
+                .Select(g => new ProductStockViewModel
+                {
+                    ProductName = g.Key.ProductName,
+                    CategoryName = g.Key.CategoryName,
+                    TotalImported = g.Sum(x => x.Quantity),
+                    TotalExported = g.Sum(x => x.ExportInvoicesPerProduct.Sum(e => e.Quantity))
+                })
+                .ToList();
+
+            if (!inputModel.IncludeExportedProducts)
             {
-                iid.ProductId,
-                ProductName = iid.Product.Name,
-                CategoryName = iid.Product.Category.Name
-            })
-            .Select(g => new ProductStockViewModel
+                groupedProducts = groupedProducts
+                    .Where(p => p.Available > 0)
+                    .ToList();
+            }
+
+            inputModel.TotalItemsBeforePagination = groupedProducts.Count;
+
+            if (inputModel.EntitiesPerPage <= 0)
             {
-                ProductName = g.Key.ProductName,
-                CategoryName = g.Key.CategoryName,
-                TotalImported = g.Sum(x => x.Quantity),
-                TotalExported = g.Sum(x => x.ExportInvoicesPerProduct.Sum(e => e.Quantity))
-            });
+                inputModel.EntitiesPerPage = 5;
+            }
 
-        if (!inputModel.IncludeExportedProducts)
-        {
-            groupedProductsQuery = groupedProductsQuery
-                .Where(p => p.Available > 0);
+            if (inputModel.EntitiesPerPage > 100)
+            {
+                inputModel.EntitiesPerPage = 100;
+            }
+
+            inputModel.TotalPages = (int)Math.Ceiling(inputModel.TotalItemsBeforePagination /
+                                                (double)inputModel.EntitiesPerPage!.Value);
+
+            if (inputModel.CurrentPage > inputModel.TotalPages)
+            {
+                inputModel.CurrentPage = inputModel.TotalPages > 0 ? inputModel.TotalPages : 1;
+            }
+
+            if (inputModel.CurrentPage <= 0)
+            {
+                inputModel.CurrentPage = 1;
+            }
+
+            groupedProducts = groupedProducts
+                .OrderByDescending(p => p.Available)
+                .ThenBy(p => p.ProductName)
+                .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
+                .Take(inputModel.EntitiesPerPage.Value)
+                .ToList();
+
+            inputModel.Products = groupedProducts;
+
+            return OperationResult.Ok();
         }
-
-        var groupedProducts = groupedProductsQuery.ToList();
-
-        inputModel.TotalItemsBeforePagination = groupedProducts.Count;
-
-        if (inputModel.EntitiesPerPage <= 0)
+        catch
         {
-            inputModel.EntitiesPerPage = 5;
+            return OperationResult.Failure(ErrorMessages.Stock.RetrievingFailure);
         }
-
-        if (inputModel.EntitiesPerPage > 100)
-        {
-            inputModel.EntitiesPerPage = 100;
-        }
-
-        inputModel.TotalPages = (int)Math.Ceiling(inputModel.TotalItemsBeforePagination /
-                                            (double)inputModel.EntitiesPerPage!.Value);
-
-        if (inputModel.CurrentPage > inputModel.TotalPages)
-        {
-            inputModel.CurrentPage = inputModel.TotalPages > 0 ? inputModel.TotalPages : 1;
-        }
-
-        if (inputModel.CurrentPage <= 0)
-        {
-            inputModel.CurrentPage = 1;
-        }
-
-        groupedProducts = groupedProducts
-            .OrderByDescending(p => p.Available)
-            .ThenBy(p => p.ProductName)
-            .Skip(inputModel.EntitiesPerPage.Value * (inputModel.CurrentPage!.Value - 1))
-            .Take(inputModel.EntitiesPerPage.Value)
-            .ToList();
-
-        inputModel.Products = groupedProducts;
-
-        return OperationResult.Ok();
     }
 
     /// <summary>
