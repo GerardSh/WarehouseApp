@@ -40,7 +40,7 @@ public class ClientService : BaseService, IClientService
     {
         var client = await clientRepo
             .AllTracked()
-            .FirstOrDefaultAsync(c => c.Name == name);
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
 
         if (client == null)
         {
@@ -56,10 +56,23 @@ public class ClientService : BaseService, IClientService
         }
         else
         {
-            client.Address = address ?? client.Address;
-            client.PhoneNumber = phone ?? client.PhoneNumber;
-            client.Email = email ?? client.Email;
+            if (!string.IsNullOrWhiteSpace(address))
+            {
+                client.Address = address;
+            }
+
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                client.PhoneNumber = phone;
+            }
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                client.Email = email;
+            }
         }
+
+        client.Name = name;
 
         await clientRepo.SaveChangesAsync();
 

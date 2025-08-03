@@ -50,10 +50,12 @@ public class ProductService : BaseService, IProductService
 
             await productRepo.AddAsync(product);
         }
-        else if (!string.IsNullOrWhiteSpace(description) && product.Description != description)
+        else if (!string.IsNullOrWhiteSpace(description))
         {
             product.Description = description;
         }
+
+        product.Name = name;
 
         await productRepo.SaveChangesAsync();
 
