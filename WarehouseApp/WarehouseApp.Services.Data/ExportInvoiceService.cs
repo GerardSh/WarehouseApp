@@ -267,8 +267,8 @@ namespace WarehouseApp.Services.Data
                         return OperationResult.Failure(NoPermissionOrImportInvoiceNotFound);
 
                     var importDetail = importInvoice.ImportInvoicesDetails.FirstOrDefault(iid =>
-                        iid.Product.Name == detail.ProductName &&
-                        iid.Product.Category.Name == detail.CategoryName);
+                        iid.Product.Name.ToLower() == detail.ProductName.ToLower() &&
+                        iid.Product.Category.Name.ToLower() == detail.CategoryName.ToLower());
 
                     if (importDetail == null)
                         return OperationResult.Failure(ProductNotFoundInImportInvoice);
