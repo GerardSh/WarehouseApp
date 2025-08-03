@@ -47,17 +47,9 @@ public class CategoryService : BaseService, ICategoryService
 
             await categoryRepo.AddAsync(category);
         }
-        else
+        else if (!string.IsNullOrWhiteSpace(description) && category.Description != description)
         {
-            if (!string.IsNullOrWhiteSpace(description) && category.Description != description)
-            {
-                category.Description = description;
-            }
-
-            if (category.Name != name)
-            {
-                category.Name = name;
-            }
+            category.Description = description;
         }
 
         await categoryRepo.SaveChangesAsync();

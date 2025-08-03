@@ -48,19 +48,11 @@ public class ProductService : BaseService, IProductService
                 CategoryId = categoryId
             };
 
-           await productRepo.AddAsync(product);
+            await productRepo.AddAsync(product);
         }
-        else
+        else if (!string.IsNullOrWhiteSpace(description) && product.Description != description)
         {
-            if (!string.IsNullOrWhiteSpace(description) && product.Description != description)
-            {
-                product.Description = description;
-            }
-
-            if (product.Name != name)
-            {
-                product.Name = name;
-            }
+            product.Description = description;
         }
 
         await productRepo.SaveChangesAsync();
