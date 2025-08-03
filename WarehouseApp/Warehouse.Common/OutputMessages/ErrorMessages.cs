@@ -14,6 +14,7 @@
             public const string FailedToAssignRole = "Failed to assign the selected role to the user.";
             public const string FailedToRemoveRole = "Failed to remove the selected role from the user.";
             public const string FailedToDeleteUser = "Failed to delete the selected user.";
+            public const string DeleteOwnAccount = "You cannot delete your own account.";
             public const string FailedToMarkWarehouse = "Failed to mark warehouse as deleted.";
             public const string DeletionFailure = "Fatal error occurred while deleting the user.";
             public const string RemoveRoleFailure = "Fatal error occurred while removing the user role.";

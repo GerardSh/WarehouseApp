@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 
 using WarehouseApp.Services.Data.Interfaces;
+using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Admin.UserManagement;
 using WarehouseApp.Web.Controllers;
+using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
 using static WarehouseApp.Common.Constants.RolesConstants;
-using WarehouseApp.Services.Data.Models;
+using static WarehouseApp.Common.OutputMessages.SuccessMessages.UserManager;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
 
 namespace WarehouseApp.Web.Areas.Admin.Controllers
 {
@@ -44,7 +47,7 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
 
             if (inputModel.Users.Count() == 0)
             {
-                TempData["Message"] = "No users found!";
+                TempData["Message"] = ErrorMessages.Application.UserNotFound;
             }
 
             TempData["CurrentPage"] = inputModel.CurrentPage;
@@ -63,24 +66,27 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
             OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
             if (!userExists.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
             OperationResult assignResult = await userService
                 .AssignUserToRoleAsync(userGuid, role);
             if (!assignResult.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = assignResult.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
-            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
-            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
-            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
-
+            TempData["Message"] = RoleAssignSuccess;
             return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
 
@@ -93,24 +99,27 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
             OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
             if (!userExists.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
             OperationResult removeResult = await userService
                 .RemoveUserRoleAsync(userGuid, role);
             if (!removeResult.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = removeResult.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
-            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
-            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
-            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
-
+            TempData["Message"] = RoleRemovalSuccess;
             return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
 
@@ -123,24 +132,35 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (validationResult != null)
                 return validationResult;
 
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            string? loggedUserId = GetUserId();
+
+            if (loggedUserId != null && Guid.TryParse(loggedUserId, out Guid loggedUserGuid) && loggedUserGuid == userGuid)
+            {
+                TempData["Message"] = DeleteOwnAccount;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
+            }
+
             OperationResult userExists = await userService
                 .UserExistsByIdAsync(userGuid);
             if (!userExists.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
             OperationResult removeResult = await userService
                 .DeleteUserAsync(userGuid);
             if (!removeResult.Success)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Message"] = removeResult.ErrorMessage;
+                return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
             }
 
-            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
-            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
-            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
-
+            TempData["Message"] = UserDeletionSuccess;
             return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
     }

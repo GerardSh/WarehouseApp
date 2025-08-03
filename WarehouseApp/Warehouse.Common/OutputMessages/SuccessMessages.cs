@@ -22,5 +22,12 @@
             public const string EditingSuccess = "The Export Invoice was successfully edited.";
             public const string DeletionSuccess = "The Export Invoice was successfully deleted.";
         }
+
+        public static class UserManager
+        {
+            public const string UserDeletionSuccess = "The selected user was successfully deleted.";
+            public const string RoleRemovalSuccess = "The selected role was successfully removed.";
+            public const string RoleAssignSuccess = "The selected role was successfully assigned.";
+        }
     }
 }
