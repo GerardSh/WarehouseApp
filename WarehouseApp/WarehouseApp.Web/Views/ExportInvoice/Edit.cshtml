@@ -93,8 +93,11 @@
         </tbody>
     </table>
 
-    <button type="button" class="btn btn-secondary mt-2" onclick="addProduct()">Add Product</button>
-    <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+    <div class="button-row">
+        <button type="button" class="btn btn-secondary mt-2" onclick="addProduct()">Add Product</button>
+        <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+        <button type="button" class="btn btn-back mt-2" onclick="history.back()">Cancel</button>
+    </div>
 </form>
 
 @section Scripts {

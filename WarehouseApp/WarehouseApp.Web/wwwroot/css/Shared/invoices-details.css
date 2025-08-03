@@ -62,7 +62,6 @@
     display: inline-flex;
     gap: 0.75rem;
     align-items: center;
-    margin-top: 2rem;
 }
 
     .button-group form {
@@ -131,7 +130,6 @@
 
 .invoice-summary {
     margin-top: 1rem;
-    padding: 1rem;
     background-color: transparent;
     color: white;
     font-size: 1.1rem;
@@ -191,6 +189,29 @@ option {
     color: white;
     background-color: #3a3a3d;
 }
+
+.btn-back {
+    background: linear-gradient(135deg, #868e96, #6c757d);
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-position 0.4s ease, transform 0.2s ease;
+    background-size: 200%;
+    background-position: left;
+    margin-left: auto;
+}
+
+    .btn-back:hover {
+        background-position: right;
+        transform: translateY(-2px);
+    }
+
+    .btn-back:active {
+        transform: scale(0.98);
+    }
 
 @media (max-width: 768px) {
     .product-table thead {

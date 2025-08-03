@@ -19,11 +19,11 @@
     }
     else if (Model.TotalProducts > 0)
     {
-        <h2>No Products found!</h2>
+        <h2>No Products found</h2>
     }
     else
     {
-        <h2>No available Products in the Warehouse.</h2>
+        <h2>No available Products</h2>
     }
 }
 
@@ -42,8 +42,6 @@
         </a>
     }
 </div>
-
-
 
 <form method="get" asp-action="Index" class="mb-5 p-4 rounded" style="background-color:#1e1e2f; border: 1px solid #3a3a4d; color: #ffffff;">
     <div class="row g-3">
@@ -114,7 +112,7 @@
 <a asp-controller="Warehouse"
    asp-action="Details"
    asp-route-id="@Model.WarehouseId"
-   class="btn btn-secondary">
+   class="btn btn-secondary back-btn">
     ← Back to Warehouse
 </a>
 

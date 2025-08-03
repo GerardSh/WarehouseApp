@@ -2,7 +2,7 @@
 @model AllWarehousesSearchFilterViewModel
 
 @{
-    ViewData["Title"] = "Your Warehouses";
+    ViewData["Title"] = "Warehouses";
 }
 
 @section HeadExtras {
@@ -14,16 +14,16 @@
     {
         <h2>
             You have @Model.TotalUserWarehouses
-            @(Model.TotalUserWarehouses == 1 ? "Warehouse" : "Warehouses")!
+            @(Model.TotalUserWarehouses == 1 ? "Warehouse" : "Warehouses")
         </h2>
     }
     else if (Model.TotalUserWarehouses > 0)
     {
-        <h2>No Warehouses found!</h2>
+        <h2>No Warehouses found</h2>
     }
     else
     {
-        <h2>You dont have Warehouses, create your first!</h2>
+        <h2>You dont have Warehouses, create your first</h2>
     }
 }
 
