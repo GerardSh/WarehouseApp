@@ -11,13 +11,13 @@ This repository contains my final project for the ASP.NET Advanced course at Sof
 
 **WarehouseApp** is designed to help users manage and track goods across one or more warehouses. It supports importing and exporting products and automatically calculates available stock in real time.
 
-### Key Features:
+### 🔑 Key Features:
 
 - ✅ **Import Invoices** - Add products to a warehouse through import invoices, each with item quantity and unit price  
 - ✅ **Export Invoices** - Remove goods from inventory using export invoices  
 - ✅ **Product Structure** - Products are uniquely identified by name and category  
-- ✅ **Stock Availability** - Real-time stock calculation (imports minus exports)  
-- ✅ **Multi-Warehouse Support** - Each user can manage multiple isolated warehouses  
+- ✅ **Stock Availability** - Real-time stock calculation by computing the difference between total imports and total exports  
+- ✅ **Multi-Warehouse Support** - Each user can manage multiple warehouses with completely isolated inventories and invoices  
 - ✅ **User Roles and Security** - Role seeding and secure authentication (e.g., Admin role)
 
 ## 🧰 Tech Stack
