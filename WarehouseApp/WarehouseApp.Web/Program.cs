@@ -21,7 +21,7 @@ namespace WarehouseApp.Web
 
             // Add services to the container.
             string connectionString = builder.Configuration.GetConnectionString("WarehouseDbConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                ?? throw new InvalidOperationException("Connection string 'WarehouseDbConnection' not found.");
             string adminEmail = builder.Configuration.GetValue<string>("Administrator:Email")!;
             string adminUsername = builder.Configuration.GetValue<string>("Administrator:Username")!;
             string adminPassword = builder.Configuration.GetValue<string>("Administrator:Password")!;
