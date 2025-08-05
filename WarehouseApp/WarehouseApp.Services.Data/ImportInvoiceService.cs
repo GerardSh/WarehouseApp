@@ -15,6 +15,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
+using WarehouseApp.Services.Data.Dtos.ImportInvoices;
 
 namespace WarehouseApp.Services.Data
 {
@@ -751,6 +752,87 @@ namespace WarehouseApp.Services.Data
             catch
             {
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.DeletionFailure);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a summarized list of import invoices for a specific warehouse,
+        /// including only their basic identifiers and associated import detail IDs.
+        /// This method is optimized for lightweight listing and display scenarios,
+        /// without loading full navigation properties.
+        /// </summary>
+        /// <param name="warehouseId">
+        /// The unique identifier of the warehouse whose invoices should be retrieved.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OperationResult{T}"/> containing:
+        /// - A collection of <see cref="ImportInvoiceSummaryDto"/> if invoices are found.
+        /// - An empty collection if none exist.
+        /// - An error message if the operation fails.
+        /// </returns>
+        public async Task<OperationResult<IEnumerable<ImportInvoiceSummaryDto>>> GetInvoicesByWarehouseIdAsync(Guid warehouseId)
+        {
+            try
+            {
+                var invoices = await importInvoiceRepo.All()
+                        .Where(i => i.WarehouseId == warehouseId)
+                        .OrderByDescending(i => i.Date)
+                        .Select(i => new ImportInvoiceSummaryDto
+                        {
+                            Id = i.Id,
+                            InvoiceNumber = i.InvoiceNumber,
+                            ImportDetails = i.ImportInvoicesDetails.Select(iid => iid.Id)
+                        })
+                        .ToListAsync();
+
+                if (!invoices.Any())
+                        return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Failure(NoInvoicesFound);
+
+                return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Ok(invoices);
+            }
+            catch
+            {
+                return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Failure(ErrorMessages.ImportInvoice.RetrievingFailure);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a full import invoice with all associated import details, products, and product categories,
+        /// based on the invoice number and warehouse ID.
+        /// This method is intended for detailed inspection or processing scenarios
+        /// where complete data is needed (e.g., for linking export operations).
+        /// </summary>
+        /// <param name="warehouseId">
+        /// The unique identifier of the warehouse that owns the invoice.
+        /// </param>
+        /// <param name="invoiceNumber">
+        /// The invoice number of the import invoice to retrieve.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OperationResult{T}"/> containing:
+        /// - The fully loaded <see cref="ImportInvoice"/> entity if found.
+        /// - An error message if the invoice is not found or if the operation fails.
+        /// </returns>
+        public async Task<OperationResult<ImportInvoice>> GetInvoiceByNumberAsync(Guid warehouseId, string invoiceNumber)
+        {
+            try
+            {
+                var invoice = await importInvoiceRepo
+                    .All()
+                    .Include(i => i.ImportInvoicesDetails)
+                        .ThenInclude(d => d.Product)
+                            .ThenInclude(p => p.Category)
+                    .Where(i => i.WarehouseId == warehouseId && i.InvoiceNumber == invoiceNumber)
+                    .FirstOrDefaultAsync();
+
+                if (invoice == null)
+                    return OperationResult<ImportInvoice>.Failure(NoPermissionOrImportInvoiceNotFound);
+
+                return OperationResult<ImportInvoice>.Ok(invoice);
+            }
+            catch
+            {
+                return OperationResult<ImportInvoice>.Failure(ErrorMessages.ImportInvoice.GetModelFailure);
             }
         }
     }

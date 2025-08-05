@@ -50,6 +50,7 @@
             public const string DateRequired = "Date is required.";
             public const string DuplicateInvoice = "An invoice with this number already exists.";
             public const string NoPermissionOrImportInvoiceNotFound = "Invoice not found or access denied.";
+            public const string NoInvoicesFound = "No invoices found for the specified warehouse.";
 
             public const string CreationFailure = "Fatal error occurred while creating the Invoice.";
             public const string EditingFailure = "Fatal error occurred while editing the Invoice.";

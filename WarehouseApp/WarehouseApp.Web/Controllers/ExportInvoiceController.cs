@@ -66,7 +66,7 @@ namespace WarehouseApp.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(Guid warehouseId)
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -77,7 +77,8 @@ namespace WarehouseApp.Web.Controllers
 
             var model = new CreateExportInvoiceInputModel()
             {
-                Date = DateTime.Now
+                Date = DateTime.Now,
+                WarehouseId = warehouseId
             };
 
             return View(model);

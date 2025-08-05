@@ -17,8 +17,8 @@
 
     <div class="form-row">
         <div class="form-group form-column">
-            <label asp-for="InvoiceNumber"></label>
-            <input asp-for="InvoiceNumber" class="form-control bg-dark text-white" placeholder="Invoice number" />
+            <label asp-for="InvoiceNumber">Invoice Number</label>
+            <input asp-for="InvoiceNumber" class="form-control bg-dark text-white" placeholder="Export Invoice number" />
             <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
         </div>
         <div class="form-group form-column">
@@ -27,22 +27,22 @@
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>
         <div class="form-group form-column">
-            <label asp-for="ClientName"></label>
+            <label asp-for="ClientName">Client Name</label>
             <input asp-for="ClientName" class="form-control bg-dark text-white" placeholder="Client name" />
             <span asp-validation-for="ClientName" class="text-danger"></span>
         </div>
         <div class="form-group form-column">
-            <label asp-for="ClientAddress"></label>
+            <label asp-for="ClientAddress">Client Address</label>
             <input asp-for="ClientAddress" class="form-control bg-dark text-white" placeholder="Client address" />
             <span asp-validation-for="ClientAddress" class="text-danger"></span>
         </div>
         <div class="form-group form-column">
-            <label asp-for="ClientPhoneNumber"></label>
+            <label asp-for="ClientPhoneNumber">Client Phone Number</label>
             <input asp-for="ClientPhoneNumber" class="form-control bg-dark text-white" placeholder="Client phone number" />
             <span asp-validation-for="ClientPhoneNumber" class="text-danger"></span>
         </div>
         <div class="form-group form-column">
-            <label asp-for="ClientEmail"></label>
+            <label asp-for="ClientEmail">Client Email</label>
             <input asp-for="ClientEmail" class="form-control bg-dark text-white" placeholder="Client email" />
             <span asp-validation-for="ClientEmail" class="text-danger"></span>
         </div>
@@ -100,10 +100,20 @@
     </div>
 </form>
 
+<div id="helper-panel" class="mt-4">
+    <h5>Invoices with available products:</h5>
+    <div id="invoice-helper"></div>
+
+    <div id="product-helper-wrapper" style="display:none;">
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         window.productIndex = @Model.ExportedProducts.Count;
+        window.warehouseId = '@Model.WarehouseId';
     </script>
     <script src="~/js/ExportInvoice/create.js" asp-append-version="true"></script>
+    <script src="~/js/ExportInvoice/invoice-helper.js" asp-append-version="true"></script>
 }

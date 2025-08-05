@@ -1,6 +1,7 @@
-﻿using WarehouseApp.Services.Data.Models;
+﻿using WarehouseApp.Data.Models;
+using WarehouseApp.Services.Data.Dtos.ImportInvoices;
+using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
-using WarehouseApp.Web.ViewModels.Warehouse;
 
 namespace WarehouseApp.Services.Data.Interfaces
 {
@@ -18,5 +19,9 @@ namespace WarehouseApp.Services.Data.Interfaces
         Task<OperationResult> UpdateImportInvoiceAsync(EditImportInvoiceInputModel inputModel, Guid userId);
 
         Task<OperationResult> DeleteImportInvoiceAsync(Guid warehouseId, Guid invoiceId, Guid userId);
+
+        Task<OperationResult<IEnumerable<ImportInvoiceSummaryDto>>> GetInvoicesByWarehouseIdAsync(Guid warehouseId);
+
+        Task<OperationResult<ImportInvoice>> GetInvoiceByNumberAsync(Guid warehouseId, string invoiceNumber);
     }
 }
