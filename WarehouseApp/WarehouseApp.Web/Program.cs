@@ -10,6 +10,7 @@ using WarehouseApp.Web.Infrastructure.Extensions;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Web.Infrastructure.Middlewares;
 using WarehouseApp.Data.Repositories;
+using Microsoft.AspNetCore.Authentication;
 
 namespace WarehouseApp.Web
 {
@@ -60,6 +61,7 @@ namespace WarehouseApp.Web
                                                   typeof(WarehouseRepository).Assembly);
 
             builder.Services.RegisterUserDefinedServices(typeof(IBaseService).Assembly);
+            builder.Services.AddTransient<IClaimsTransformation, RoleEnsureClaimsTransformation>();
 
             builder.Services.AddRazorPages();
 
