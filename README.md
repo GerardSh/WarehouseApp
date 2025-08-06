@@ -20,6 +20,10 @@ This repository contains my final project for the ASP.NET Advanced course at Sof
 - ✅ **Multi-Warehouse Support** - Each user can manage multiple warehouses with completely isolated inventories and invoices  
 - ✅ **User Roles and Security** - Role seeding and secure authentication (e.g., Admin role)
 
+### ⚡ AJAX and Dynamic Data Loading
+
+Products and invoices are retrieved asynchronously using AJAX calls to improve user experience during export creations.
+
 ## 🧰 Tech Stack
 
 - **ASP.NET Core MVC** - Main web framework  
