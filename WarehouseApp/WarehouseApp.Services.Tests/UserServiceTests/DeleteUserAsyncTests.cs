@@ -93,7 +93,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
         }
 
         [Test]
-        public async Task ReturnsFailure_WhenMarkingWarehouseFails()
+        public async Task Succeeds_WhenWarehouseAlreadyDeleted()
         {
             // Arrange
             var mappings = new List<ApplicationUserWarehouse>
@@ -108,12 +108,18 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
             warehouseService.Setup(ws => ws.MarkAsDeletedWithoutSavingAsync(warehouseId))
                             .ReturnsAsync(OperationResult.Failure(FailedToMarkWarehouse));
 
+            userManager.Setup(um => um.FindByIdAsync(userId.ToString()))
+                       .ReturnsAsync(new ApplicationUser { Id = userId });
+
+            userManager.Setup(um => um.DeleteAsync(It.IsAny<ApplicationUser>()))
+                       .ReturnsAsync(IdentityResult.Success);
+
             // Act
             var result = await userService.DeleteUserAsync(userId);
 
             // Assert
-            Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo(FailedToMarkWarehouse));
+            Assert.That(result.Success, Is.True);
+            warehouseService.Verify(ws => ws.MarkAsDeletedWithoutSavingAsync(warehouseId), Times.Once);
         }
 
         [Test]

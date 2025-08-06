@@ -30,6 +30,7 @@ namespace WarehouseApp.Data.Repositories
         public async Task<IEnumerable<ApplicationUserWarehouse>> GetAllByUserIdAsync(Guid userId)
         {
             return await dbSet
+                .IgnoreQueryFilters()
                 .Where(uw => uw.ApplicationUserId == userId)
                 .ToListAsync();
         }

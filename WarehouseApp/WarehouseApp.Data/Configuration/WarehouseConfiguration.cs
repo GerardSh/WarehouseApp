@@ -1,8 +1,9 @@
-﻿using WarehouseApp.Data.Models;
-using static WarehouseApp.Common.Constants.EntityConstants.Warehouse;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+using WarehouseApp.Data.Models;
+
+using static WarehouseApp.Common.Constants.EntityConstants.Warehouse;
 
 namespace WarehouseApp.Data.Configuration
 {
@@ -44,7 +45,7 @@ namespace WarehouseApp.Data.Configuration
                 .HasOne(w => w.CreatedByUser)
                 .WithMany()
                 .HasForeignKey(w => w.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity
                 .HasQueryFilter(w => !w.IsDeleted);

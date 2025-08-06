@@ -285,9 +285,7 @@ namespace WarehouseApp.Services.Data
 
                         if (!hasOtherUsers)
                         {
-                            var deletionResult = await warehouseService.MarkAsDeletedWithoutSavingAsync(warehouseId);
-                            if (!deletionResult.Success)
-                                return OperationResult.Failure(FailedToMarkWarehouse);
+                            await warehouseService.MarkAsDeletedWithoutSavingAsync(warehouseId);
                         }
                     }
                 }
