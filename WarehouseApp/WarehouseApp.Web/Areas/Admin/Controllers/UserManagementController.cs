@@ -123,6 +123,13 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index), new { currentPage, searchQuery, entitiesPerPage });
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AdminRequest()
+        {
+            return View("_UnderConstruction");
+        }
+
         [HttpPost]
         public async Task<IActionResult> DeleteUser(string userId)
         {

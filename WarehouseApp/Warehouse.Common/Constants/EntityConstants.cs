@@ -77,5 +77,11 @@
 
             public const int DescriptionMaxLength = 1000;
         }
+
+        public static class AdminRequest
+        {
+            public const int ReasonMinLength = 10;
+            public const int ReasonMaxLength = 1000;
+        }
     }
 }

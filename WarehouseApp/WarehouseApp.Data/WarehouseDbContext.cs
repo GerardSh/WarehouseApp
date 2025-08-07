@@ -35,6 +35,8 @@ namespace WarehouseApp.Data
 
         public virtual DbSet<ApplicationUserWarehouse> UsersWarehouses { get; set; }
 
+        public virtual DbSet<AdminRequest> AdminRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -15,7 +15,10 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
 
             Type[] modelTypes = modelsAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && !t.IsInterface && !t.Name.ToLower().EndsWith("attribute"))
+                .Where(t => !t.IsAbstract
+                            && !t.IsInterface
+                            && !t.IsEnum
+                            && !t.Name.ToLower().EndsWith("attribute"))
                 .ToArray();
 
             foreach (Type type in modelTypes)
