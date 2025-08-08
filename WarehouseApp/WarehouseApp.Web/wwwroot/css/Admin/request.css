@@ -1,0 +1,67 @@
+﻿.request-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    background-color: #212529;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.request-title {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: 500;
+    color: #222;
+}
+
+textarea.form-control {
+    width: 100%;
+    min-height: 120px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 1rem;
+    resize: vertical;
+    background-color: #212529;
+    color: white
+}
+
+    textarea.form-control:focus {
+        background-color: #212529 !important;
+        color: white
+    }
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    background-color: #0078D4;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 2rem
+}
+
+    .btn-submit:hover {
+        background-color: #357ab7;
+    }
+
+.text-danger {
+    font-size: 0.9rem;
+    color: #d9534f;
+}
+
+@media (max-width:576px) {
+    .request-container {
+        margin: 20px 12px;
+        padding: 18px;
+    }
+}

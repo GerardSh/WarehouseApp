@@ -1,0 +1,27 @@
+﻿@using WarehouseApp.Web.ViewModels.Admin.UserManagement
+@model AdminRequestFormModel
+
+@{
+    ViewData["Title"] = "Submit Request";
+}
+
+@section HeadExtras {
+    <link rel="stylesheet" href="~/css/Admin/request.css" asp-append-version="true" />
+}
+
+<div class="request-container">
+    <h2 class="request-title">Submit Admin Request</h2>
+
+    <form asp-action="AdminRequest" method="post">
+        <div class="form-group">
+            <label asp-for="Reason"></label>
+            <textarea asp-for="Reason" class="form-control"></textarea>
+            <span asp-validation-for="Reason" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn-submit">Submit Request</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -28,6 +28,7 @@
             public const string UserDeletionSuccess = "The selected user was successfully deleted.";
             public const string RoleRemovalSuccess = "The selected role was successfully removed.";
             public const string RoleAssignSuccess = "The selected role was successfully assigned.";
+            public const string RequestSubmittedSuccess = "The request was successfully submitted.";
         }
     }
 }

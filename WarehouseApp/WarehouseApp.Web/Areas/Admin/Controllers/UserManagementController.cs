@@ -53,7 +53,6 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             TempData["CurrentPage"] = inputModel.CurrentPage;
             TempData["SearchQuery"] = inputModel.SearchQuery ?? string.Empty;
             TempData["EntitiesPerPage"] = inputModel.EntitiesPerPage;
-
             return View(inputModel);
         }
 
@@ -127,7 +126,64 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
         [AllowAnonymous]
         public IActionResult AdminRequest()
         {
-            return View("_UnderConstruction");
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            var model = new AdminRequestFormModel();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> AdminRequest(AdminRequestFormModel inputModel)
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            if (!ModelState.IsValid)
+            {
+                return View(inputModel);
+            }
+
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            OperationResult userExists = await userService
+                .UserExistsByIdAsync(userGuid);
+            if (!userExists.Success)
+            {
+                TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), "Warehouse",
+                    new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
+                );
+            }
+
+            OperationResult result =
+                    await userService.SubmitAdminRequestAsync(inputModel, userGuid);
+
+            if (!result.Success)
+            {
+                TempData["Message"] = result.ErrorMessage;
+            }
+            else
+            {
+                TempData["Message"] = RequestSubmittedSuccess;
+            }
+
+            return RedirectToAction(nameof(Index), "Warehouse",
+                new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
+            );
         }
 
         [HttpPost]

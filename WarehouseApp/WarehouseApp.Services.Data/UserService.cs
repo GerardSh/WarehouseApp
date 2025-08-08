@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 
 using WarehouseApp.Data.Models;
+using WarehouseApp.Data.Models.Enums;
 using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Admin.UserManagement;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.AdminRequest;
 
 namespace WarehouseApp.Services.Data
 {
@@ -15,19 +17,22 @@ namespace WarehouseApp.Services.Data
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole<Guid>> roleManager;
+        private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
+        private readonly IAdminRequestRepository adminRequestRepo;
 
         private readonly IWarehouseService warehouseService;
-        private readonly IApplicationUserWarehouseRepository appUserWarehouseRepo;
 
         public UserService(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole<Guid>> roleManager,
-            IWarehouseService warehouseService,
-            IApplicationUserWarehouseRepository appUserWarehouseRepo)
+            IApplicationUserWarehouseRepository appUserWarehouseRepo,
+            IAdminRequestRepository adminRequestRepo,
+            IWarehouseService warehouseService)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
-            this.warehouseService = warehouseService;
             this.appUserWarehouseRepo = appUserWarehouseRepo;
+            this.adminRequestRepo = adminRequestRepo;
+            this.warehouseService = warehouseService;
         }
 
         /// <summary>
@@ -247,6 +252,52 @@ namespace WarehouseApp.Services.Data
             catch
             {
                 return OperationResult.Failure(RemoveRoleFailure);
+            }
+        }
+
+        public async Task<OperationResult> SubmitAdminRequestAsync(AdminRequestFormModel inputModel, Guid userId)
+        {
+            try
+            {
+                var request = await adminRequestRepo
+                    .All()
+                    .FirstOrDefaultAsync(ar => ar.UserId == userId);
+
+                var user = await userManager.FindByIdAsync(userId.ToString());
+
+                if (request != null)
+                {
+                    if (request.Status == AdminRequestStatus.Pending)
+                        return OperationResult.Failure(PendingRequest);
+
+                    if (request.Status == AdminRequestStatus.Rejected)
+                        return OperationResult.Failure(RejectedRequest);
+
+                    if (request.Status == AdminRequestStatus.Approved)
+                    {
+                        if (!await userManager.IsInRoleAsync(user!, "Administrator"))
+                            return OperationResult.Failure(Revoked);
+
+                        return OperationResult.Failure(AlreadyApproved);
+                    }
+                }
+
+                var adminRequest = new AdminRequest()
+                {
+                    UserId = userId,
+                    Status = AdminRequestStatus.Pending,
+                    Reason = inputModel.Reason
+                };
+
+                await adminRequestRepo.AddAsync(adminRequest);
+
+                await adminRequestRepo.SaveChangesAsync();
+
+                return OperationResult.Ok();
+            }
+            catch
+            {
+                return OperationResult.Failure(SubmittingFailure);
             }
         }
 

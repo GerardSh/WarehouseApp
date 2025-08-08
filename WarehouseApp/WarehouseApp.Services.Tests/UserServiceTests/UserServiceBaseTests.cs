@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Identity;
 using Moq;
+using Microsoft.AspNetCore.Identity;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -15,6 +15,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
         protected Mock<RoleManager<IdentityRole<Guid>>> roleManager;
         protected Mock<IWarehouseService> warehouseService;
         protected Mock<IApplicationUserWarehouseRepository> appUserWarehouseRepo;
+        protected Mock<IAdminRequestRepository> adminRequestRepo;
         protected UserService userService;
 
         protected static readonly string UserRole = "User";
@@ -44,11 +45,14 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             appUserWarehouseRepo = new Mock<IApplicationUserWarehouseRepository>();
 
+            adminRequestRepo = new Mock<IAdminRequestRepository>();
+
             userService = new UserService(
                 userManager.Object,
                 roleManager.Object,
-                warehouseService.Object,
-                appUserWarehouseRepo.Object);
+                appUserWarehouseRepo.Object,
+                adminRequestRepo.Object,
+                warehouseService.Object);
 
             usersList = new List<ApplicationUser>
             {

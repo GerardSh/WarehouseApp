@@ -16,11 +16,24 @@
             public const string FailedToDeleteUser = "Failed to delete the selected user.";
             public const string DeleteOwnAccount = "You cannot delete your own account.";
             public const string FailedToMarkWarehouse = "Failed to mark warehouse as deleted.";
+
             public const string DeletionFailure = "Fatal error occurred while deleting the user.";
             public const string RemoveRoleFailure = "Fatal error occurred while removing the user role.";
             public const string AssignRoleFailure = "Fatal error occurred while assigning the user role.";
             public const string GetAllUsersFailure = "Fatal error occurred while getting all users.";
             public const string UserExistsFailure = "Fatal error occurred while checking the user.";
+        }
+
+        public static class AdminRequest
+        {
+            public const string RequestReason = "Please provide a reason for your request.";
+            public const string RequestMaxLength = "Request length cannot be longer than 1000 characters.";
+            public const string RequestMinLength = "Request length must be at least 10 characters.";
+            public const string PendingRequest = "Your request is pending approval.";
+            public const string RejectedRequest = "Your request was rejected.";
+            public const string Revoked = "Your admin rights were revoked.";
+            public const string AlreadyApproved = "You are already an administrator.";
+            public const string SubmittingFailure = "Fatal error occurred while submitting the request.";
         }
 
         public static class Warehouse
