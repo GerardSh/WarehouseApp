@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 
 using WarehouseApp.Data.Models;
@@ -93,6 +94,14 @@ namespace WarehouseApp.Services.Tests.WarehouseServiceTests
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(DeletionFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(DeletionFailure)),
+                It.Is<Exception>(ex => ex.Message == "DB down"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

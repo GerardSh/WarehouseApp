@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 
 using WarehouseApp.Data.Models;
@@ -109,6 +110,14 @@ namespace WarehouseApp.Services.Tests.WarehouseServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Database error"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

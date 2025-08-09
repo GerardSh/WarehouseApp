@@ -126,6 +126,12 @@
             public const string CannnotDeleteAllExports = "Cannot delete all exports.";
         }
 
+        public static class ExportData
+        {
+            public const string RetrievingInvoicesFailure = "Fatal error occurred while retrieving the available invoices.";
+            public const string RetrievingProductsFailure = "Fatal error occurred while retrieving the available products.";
+        }
+
         public static class Supplier
         {
             public const string SupplierNameRequired = "Supplier name is required.";

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
 using WarehouseApp.Web.ViewModels.Warehouse;
@@ -27,7 +28,9 @@ namespace WarehouseApp.Services.Data
             UserManager<ApplicationUser> userManager,
             IWarehouseRepository warehouseRepository,
             IApplicationUserWarehouseRepository appUserWarehouseRepo,
-            IImportInvoiceDetailRepository importInvoiceDetailRepository)
+            IImportInvoiceDetailRepository importInvoiceDetailRepository,
+            ILogger<WarehouseService> logger)
+            : base(logger)
         {
             this.userManager = userManager;
             this.warehouseRepo = warehouseRepository;
@@ -38,6 +41,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Retrieves a filtered and paginated list of warehouses for the specified user.
         /// Returns failure if the user is not found.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">The search and pagination filter model.</param>
         /// <param name="userId">The ID of the user whose warehouses are queried.</param>
@@ -136,8 +140,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, RetrievingFailure);
                 return OperationResult.Failure(RetrievingFailure);
             }
         }
@@ -145,6 +150,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Creates a new warehouse for the specified user.
         /// Returns failure if the user is not found or if a warehouse with the same name already exists for the user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">The input model containing warehouse details.</param>
         /// <param name="userId">The ID of the user creating the warehouse.</param>
@@ -185,8 +191,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, CreationFailure);
                 return OperationResult.Failure(CreationFailure);
             }
         }
@@ -195,6 +202,7 @@ namespace WarehouseApp.Services.Data
         /// Retrieves detailed information about a warehouse if it exists and is accessible by the specified user.
         /// Returns failure if the user is not found, the warehouse does not exist or is deleted,
         /// or if the user lacks permission to view the warehouse.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">The ID of the warehouse to retrieve details for.</param>
         /// <param name="userId">The ID of the user requesting the warehouse details.</param>
@@ -253,8 +261,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<WarehouseDetailsViewModel>.Ok(viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, GetModelFailure);
                 return OperationResult<WarehouseDetailsViewModel>.Failure(GetModelFailure);
             }
         }
@@ -263,6 +272,7 @@ namespace WarehouseApp.Services.Data
         /// Retrieves a warehouse for editing if it exists and is owned by the specified user.
         /// Returns failure if the user is not found, the warehouse does not exist,
         /// or the user does not have permission to access it.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">The ID of the warehouse to retrieve.</param>
         /// <param name="userId">The ID of the user requesting the warehouse.</param>
@@ -297,8 +307,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<EditWarehouseInputModel>.Ok(editModel);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, GetModelFailure);
                 return OperationResult<EditWarehouseInputModel>.Failure(GetModelFailure);
             }
         }
@@ -307,6 +318,7 @@ namespace WarehouseApp.Services.Data
         /// Updates the details of a warehouse if the specified user is the owner.
         /// Returns failure if the user is not found, the warehouse does not exist,
         /// the user lacks permission, or if a warehouse with the same name already exists.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">The input model containing updated warehouse data.</param>
         /// <param name="userId">The ID of the user attempting the update.</param>
@@ -342,18 +354,18 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, EditingFailure);
                 return OperationResult.Failure(EditingFailure);
             }
         }
 
-        /// Deletes a warehouse by marking it as deleted if the user is the owner.
-        /// Returns failure if the user or warehouse is not found, or if already deleted.
         /// /// <summary>
         /// Deletes a warehouse by marking it as deleted if the specified user is the owner.
         /// Returns failure if the user or warehouse is not found, if the warehouse is already deleted,
         /// or if the user does not have permission to delete the warehouse.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">The ID of the warehouse to delete.</param>
         /// <param name="userId">The ID of the user attempting the deletion.</param>
@@ -385,8 +397,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, DeletionFailure);
                 return OperationResult.Failure(DeletionFailure);
             }
         }
@@ -395,6 +408,7 @@ namespace WarehouseApp.Services.Data
         /// Forcefully marks a warehouse as deleted without checking ownership.
         /// This is intended for internal system use (e.g., during user cleanup).
         /// Returns failure if the warehouse is not found or is already marked as deleted.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">The ID of the warehouse to mark as deleted.</param>
         /// <returns>An <see cref="OperationResult"/> indicating success or failure.</returns>
@@ -415,8 +429,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, DeletionFailure);
                 return OperationResult.Failure(DeletionFailure);
             }
         }

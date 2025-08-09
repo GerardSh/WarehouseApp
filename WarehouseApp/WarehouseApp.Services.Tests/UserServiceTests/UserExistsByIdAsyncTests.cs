@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
@@ -46,6 +47,14 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(UserExistsFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(UserExistsFailure)),
+                It.Is<Exception>(ex => ex.Message == "Something went wrong"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

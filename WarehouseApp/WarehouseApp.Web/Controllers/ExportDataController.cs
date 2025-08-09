@@ -3,7 +3,11 @@ using System.Security.Claims;
 
 using WarehouseApp.Services.Data.Interfaces;
 
+using static WarehouseApp.Common.OutputMessages.SuccessMessages.ExportData;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
+using WarehouseApp.Common.OutputMessages;
 
 namespace WarehouseApp.Web.Controllers
 {
@@ -39,11 +43,23 @@ namespace WarehouseApp.Web.Controllers
 
             if (!invoiceNumbersResult.Success)
             {
-                logger.LogInformation("No invoices found for warehouse: {WarehouseId}", warehouseId);
-                return Ok(Enumerable.Empty<string>());
+                if (invoiceNumbersResult.ErrorMessage == UserNotFound
+                    || invoiceNumbersResult.ErrorMessage == NoPermissionOrWarehouseNotFound)
+                {
+                    logger.LogInformation(invoiceNumbersResult.ErrorMessage);
+                    return NotFound(invoiceNumbersResult.ErrorMessage);
+                }
+
+                if (invoiceNumbersResult.ErrorMessage == NoInvoicesFound)
+                {
+                    logger.LogInformation(invoiceNumbersResult.ErrorMessage);
+                    return Ok(Enumerable.Empty<string>());
+                }
+
+                return StatusCode(500, invoiceNumbersResult.ErrorMessage);
             }
 
-            logger.LogInformation("Fetched available invoice numbers.");
+            logger.LogInformation(FetchedInvoices);
             return Ok(invoiceNumbersResult.Data);
         }
 
@@ -59,17 +75,31 @@ namespace WarehouseApp.Web.Controllers
                 return Forbid();
             }
 
-            var invoiceNumbersResult = await exportDataService
+            var productsResult = await exportDataService
                 .GetAvailableProductsForInvoiceAsync(warehouseId, userGuid, invoiceNumber);
 
-            if (!invoiceNumbersResult.Success)
+            if (!productsResult.Success)
             {
-                logger.LogWarning("Failed to get products for invoice {InvoiceNumber}: {Error}", invoiceNumber, invoiceNumbersResult.ErrorMessage);
-                return BadRequest(new { error = invoiceNumbersResult.ErrorMessage });
+                if (productsResult.ErrorMessage == UserNotFound
+                    || productsResult.ErrorMessage == NoPermissionOrWarehouseNotFound
+                    || productsResult.ErrorMessage == NoPermissionOrImportInvoiceNotFound)
+                {
+                    logger.LogInformation(productsResult.ErrorMessage);
+                    return NotFound(new { error = productsResult.ErrorMessage });
+                }
+
+                if (productsResult.ErrorMessage == ErrorMessages.ImportInvoice.GetModelFailure
+                    || productsResult.ErrorMessage == ErrorMessages.ExportData.RetrievingProductsFailure)
+                {
+                    return StatusCode(500, new { error = productsResult.ErrorMessage });
+                }
+
+                logger.LogWarning(ErrorMessages.ExportData.RetrievingProductsFailure);
+                return BadRequest(new { error = productsResult.ErrorMessage });
             }
 
-            logger.LogInformation($"Fetched products for invoice: {invoiceNumber}");
-            return Ok(invoiceNumbersResult.Data);
+            logger.LogInformation($"{FetchedProducts} {invoiceNumber}");
+            return Ok(productsResult.Data);
         }
     }
 }

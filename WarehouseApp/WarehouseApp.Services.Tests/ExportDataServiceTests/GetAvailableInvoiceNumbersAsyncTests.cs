@@ -1,10 +1,12 @@
 using Moq;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Services.Data.Dtos.ImportInvoices;
 using WarehouseApp.Services.Data.Models;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportData;
 
 namespace WarehouseApp.Services.Tests.ExportDataServiceTests
 {
@@ -132,6 +134,30 @@ namespace WarehouseApp.Services.Tests.ExportDataServiceTests
             // Assert
             Assert.That(result.Success, Is.True);
             Assert.That(result.Data, Is.EquivalentTo(new[] { invoicesDto[0].InvoiceNumber, invoicesDto[1].InvoiceNumber }));
+        }
+
+        [Test]
+        public async Task ReturnsFailure_WhenExceptionIsThrown()
+        {
+            // Arrange
+            importInvoiceService.Setup(s => s.GetInvoicesByWarehouseIdAsync(warehouseId))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await exportDataService.GetAvailableInvoiceNumbersAsync(warehouseId, userId);
+
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(RetrievingInvoicesFailure));
+
+            logger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(RetrievingInvoicesFailure)),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

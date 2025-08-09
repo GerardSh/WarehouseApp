@@ -7,6 +7,8 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
+using Microsoft.Extensions.Logging;
+using MockQueryable;
 
 namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 {
@@ -51,7 +53,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         {
             // Arrange
             importInvoiceRepo.Setup(r => r.AllTracked())
-                .Returns(new List<ImportInvoice>().AsQueryable().BuildMockDbSet().Object);
+                .Returns(new List<ImportInvoice>().AsQueryable().BuildMock());
 
             // Act
             var result = await importInvoiceService.DeleteImportInvoiceAsync(warehouseId, invoiceId, userId);
@@ -68,7 +70,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             var invoice = new ImportInvoice { Id = invoiceId, WarehouseId = warehouseId, InvoiceNumber = invoiceNumber };
 
             importInvoiceRepo.Setup(r => r.AllTracked())
-                .Returns(new List<ImportInvoice> { invoice }.AsQueryable().BuildMockDbSet().Object);
+                .Returns(new List<ImportInvoice> { invoice }.AsQueryable().BuildMock());
 
             exportInvoiceDetailRepo.Setup(r => r.ExistsAsync(
                 It.IsAny<Expression<Func<ExportInvoiceDetail, bool>>>()))
@@ -89,7 +91,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             var invoice = new ImportInvoice { Id = invoiceId, WarehouseId = warehouseId, InvoiceNumber = invoiceNumber };
 
             importInvoiceRepo.Setup(r => r.AllTracked())
-                .Returns(new List<ImportInvoice> { invoice }.AsQueryable().BuildMockDbSet().Object);
+                .Returns(new List<ImportInvoice> { invoice }.AsQueryable().BuildMock());
 
             exportInvoiceDetailRepo.Setup(r => r.ExistsAsync(It.IsAny<Expression<Func<ExportInvoiceDetail, bool>>>()))
                 .ReturnsAsync(false);
@@ -108,7 +110,12 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         public async Task ShouldReturnFailure_WhenExceptionIsThrown()
         {
             // Arrange
-            importInvoiceRepo.Setup(r => r.SaveChangesAsync())
+            var invoice = new ImportInvoice { Id = invoiceId, WarehouseId = warehouseId, InvoiceNumber = invoiceNumber };
+
+            importInvoiceRepo.Setup(r => r.AllTracked())
+                .Returns(new List<ImportInvoice> { invoice }.AsQueryable().BuildMock());
+
+            exportInvoiceDetailRepo.Setup(r => r.ExistsAsync(It.IsAny<Expression<Func<ExportInvoiceDetail, bool>>>()))
                 .ThrowsAsync(new Exception("Unexpected"));
 
             // Act
@@ -117,6 +124,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(DeletionFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(DeletionFailure)),
+                It.Is<Exception>(ex => ex.Message == "Unexpected"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

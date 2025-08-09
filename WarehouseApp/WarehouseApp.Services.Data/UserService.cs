@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Models.Enums;
@@ -7,8 +8,9 @@ using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.Admin.UserManagement;
-using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
+
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.AdminRequest;
 
 namespace WarehouseApp.Services.Data
@@ -26,7 +28,10 @@ namespace WarehouseApp.Services.Data
             RoleManager<IdentityRole<Guid>> roleManager,
             IApplicationUserWarehouseRepository appUserWarehouseRepo,
             IAdminRequestRepository adminRequestRepo,
-            IWarehouseService warehouseService)
+            IWarehouseService warehouseService,
+            ILogger<UserService> logger
+            )
+            : base(logger)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -39,6 +44,7 @@ namespace WarehouseApp.Services.Data
         /// Retrieves all users along with their roles and fills the provided view model
         /// with paginated and filtered results based on the input criteria.
         /// Validates the requesting user before proceeding.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// A view model containing filtering, pagination, and output data such as total users, current page, and the result list.
@@ -128,14 +134,16 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, GetAllUsersFailure);
                 return OperationResult.Failure(GetAllUsersFailure);
             }
         }
 
         /// <summary>
         /// Checks whether a user with the specified ID exists in the system.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="userId">
         /// The unique identifier of the user to check.
@@ -155,8 +163,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, UserExistsFailure);
                 return OperationResult.Failure(UserExistsFailure);
             }
         }
@@ -164,6 +173,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Assigns a user to a specific role if both the user and role exist,
         /// and the user is not already in that role.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="userId">The ID of the user to assign the role to.</param>
         /// <param name="roleName">The name of the role to assign.</param>
@@ -202,8 +212,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, AssignRoleFailure);
                 return OperationResult.Failure(AssignRoleFailure);
             }
         }
@@ -211,6 +222,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Removes a user from a specific role if both the user and role exist,
         /// and the user is currently assigned to that role.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="userId">The ID of the user to remove the role from.</param>
         /// <param name="roleName">The name of the role to remove.</param>
@@ -249,13 +261,26 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, RemoveRoleFailure);
                 return OperationResult.Failure(RemoveRoleFailure);
             }
         }
 
-        public async Task<OperationResult> SubmitAdminRequestAsync(AdminRequestFormModel inputModel, Guid userId)
+        /// <summary>
+        /// Checks if there is an existing admin request for the specified user.
+        /// Returns failure results based on the status of the request:
+        /// pending, rejected, or approved (including role validation).
+        /// If no request exists or all checks pass, returns success.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
+        /// </summary>
+        /// <param name="userId">The ID of the user to check requests for.</param>
+        /// <returns>
+        /// An <see cref="OperationResult"/> indicating failure with specific messages
+        /// depending on the admin request status or success if no blocking request exists.
+        /// </returns>
+        public async Task<OperationResult> CheckForExistingRequestAsync(Guid userId)
         {
             try
             {
@@ -282,6 +307,30 @@ namespace WarehouseApp.Services.Data
                     }
                 }
 
+                return OperationResult.Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, SubmittingFailure);
+                return OperationResult.Failure(SubmittingFailure);
+            }
+        }
+
+        /// <summary>
+        /// Submits a new admin request for the specified user with the provided reason.
+        /// Saves the request asynchronously.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
+        /// </summary>
+        /// <param name="inputModel">The form model containing the reason for the admin request.</param>
+        /// <param name="userId">The ID of the user submitting the request.</param>
+        /// <returns>
+        /// An <see cref="OperationResult"/> indicating success if the request
+        /// was created and saved successfully; otherwise, failure with an error message.
+        /// </returns>
+        public async Task<OperationResult> SubmitAdminRequestAsync(AdminRequestFormModel inputModel, Guid userId)
+        {
+            try
+            {
                 var adminRequest = new AdminRequest()
                 {
                     UserId = userId,
@@ -295,8 +344,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, SubmittingFailure);
                 return OperationResult.Failure(SubmittingFailure);
             }
         }
@@ -306,6 +356,7 @@ namespace WarehouseApp.Services.Data
         /// the associations are removed. For each warehouse, if no other users are linked to it,
         /// the warehouse is marked as deleted (soft delete).
         /// Changes to warehouses and mappings are saved after the user is deleted.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="userId">The ID of the user to delete.</param>
         /// <returns>
@@ -352,8 +403,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, DeletionFailure);
                 return OperationResult.Failure(DeletionFailure);
             }
         }

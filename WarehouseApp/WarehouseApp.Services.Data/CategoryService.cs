@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -10,7 +11,8 @@ public class CategoryService : BaseService, ICategoryService
 {
     private readonly ICategoryRepository categoryRepo;
 
-    public CategoryService(ICategoryRepository categoryRepo)
+    public CategoryService(ICategoryRepository categoryRepo, ILogger<CategoryService> logger)
+            : base(logger)
     {
         this.categoryRepo = categoryRepo;
     }

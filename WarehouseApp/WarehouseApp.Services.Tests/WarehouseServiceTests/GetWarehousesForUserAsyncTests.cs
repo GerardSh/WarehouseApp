@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using MockQueryable;
 using Moq;
 
@@ -186,6 +187,14 @@ namespace WarehouseApp.Services.Tests.WarehouseServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(RetrievingFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(RetrievingFailure)),
+                It.Is<Exception>(ex => ex.Message == "Simulated failure"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

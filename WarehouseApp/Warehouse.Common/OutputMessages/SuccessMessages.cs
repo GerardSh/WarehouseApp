@@ -23,6 +23,12 @@
             public const string DeletionSuccess = "The Export Invoice was successfully deleted.";
         }
 
+        public static class ExportData
+        {
+            public const string FetchedInvoices = "Fetched available invoice numbers.";
+            public const string FetchedProducts = "Fetched products for invoice:";
+        }
+
         public static class UserManager
         {
             public const string UserDeletionSuccess = "The selected user was successfully deleted.";

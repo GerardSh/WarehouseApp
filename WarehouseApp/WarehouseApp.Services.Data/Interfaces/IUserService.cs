@@ -14,6 +14,8 @@ namespace WarehouseApp.Services.Data.Interfaces
 
         Task<OperationResult> RemoveUserRoleAsync(Guid userId, string roleName);
 
+        Task<OperationResult> CheckForExistingRequestAsync(Guid userId);
+
         Task<OperationResult> SubmitAdminRequestAsync(
             AdminRequestFormModel inputModel, Guid userId);
 

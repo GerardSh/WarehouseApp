@@ -11,6 +11,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
+using Microsoft.Extensions.Logging;
 
 namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 {
@@ -331,6 +332,14 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Client.CreationFailure));
+
+            logger.Verify(l => l.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.Client.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Client creation failed"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -361,6 +370,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Category.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.Category.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "DB error"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+
         }
 
         [Test]
@@ -376,6 +394,14 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Product.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.Product.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Something went wrong"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -423,6 +449,14 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoiceDetail.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ImportInvoiceDetail.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Insert failed"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -461,6 +495,14 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoiceDetail.DeletionFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ImportInvoiceDetail.DeletionFailure)),
+                It.Is<Exception>(ex => ex.Message == "Simulated failure"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -476,6 +518,14 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoice.EditingFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ImportInvoice.EditingFailure)),
+                It.Is<Exception>(ex => ex.Message == "Database error"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]

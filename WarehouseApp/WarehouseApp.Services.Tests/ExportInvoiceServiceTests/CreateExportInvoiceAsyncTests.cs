@@ -1,6 +1,7 @@
 using Moq;
 using MockQueryable;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Web.ViewModels.ExportInvoice;
 using WarehouseApp.Data.Models;
@@ -201,6 +202,14 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Client.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.Client.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Client creation failed"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -279,6 +288,14 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ExportInvoiceDetail.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ExportInvoiceDetail.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "add fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -294,6 +311,13 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ExportInvoice.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ExportInvoice.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "save fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         }
 
         [Test]

@@ -1,4 +1,6 @@
 using Moq;
+using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 
 using WarehouseApp.Web.ViewModels.ImportInvoice;
 using WarehouseApp.Data.Models;
@@ -174,6 +176,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Client.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(ErrorMessages.Client.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "Client creation failed"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -190,6 +201,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Category.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(ErrorMessages.Category.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "category fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -208,6 +228,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Product.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(ErrorMessages.Product.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "product fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
@@ -223,14 +252,24 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoiceDetail.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(ErrorMessages.ImportInvoiceDetail.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "detail fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Test]
-        public async Task ReturnsFailureInvoiceCreationFailure_WhenSaveThrows()
+        public async Task ReturnsFailureInvoiceCreationFailure_WhenExistsAsyncThrows()
         {
             // Arrange
-            importInvoiceRepo.Setup(x => x.SaveChangesAsync())
-                .ThrowsAsync(new Exception("save fail"));
+            importInvoiceRepo.Setup(x => x.ExistsAsync(
+                    It.IsAny<Expression<Func<ImportInvoice, bool>>>()))
+                .ThrowsAsync(new Exception("exists check fail"));
 
             // Act
             var result = await importInvoiceService.CreateImportInvoiceAsync(inputModel, userId);
@@ -238,6 +277,13 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoice.CreationFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.ImportInvoice.CreationFailure)),
+                It.Is<Exception>(ex => ex.Message == "exists check fail"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         }
 
         [Test]

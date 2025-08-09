@@ -1,5 +1,6 @@
-﻿using MockQueryable;
-using Moq;
+﻿using Moq;
+using MockQueryable;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Web.ViewModels.Admin.UserManagement;
@@ -236,6 +237,14 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(GetAllUsersFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(GetAllUsersFailure)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

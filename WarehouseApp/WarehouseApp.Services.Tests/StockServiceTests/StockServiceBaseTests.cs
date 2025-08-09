@@ -1,5 +1,6 @@
 using Moq;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -13,6 +14,7 @@ namespace WarehouseApp.Services.Tests.StockServiceTests
         protected Mock<IImportInvoiceDetailRepository> importInvoiceDetailRepo;
         protected Mock<IExportInvoiceDetailRepository> exportInvoiceDetailRepo;
         protected Mock<IApplicationUserWarehouseRepository> appUserWarehouseRepo;
+        protected Mock<ILogger<StockService>> logger;
 
         protected StockService stockService;
 
@@ -46,11 +48,21 @@ namespace WarehouseApp.Services.Tests.StockServiceTests
             exportInvoiceDetailRepo = new Mock<IExportInvoiceDetailRepository>();
             appUserWarehouseRepo = new Mock<IApplicationUserWarehouseRepository>();
 
+            logger = new Mock<ILogger<StockService>>();
+
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()));
+
             stockService = new StockService(
                 userManager.Object,
                 importInvoiceDetailRepo.Object,
                 exportInvoiceDetailRepo.Object,
-                appUserWarehouseRepo.Object);
+                appUserWarehouseRepo.Object,
+                logger.Object);
 
             warehouse = new Warehouse
             {

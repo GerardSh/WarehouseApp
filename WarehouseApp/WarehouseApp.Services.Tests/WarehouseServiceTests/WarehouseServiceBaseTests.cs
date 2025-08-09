@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 using WarehouseApp.Data.Models;
@@ -14,6 +15,7 @@ namespace WarehouseApp.Services.Tests.WarehouseServiceTests
         protected Mock<IWarehouseRepository> warehouseRepo;
         protected Mock<IApplicationUserWarehouseRepository> appUserWarehouseRepo;
         protected Mock<IImportInvoiceDetailRepository> importInvoiceDetailRepo;
+        protected Mock<ILogger<WarehouseService>> logger;
         protected WarehouseService warehouseService;
 
         protected static readonly Guid userId = Guid.Parse("C994999B-02DD-46C2-ABC4-00C4787E629F");
@@ -36,11 +38,21 @@ namespace WarehouseApp.Services.Tests.WarehouseServiceTests
             appUserWarehouseRepo = new Mock<IApplicationUserWarehouseRepository>();
             importInvoiceDetailRepo = new Mock<IImportInvoiceDetailRepository>();
 
+            logger = new Mock<ILogger<WarehouseService>>();
+
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()));
+
             warehouseService = new WarehouseService(
                 userManager.Object,
                 warehouseRepo.Object,
                 appUserWarehouseRepo.Object,
-                importInvoiceDetailRepo.Object);
+                importInvoiceDetailRepo.Object,
+                logger.Object);
 
             warehousesList = new List<Warehouse>
             {

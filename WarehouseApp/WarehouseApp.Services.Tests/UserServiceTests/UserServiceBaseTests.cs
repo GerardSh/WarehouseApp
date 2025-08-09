@@ -1,5 +1,6 @@
 using Moq;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -16,6 +17,7 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
         protected Mock<IWarehouseService> warehouseService;
         protected Mock<IApplicationUserWarehouseRepository> appUserWarehouseRepo;
         protected Mock<IAdminRequestRepository> adminRequestRepo;
+        protected Mock<ILogger<UserService>> logger;
         protected UserService userService;
 
         protected static readonly string UserRole = "User";
@@ -47,12 +49,22 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
 
             adminRequestRepo = new Mock<IAdminRequestRepository>();
 
+            logger = new Mock<ILogger<UserService>>();
+
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()));
+
             userService = new UserService(
                 userManager.Object,
                 roleManager.Object,
                 appUserWarehouseRepo.Object,
                 adminRequestRepo.Object,
-                warehouseService.Object);
+                warehouseService.Object,
+                logger.Object);
 
             usersList = new List<ApplicationUser>
             {

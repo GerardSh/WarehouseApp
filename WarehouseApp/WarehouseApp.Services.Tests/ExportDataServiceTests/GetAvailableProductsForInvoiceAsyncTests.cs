@@ -1,17 +1,18 @@
 using Moq;
+using Microsoft.Extensions.Logging;
+
 using WarehouseApp.Data.Models;
-using WarehouseApp.Services.Data.Dtos.ImportInvoices;
 using WarehouseApp.Services.Data.Models;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportData;
 
 namespace WarehouseApp.Services.Tests.ExportDataServiceTests
 {
     [TestFixture]
     public class GetAvailableProductsForInvoiceAsyncTests : ExportDataServiceBaseTests
     {
-        List<ProductDto> productsDto;
         ImportInvoice invoice;
 
         [SetUp]
@@ -178,6 +179,33 @@ namespace WarehouseApp.Services.Tests.ExportDataServiceTests
             Assert.That(result.Success, Is.True);
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Empty);
+        }
+
+        [Test]
+        public async Task ReturnsFailureAndLogsError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            var exception = new Exception("Something went wrong");
+
+            userManager
+                .Setup(u => u.FindByIdAsync(It.IsAny<string>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var result = await exportDataService.GetAvailableProductsForInvoiceAsync(warehouseId, userId, invoice.InvoiceNumber);
+
+            // Assert
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo(RetrievingProductsFailure));
+
+            logger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(RetrievingProductsFailure)),
+                    exception,
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

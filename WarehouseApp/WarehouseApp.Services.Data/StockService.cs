@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -23,7 +24,9 @@ public class StockService : BaseService, IStockService
         UserManager<ApplicationUser> userManager,
         IImportInvoiceDetailRepository importInvoiceDetailRepo,
         IExportInvoiceDetailRepository exportInvoiceDetailRepo,
-        IApplicationUserWarehouseRepository appUserWarehouseRepo)
+        IApplicationUserWarehouseRepository appUserWarehouseRepo,
+        ILogger<StockService> logger)
+            : base(logger)
     {
         this.userManager = userManager;
         this.importInvoiceDetailRepo = importInvoiceDetailRepo;
@@ -33,6 +36,7 @@ public class StockService : BaseService, IStockService
 
     /// <summary>
     /// Retrieves a filtered and paginated list of product stock information for a warehouse owned by the specified user.
+    /// In case of an unexpected exception, logs the error and returns a failure result.
     /// </summary>
     /// <param name="inputModel">
     /// The search filter and pagination model containing warehouse ID, product and category queries, pagination settings,
@@ -147,8 +151,9 @@ public class StockService : BaseService, IStockService
 
             return OperationResult.Ok();
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogError(ex, ErrorMessages.Stock.RetrievingFailure);
             return OperationResult.Failure(ErrorMessages.Stock.RetrievingFailure);
         }
     }

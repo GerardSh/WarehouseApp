@@ -1,11 +1,12 @@
 using Moq;
+using MockQueryable;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Services.Data;
-using MockQueryable;
 
 namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 {
@@ -21,6 +22,7 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
         protected Mock<IClientService> clientService;
         protected Mock<ICategoryService> categoryService;
         protected Mock<IProductService> productService;
+        protected Mock<ILogger<ImportInvoiceService>> logger;
 
         protected ImportInvoiceService importInvoiceService;
 
@@ -55,6 +57,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             categoryService = new Mock<ICategoryService>();
             productService = new Mock<IProductService>();
 
+            logger = new Mock<ILogger<ImportInvoiceService>>();
+
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()));
+
             importInvoiceService = new ImportInvoiceService(
                 userManager.Object,
                 importInvoiceRepo.Object,
@@ -63,7 +74,8 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
                 appUserWarehouseRepo.Object,
                 clientService.Object,
                 categoryService.Object,
-                productService.Object);
+                productService.Object,
+                logger.Object);
 
             warehouse = new Warehouse
             {

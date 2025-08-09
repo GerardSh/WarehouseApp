@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Services.Data.Models;
 using WarehouseApp.Web.ViewModels.ImportInvoice;
 using WarehouseApp.Data.Repository.Interfaces;
+using WarehouseApp.Services.Data.Dtos.ImportInvoices;
 
 using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
@@ -15,7 +17,6 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoiceDetail;
-using WarehouseApp.Services.Data.Dtos.ImportInvoices;
 
 namespace WarehouseApp.Services.Data
 {
@@ -39,7 +40,10 @@ namespace WarehouseApp.Services.Data
             IApplicationUserWarehouseRepository appUserWarehouseRepo,
             IClientService clientService,
             ICategoryService categoryService,
-            IProductService productService)
+            IProductService productService,
+            ILogger<ImportInvoiceService> logger
+            )
+            : base(logger)
         {
             this.userManager = userManager;
             this.importInvoiceRepo = importInvoiceRepo;
@@ -53,6 +57,7 @@ namespace WarehouseApp.Services.Data
 
         /// <summary>
         /// Retrieves a filtered and paginated list of import invoices for a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// A model containing filtering, sorting, and pagination options such as search query, supplier name, and year.
@@ -168,14 +173,16 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.RetrievingFailure);
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.RetrievingFailure);
             }
         }
 
         /// <summary>
         /// Creates a new import invoice with associated products for a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// The input model containing invoice details, supplier information, and a list of products to include.
@@ -237,8 +244,9 @@ namespace WarehouseApp.Services.Data
 
                     client = clientResult.Data!;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.Client.CreationFailure);
                     return OperationResult.Failure(ErrorMessages.Client.CreationFailure);
                 }
 
@@ -264,8 +272,9 @@ namespace WarehouseApp.Services.Data
 
                         category = categoryResult.Data!;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.Category.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.Category.CreationFailure);
                     }
 
@@ -280,8 +289,9 @@ namespace WarehouseApp.Services.Data
 
                         product = productResult.Data!;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.Product.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.Product.CreationFailure);
                     }
 
@@ -297,8 +307,9 @@ namespace WarehouseApp.Services.Data
 
                         await importInvoiceDetailRepo.AddAsync(invoiceDetail);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.ImportInvoiceDetail.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.CreationFailure);
                     }
                 }
@@ -308,13 +319,15 @@ namespace WarehouseApp.Services.Data
                     await importInvoiceRepo.SaveChangesAsync();
                     return OperationResult.Ok();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.ImportInvoice.CreationFailure);
                     return OperationResult.Failure(ErrorMessages.ImportInvoice.CreationFailure);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.CreationFailure);
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.CreationFailure);
             }
         }
@@ -322,6 +335,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Retrieves detailed information about a specific import invoice, including supplier and product details,
         /// for a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse where the invoice is located.
@@ -380,8 +394,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<ImportInvoiceDetailsViewModel>.Ok(viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.GetModelFailure);
                 return OperationResult<ImportInvoiceDetailsViewModel>.Failure(ErrorMessages.ImportInvoice.GetModelFailure);
             }
         }
@@ -389,6 +404,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Retrieves an import invoice and its associated product details for editing,
         /// ensuring the invoice belongs to a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse containing the invoice.
@@ -448,8 +464,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<EditImportInvoiceInputModel>.Ok(model);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.GetModelFailure);
                 return OperationResult<EditImportInvoiceInputModel>.Failure(ErrorMessages.ImportInvoice.GetModelFailure);
             }
         }
@@ -457,6 +474,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Updates an existing import invoice and its associated product details for a warehouse owned by the specified user.
         /// Performs validation for duplicates, product exports, and ensures data consistency.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// The input model containing updated invoice and product details.
@@ -527,8 +545,9 @@ namespace WarehouseApp.Services.Data
 
                     client = clientResult.Data!;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.Client.CreationFailure);
                     return OperationResult.Failure(ErrorMessages.Client.CreationFailure);
                 }
 
@@ -572,8 +591,9 @@ namespace WarehouseApp.Services.Data
 
                         category = categoryResult.Data!;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.Category.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.Category.CreationFailure);
                     }
 
@@ -588,8 +608,9 @@ namespace WarehouseApp.Services.Data
 
                         product = productResult.Data!;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.Product.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.Product.CreationFailure);
                     }
 
@@ -630,8 +651,9 @@ namespace WarehouseApp.Services.Data
                             await importInvoiceDetailRepo.AddAsync(invoiceDetail);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.ImportInvoiceDetail.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.CreationFailure);
                     }
                 }
@@ -681,16 +703,18 @@ namespace WarehouseApp.Services.Data
 
                     importInvoiceDetailRepo.DeleteRange(detailsToRemove);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.ImportInvoiceDetail.DeletionFailure);
                     return OperationResult.Failure(ErrorMessages.ImportInvoiceDetail.DeletionFailure);
                 }
 
                 await importInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.EditingFailure);
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.EditingFailure);
             }
         }
@@ -698,6 +722,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Deletes a specific import invoice from a warehouse owned by the specified user,
         /// only if there are no associated export invoices.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse containing the invoice.
@@ -749,8 +774,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.DeletionFailure);
                 return OperationResult.Failure(ErrorMessages.ImportInvoice.DeletionFailure);
             }
         }
@@ -760,6 +786,7 @@ namespace WarehouseApp.Services.Data
         /// including only their basic identifiers and associated import detail IDs.
         /// This method is optimized for lightweight listing and display scenarios,
         /// without loading full navigation properties.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse whose invoices should be retrieved.
@@ -786,12 +813,13 @@ namespace WarehouseApp.Services.Data
                         .ToListAsync();
 
                 if (!invoices.Any())
-                        return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Failure(NoInvoicesFound);
+                    return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Failure(NoInvoicesFound);
 
                 return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Ok(invoices);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.RetrievingFailure);
                 return OperationResult<IEnumerable<ImportInvoiceSummaryDto>>.Failure(ErrorMessages.ImportInvoice.RetrievingFailure);
             }
         }
@@ -801,6 +829,7 @@ namespace WarehouseApp.Services.Data
         /// based on the invoice number and warehouse ID.
         /// This method is intended for detailed inspection or processing scenarios
         /// where complete data is needed (e.g., for linking export operations).
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse that owns the invoice.
@@ -830,8 +859,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<ImportInvoice>.Ok(invoice);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ImportInvoice.GetModelFailure);
                 return OperationResult<ImportInvoice>.Failure(ErrorMessages.ImportInvoice.GetModelFailure);
             }
         }

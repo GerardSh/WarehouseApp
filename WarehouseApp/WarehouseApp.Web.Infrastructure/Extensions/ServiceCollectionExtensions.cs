@@ -3,6 +3,7 @@ using System.Reflection;
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository;
 using WarehouseApp.Data.Repository.Interfaces;
+using WarehouseApp.Services.Data.Interfaces;
 
 namespace WarehouseApp.Web.Infrastructure.Extensions
 {
@@ -74,6 +75,11 @@ namespace WarehouseApp.Web.Infrastructure.Extensions
 
             foreach (Type serviceInterfaceType in serviceInterfaceTypes)
             {
+                if (serviceInterfaceType == typeof(IBaseService))
+                {
+                    continue;
+                }
+
                 Type? serviceType = serviceTypes
                     .SingleOrDefault(t => "i" + t.Name.ToLower() == serviceInterfaceType.Name.ToLower());
                 if (serviceType == null)

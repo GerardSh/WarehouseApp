@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -10,7 +11,8 @@ public class ClientService : BaseService, IClientService
 {
     private readonly IClientRepository clientRepo;
 
-    public ClientService(IClientRepository clientRepo)
+    public ClientService(IClientRepository clientRepo, ILogger<ClientService> logger)
+            : base(logger)
     {
         this.clientRepo = clientRepo;
     }

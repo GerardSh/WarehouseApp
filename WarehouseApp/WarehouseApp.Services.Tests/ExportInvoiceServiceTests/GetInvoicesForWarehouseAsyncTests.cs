@@ -8,6 +8,7 @@ using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportInvoice;
 using static WarehouseApp.Common.Constants.ApplicationConstants;
+using Microsoft.Extensions.Logging;
 
 namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
 {
@@ -217,6 +218,14 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(RetrievingFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(RetrievingFailure)),
+                It.Is<Exception>(ex => ex.Message == "Simulated failure"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         }
     }
 }

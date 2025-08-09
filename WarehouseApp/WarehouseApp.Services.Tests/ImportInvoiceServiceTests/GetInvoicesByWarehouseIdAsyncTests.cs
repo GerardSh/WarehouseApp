@@ -4,6 +4,8 @@ using WarehouseApp.Data.Models;
 using WarehouseApp.Common.OutputMessages;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ImportInvoice;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
 {
@@ -65,6 +67,15 @@ namespace WarehouseApp.Services.Tests.ImportInvoiceServiceTests
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.ImportInvoice.RetrievingFailure));
             Assert.That(result.Data, Is.Null);
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString().Contains(ErrorMessages.ImportInvoice.RetrievingFailure)),
+                It.Is<Exception>(ex => ex.Message == "Database failure"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

@@ -1,5 +1,6 @@
 using Moq;
 using MockQueryable;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 
@@ -85,6 +86,9 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
         public async Task ShouldReturnFailure_WhenExceptionIsThrown()
         {
             // Arrange
+            exportInvoiceRepo.Setup(r => r.AllTracked())
+               .Returns(exportInvoices.AsQueryable().BuildMock());
+
             exportInvoiceRepo.Setup(r => r.SaveChangesAsync())
                 .ThrowsAsync(new Exception("Unexpected"));
 
@@ -94,6 +98,13 @@ namespace WarehouseApp.Services.Tests.ExportInvoiceServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(DeletionFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(DeletionFailure)),
+                It.Is<Exception>(ex => ex.Message == "Unexpected"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         }
     }
 }

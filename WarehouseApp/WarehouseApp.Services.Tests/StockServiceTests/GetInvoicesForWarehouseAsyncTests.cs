@@ -7,6 +7,7 @@ using WarehouseApp.Web.ViewModels.Stock;
 using WarehouseApp.Common.OutputMessages;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
+using Microsoft.Extensions.Logging;
 
 namespace WarehouseApp.Services.Tests.StockServiceTests
 {
@@ -267,6 +268,14 @@ namespace WarehouseApp.Services.Tests.StockServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(ErrorMessages.Stock.RetrievingFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(ErrorMessages.Stock.RetrievingFailure)),
+                It.Is<Exception>(ex => ex.Message == "Simulated failure"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

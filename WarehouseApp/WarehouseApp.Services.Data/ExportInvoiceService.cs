@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Services.Data.Interfaces;
 using WarehouseApp.Data.Models;
@@ -15,6 +16,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Warehouse;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportInvoice;
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.ExportInvoiceDetail;
+
 
 namespace WarehouseApp.Services.Data
 {
@@ -38,7 +40,10 @@ namespace WarehouseApp.Services.Data
             IExportInvoiceDetailRepository exportInvoiceDetailRepo,
             IApplicationUserWarehouseRepository appUserWarehouseRepo,
             IClientService clientService,
-            IStockService stockService)
+            IStockService stockService,
+            ILogger<ExportInvoiceService> logger
+            )
+            : base(logger)
         {
             this.userManager = userManager;
             this.importInvoiceRepo = importInvoiceRepo;
@@ -52,6 +57,7 @@ namespace WarehouseApp.Services.Data
 
         /// <summary>
         /// Retrieves a filtered and paginated list of export invoices for a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// A model containing filtering, sorting, and pagination options such as invoice number, client name, and year.
@@ -167,8 +173,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.RetrievingFailure);
                 return OperationResult.Failure(ErrorMessages.ExportInvoice.RetrievingFailure);
             }
         }
@@ -176,6 +183,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Creates a new export invoice for a specified warehouse and user, including validations, client handling,
         /// stock verification, and invoice detail creation.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// A model containing export invoice data such as invoice number, date, warehouse ID, client details,
@@ -238,8 +246,9 @@ namespace WarehouseApp.Services.Data
 
                     client = clientResult.Data!;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.Client.CreationFailure);
                     return OperationResult.Failure(ErrorMessages.Client.CreationFailure);
                 }
 
@@ -299,8 +308,9 @@ namespace WarehouseApp.Services.Data
 
                         await exportInvoiceDetailRepo.AddAsync(exportDetail);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.LogError(ex, ErrorMessages.ExportInvoiceDetail.CreationFailure);
                         return OperationResult.Failure(ErrorMessages.ExportInvoiceDetail.CreationFailure);
                     }
                 }
@@ -308,14 +318,16 @@ namespace WarehouseApp.Services.Data
                 await exportInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.CreationFailure);
                 return OperationResult.Failure(ErrorMessages.ExportInvoice.CreationFailure);
             }
         }
 
         /// <summary>
         /// Retrieves detailed information about a specific export invoice belonging to a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result. 
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse where the export invoice is located.
@@ -376,14 +388,16 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<ExportInvoiceDetailsViewModel>.Ok(viewModel);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.GetModelFailure);
                 return OperationResult<ExportInvoiceDetailsViewModel>.Failure(ErrorMessages.ExportInvoice.GetModelFailure);
             }
         }
 
         /// <summary>
         /// Retrieves an export invoice and its associated data for editing, ensuring the user has access to the specified warehouse.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse where the export invoice is located.
@@ -442,8 +456,9 @@ namespace WarehouseApp.Services.Data
 
                 return OperationResult<EditExportInvoiceInputModel>.Ok(model);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.GetModelFailure);
                 return OperationResult<EditExportInvoiceInputModel>.Failure(ErrorMessages.ExportInvoice.GetModelFailure);
             }
         }
@@ -451,6 +466,7 @@ namespace WarehouseApp.Services.Data
         /// <summary>
         /// Updates an existing export invoice and its related export details for a warehouse owned by the specified user,
         /// including validations, client updates, stock checks, and handling additions, updates, and deletions of products.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="inputModel">
         /// A model containing updated export invoice data such as invoice number, date, client info, and exported product details.
@@ -521,8 +537,9 @@ namespace WarehouseApp.Services.Data
 
                     client = clientResult.Data!;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.Client.CreationFailure);
                     return OperationResult.Failure(ErrorMessages.Client.CreationFailure);
                 }
 
@@ -608,22 +625,25 @@ namespace WarehouseApp.Services.Data
 
                     exportInvoiceDetailRepo.DeleteRange(detailsToRemove);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, ErrorMessages.ExportInvoiceDetail.DeletionFailure);
                     return OperationResult.Failure(ErrorMessages.ExportInvoiceDetail.DeletionFailure);
                 }
 
                 await exportInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.EditingFailure);
                 return OperationResult.Failure(ErrorMessages.ExportInvoice.EditingFailure);
             }
         }
 
         /// <summary>
         /// Deletes a specific export invoice and its associated export details for a warehouse owned by the specified user.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
         /// </summary>
         /// <param name="warehouseId">
         /// The unique identifier of the warehouse where the export invoice is located.
@@ -665,12 +685,12 @@ namespace WarehouseApp.Services.Data
 
                 exportInvoiceRepo.Delete(exportInvoice);
 
-
                 await exportInvoiceRepo.SaveChangesAsync();
                 return OperationResult.Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, ErrorMessages.ExportInvoice.DeletionFailure);
                 return OperationResult.Failure(ErrorMessages.ExportInvoice.DeletionFailure);
             }
         }

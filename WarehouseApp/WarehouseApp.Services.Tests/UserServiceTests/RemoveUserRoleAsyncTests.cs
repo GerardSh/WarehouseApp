@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 using static WarehouseApp.Common.OutputMessages.ErrorMessages.Application;
@@ -99,6 +100,14 @@ namespace WarehouseApp.Services.Tests.UserServiceTests
             // Assert
             Assert.That(result.Success, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo(RemoveRoleFailure));
+
+            logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(RemoveRoleFailure)),
+                It.Is<Exception>(ex => ex.Message == "Unexpected"),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

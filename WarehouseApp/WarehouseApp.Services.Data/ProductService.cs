@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using WarehouseApp.Data.Models;
 using WarehouseApp.Data.Repository.Interfaces;
@@ -10,7 +11,8 @@ public class ProductService : BaseService, IProductService
 {
     private readonly IProductRepository productRepo;
 
-    public ProductService(IProductRepository productRepo)
+    public ProductService(IProductRepository productRepo, ILogger<ProductService> logger)
+        : base(logger)
     {
         this.productRepo = productRepo;
     }
