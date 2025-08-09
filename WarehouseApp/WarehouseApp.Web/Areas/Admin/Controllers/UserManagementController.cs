@@ -124,7 +124,7 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult AdminRequest()
+        public async Task<IActionResult> AdminRequest()
         {
             string? userId = GetUserId();
             Guid userGuid = Guid.Empty;
@@ -132,6 +132,32 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
             if (validationResult != null)
                 return validationResult;
+
+            var currentPage = TempData.Peek("CurrentPage") as int? ?? 1;
+            var yearFilter = TempData.Peek("YearFilter") as string ?? string.Empty;
+            var searchQuery = TempData.Peek("SearchQuery") as string ?? string.Empty;
+            var entitiesPerPage = TempData.Peek("EntitiesPerPage") as int? ?? 5;
+
+            OperationResult userExists = await userService
+                .UserExistsByIdAsync(userGuid);
+            if (!userExists.Success)
+            {
+                TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), "Warehouse",
+                    new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
+                );
+            }
+
+            OperationResult result =
+                    await userService.CheckForExistingRequestAsync(userGuid);
+
+            if (!result.Success)
+            {
+                TempData["Message"] = result.ErrorMessage;
+                return RedirectToAction(nameof(Index), "Warehouse",
+                    new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
+                );
+            }
 
             var model = new AdminRequestFormModel();
 
@@ -164,6 +190,17 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             if (!userExists.Success)
             {
                 TempData["Message"] = userExists.ErrorMessage;
+                return RedirectToAction(nameof(Index), "Warehouse",
+                    new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
+                );
+            }
+
+            OperationResult existingRequestResult =
+                    await userService.CheckForExistingRequestAsync(userGuid);
+
+            if (!existingRequestResult.Success)
+            {
+                TempData["Message"] = existingRequestResult.ErrorMessage;
                 return RedirectToAction(nameof(Index), "Warehouse",
                     new { area = "", currentPage, searchQuery, yearFilter, entitiesPerPage }
                 );
