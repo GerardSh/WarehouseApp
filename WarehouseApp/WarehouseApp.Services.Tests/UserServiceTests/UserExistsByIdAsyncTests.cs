@@ -7,7 +7,7 @@ using static WarehouseApp.Common.OutputMessages.ErrorMessages.UserManager;
 namespace WarehouseApp.Services.Tests.UserServiceTests
 {
     [TestFixture]
-    public class UserExistsByIdAsync_Tests : UserServiceBaseTests
+    public class UserExistsByIdAsyncTests : UserServiceBaseTests
     {
         [Test]
         public async Task ReturnsSuccess_WhenUserExists()
