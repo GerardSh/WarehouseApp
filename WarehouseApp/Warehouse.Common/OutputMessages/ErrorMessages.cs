@@ -34,6 +34,7 @@
             public const string Revoked = "Your admin rights were revoked.";
             public const string AlreadyApproved = "You are already an administrator.";
             public const string SubmittingFailure = "Fatal error occurred while submitting the request.";
+            public const string GettingFailure = "Fatal error occurred while getting the pending requests.";
         }
 
         public static class Warehouse

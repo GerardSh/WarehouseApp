@@ -10,47 +10,49 @@
         : char.ToUpper(rawUsername[0]) + rawUsername.Substring(1);
 }
 
+<link rel="stylesheet" href="~/css/Admin/pending-admin-requests.css" asp-append-version="true" />
+
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
         <div class="d-flex align-items-center gap-3">
                 <li class="nav-item">
-                <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
-                    Hello @username!
-                </a>
-            </li>
+                    <a class="nav-link text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                        Hello @username!
+                    </a>
+                </li>
 
             @if (await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Administrator"))
             {
-                <li class="nav-item">
-                    <a class="nav-link text-white" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                        Admin Panel
-                    </a>
-                </li>
-            }
-            else
-            {
-            <li class="nav-item">
-                <a class="nav-link text-white" asp-area="Admin" asp-controller="UserManagement" asp-action="AdminRequest">
-                    Request Admin Access
+            <li class="nav-item position-relative">
+                <a id="admin-panel-link" class="nav-link text-white position-relative" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">
+                    Admin Panel
+                    <span id="admin-requests-badge"
+                          class="badge rounded-pill text-dark position-absolute top-0 start-50 translate-middle">
+                        New Requests
+                    </span>
                 </a>
             </li>
             }
+            else
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="UserManagement" asp-action="AdminRequest">
+                        Request Admin Access
+                    </a>
+                </li>
+            }
 
-        <li class="nav-item">
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
-            </form>
-        </li>
+            <li class="nav-item">
+                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+                </form>
+            </li>
         </div>
     }
-    @* else
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-        </li>
-    } *@
 </ul>
+
+@if (SignInManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Administrator"))
+{
+    <script src="~/js/Admin/check-admin-requests.js" asp-append-version="true"></script>
+}

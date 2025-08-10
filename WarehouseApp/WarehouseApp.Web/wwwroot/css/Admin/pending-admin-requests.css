@@ -1,0 +1,29 @@
+﻿#admin-requests-badge {
+    display: none;
+    padding: 0.35em 0.65em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: 50rem;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    background-color: yellow;
+}
+
+.flash-badge {
+    background-color: yellow;
+    animation: flash-bg 2s linear infinite;
+}
+
+@keyframes flash-bg {
+    0%, 100% {
+        background-color: yellow;
+    }
+
+    50% {
+        background-color: red;
+    }
+}

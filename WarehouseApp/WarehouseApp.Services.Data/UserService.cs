@@ -352,6 +352,32 @@ namespace WarehouseApp.Services.Data
         }
 
         /// <summary>
+        /// Asynchronously retrieves the count of admin requests that are currently pending.
+        /// Returns a successful operation result containing the count if the query succeeds.
+        /// In case of an unexpected exception, logs the error and returns a failure result.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="OperationResult{int}"/> containing the number of pending admin requests on success,
+        /// or an error description on failure.
+        /// </returns>
+        public async Task<OperationResult<int>> GetPendingAdminRequestsCountAsync()
+        {
+            try
+            {
+                var count = await adminRequestRepo
+                    .All()
+                    .CountAsync(ar => ar.Status == AdminRequestStatus.Pending);
+
+                return OperationResult<int>.Ok(count);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, GettingFailure);
+                return OperationResult<int>.Failure(GettingFailure);
+            }
+        }
+
+        /// <summary>
         /// Deletes a user by their ID. If the user is associated with any warehouses,
         /// the associations are removed. For each warehouse, if no other users are linked to it,
         /// the warehouse is marked as deleted (soft delete).

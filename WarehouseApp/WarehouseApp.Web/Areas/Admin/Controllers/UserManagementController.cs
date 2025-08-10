@@ -223,6 +223,26 @@ namespace WarehouseApp.Web.Areas.Admin.Controllers
             );
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CheckPendingAdminRequests()
+        {
+            string? userId = GetUserId();
+            Guid userGuid = Guid.Empty;
+
+            IActionResult? validationResult = ValidateUserIdOrRedirect(userId, ref userGuid);
+            if (validationResult != null)
+                return validationResult;
+
+            var result = await userService.GetPendingAdminRequestsCountAsync();
+
+            if (!result.Success)
+            {
+                return Json(new { hasPending = false, count = 0, error = result.ErrorMessage });
+            }
+
+            return Json(new { hasPending = result.Data > 0, count = result.Data });
+        }
+
         [HttpPost]
         public async Task<IActionResult> DeleteUser(string userId)
         {

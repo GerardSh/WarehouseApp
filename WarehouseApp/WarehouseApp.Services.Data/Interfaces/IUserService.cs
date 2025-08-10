@@ -19,6 +19,8 @@ namespace WarehouseApp.Services.Data.Interfaces
         Task<OperationResult> SubmitAdminRequestAsync(
             AdminRequestFormModel inputModel, Guid userId);
 
+        Task<OperationResult<int>> GetPendingAdminRequestsCountAsync();
+
         Task<OperationResult> DeleteUserAsync(Guid userId);
     }
 }
